@@ -1,0 +1,144 @@
+import { supabase } from './supabase';
+
+export interface Workout {
+  id?: string;
+  user_id: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+  duration: number;
+  volume: number;
+  sets_count: number;
+}
+
+export interface WorkoutExercise {
+  id?: string;
+  workout_id: string;
+  user_id: string;
+  exercise_name: string;
+  note: string;
+  order: number;
+}
+
+export interface WorkoutSet {
+  id?: string;
+  workout_exercise_id: string;
+  workout_id: string;
+  user_id: string;
+  exercise_name: string;
+  set_number: number;
+  type: string;
+  kg: number;
+  reps: number;
+  completed: boolean;
+  is_record: boolean;
+}
+
+export const workoutService = {
+  async saveWorkout(
+    workout: Omit<Workout, 'id'>,
+    exercises: Omit<WorkoutExercise, 'id' | 'workout_id'>[],
+    sets: Omit<WorkoutSet, 'id' | 'workout_exercise_id' | 'workout_id'>[][]
+  ) {
+    try {
+      // 1. Insert Workout
+      const { data: workoutData, error: workoutError } = await supabase
+        .from('workouts')
+        .insert(workout)
+        .select()
+        .single();
+
+      if (workoutError) throw workoutError;
+      if (!workoutData) throw new Error('Failed to create workout');
+
+      // 2. Insert Exercises
+      const exercisesWithWorkoutId = exercises.map((ex) => ({
+        ...ex,
+        workout_id: workoutData.id,
+      }));
+
+      const { data: exercisesData, error: exercisesError } = await supabase
+        .from('workout_exercises')
+        .insert(exercisesWithWorkoutId)
+        .select();
+
+      if (exercisesError) throw exercisesError;
+      if (!exercisesData) throw new Error('Failed to create exercises');
+
+      // 3. Insert Sets
+      const allSetsToInsert: Omit<WorkoutSet, 'id'>[] = [];
+      
+      exercisesData.forEach((exData, index) => {
+        const exerciseSets = sets[index];
+        const setsWithIds = exerciseSets.map((set) => ({
+          ...set,
+          workout_exercise_id: exData.id,
+          workout_id: workoutData.id,
+        }));
+        allSetsToInsert.push(...setsWithIds);
+      });
+
+      if (allSetsToInsert.length > 0) {
+        const { error: setsError } = await supabase
+          .from('workout_sets')
+          .insert(allSetsToInsert);
+
+        if (setsError) throw setsError;
+      }
+
+      return workoutData;
+    } catch (error) {
+      console.error('Error saving workout:', error);
+      throw error;
+    }
+  },
+
+  async checkIsNewRecord(userId: string, exerciseName: string, kg: number, reps: number): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('workout_sets')
+        .select('reps')
+        .eq('user_id', userId)
+        .eq('exercise_name', exerciseName)
+        .eq('kg', kg)
+        .eq('completed', true)
+        .order('reps', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        // First time doing this weight, so it's a record if reps > 0
+        return reps > 0;
+      }
+
+      const maxReps = data[0].reps;
+      return reps > maxReps;
+    } catch (error) {
+      console.error('Error checking record:', error);
+      return false;
+    }
+  },
+
+  async getWorkoutHistory(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('workouts')
+        .select(`
+          *,
+          workout_exercises (
+            *,
+            workout_sets (*)
+          )
+        `)
+        .eq('user_id', userId)
+        .order('start_time', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching workout history:', error);
+      return [];
+    }
+  }
+};

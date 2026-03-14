@@ -1,10 +1,39 @@
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { TrendingUp, Camera, Activity, Calendar, Award } from "lucide-react";
+import { TrendingUp, Camera, Activity, Calendar, Award, Clock, Dumbbell, History } from "lucide-react";
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
+import { workoutService } from "../lib/workoutService";
+import { supabase } from "../lib/supabase";
 
 export default function Progress() {
   const { isDark } = useTheme();
+  const [workouts, setWorkouts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const history = await workoutService.getWorkoutHistory(user.id);
+          setWorkouts(history || []);
+        }
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
@@ -61,20 +90,22 @@ export default function Progress() {
           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
             <Activity className={cn("w-6 h-6", isDark ? "text-blue-400" : "text-blue-500")} />
           </div>
-          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>16</span>
+          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{workouts.length}</span>
           <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Buổi tập</span>
         </div>
         
         <div className={cn("p-5 rounded-3xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3", isDark ? "bg-orange-500/20" : "bg-orange-100")}>
-            <Calendar className={cn("w-6 h-6", isDark ? "text-orange-400" : "text-orange-500")} />
+            <Dumbbell className={cn("w-6 h-6", isDark ? "text-orange-400" : "text-orange-500")} />
           </div>
-          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>4</span>
-          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tuần liên tiếp</span>
+          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>
+            {workouts.reduce((acc, w) => acc + (w.volume || 0), 0).toLocaleString()}
+          </span>
+          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tổng Volume (kg)</span>
         </div>
       </motion.div>
 
-      {/* Recent Achievements */}
+      {/* Workout History */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,29 +113,55 @@ export default function Progress() {
         className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
       >
         <h3 className={cn("font-bold flex items-center gap-2 mb-4", isDark ? "text-white" : "text-zinc-900")}>
-          <Award className="w-5 h-5 text-yellow-500" />
-          Thành tích gần đây
+          <History className="w-5 h-5 text-blue-500" />
+          Lịch sử tập luyện
         </h3>
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-2xl", isDark ? "bg-yellow-500/20" : "bg-yellow-100")}>
-              🔥
-            </div>
-            <div>
-              <h4 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Chuỗi 10 ngày</h4>
-              <p className={cn("text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>Tập luyện không nghỉ 10 ngày liên tiếp.</p>
-            </div>
+        
+        {loading ? (
+          <div className="text-center py-8 text-zinc-500">Đang tải dữ liệu...</div>
+        ) : workouts.length === 0 ? (
+          <div className="text-center py-8 text-zinc-500">Chưa có dữ liệu tập luyện.</div>
+        ) : (
+          <div className="space-y-4">
+            {workouts.map((workout) => (
+              <div key={workout.id} className={cn("p-4 rounded-2xl border", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h4 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{workout.name}</h4>
+                    <div className={cn("text-xs mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                      {new Date(workout.start_time).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-blue-500 font-bold">{formatTime(workout.duration)}</div>
+                    <div className={cn("text-xs", isDark ? "text-zinc-500" : "text-zinc-400")}>{workout.sets_count} sets</div>
+                  </div>
+                </div>
+                
+                {/* Show records if any */}
+                {workout.workout_exercises?.map((ex: any) => {
+                  const records = ex.workout_sets?.filter((s: any) => s.is_record);
+                  if (records && records.length > 0) {
+                    return (
+                      <div key={ex.id} className="mt-3 pt-3 border-t border-dashed border-zinc-200 dark:border-zinc-800">
+                        <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{ex.exercise_name}</div>
+                        <div className="flex flex-wrap gap-2">
+                          {records.map((record: any) => (
+                            <span key={record.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400 text-xs font-bold">
+                              <Award className="w-3 h-3" />
+                              {record.kg}kg x {record.reps}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ))}
           </div>
-          <div className="flex items-center gap-4">
-            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-2xl", isDark ? "bg-white/20" : "bg-zinc-200")}>
-              💪
-            </div>
-            <div>
-              <h4 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Kỷ lục Plank</h4>
-              <p className={cn("text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>Giữ plank 2 phút 30 giây.</p>
-            </div>
-          </div>
-        </div>
+        )}
       </motion.div>
     </div>
   );

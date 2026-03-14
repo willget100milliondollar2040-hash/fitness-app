@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDown, Clock, MoreVertical, Plus, Check, Trash2, X, Search, Trophy, RotateCcw, Home, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
+import { workoutService } from "../lib/workoutService";
+import { supabase } from "../lib/supabase";
 
 export type SetType = {
   id: string;
@@ -437,6 +439,8 @@ export default function ActiveWorkout() {
   const [isResting, setIsResting] = useState<boolean>(false);
   const [defaultRestTime, setDefaultRestTime] = useState<number>(90);
   const { isDark } = useTheme();
+  const [newRecords, setNewRecords] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -568,7 +572,8 @@ export default function ActiveWorkout() {
     return { volume, setsCount };
   }, [exercises]);
 
-  const toggleSet = (exerciseId: string, setId: string) => {
+  const toggleSet = async (exerciseId: string, setId: string) => {
+    // Optimistically update UI
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id === exerciseId) {
@@ -589,6 +594,38 @@ export default function ActiveWorkout() {
         return ex;
       })
     );
+
+    // Check for new record in background
+    const exercise = exercises.find(ex => ex.id === exerciseId);
+    const set = exercise?.sets.find(s => s.id === setId);
+    
+    if (exercise && set && !set.completed) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const isRecord = await workoutService.checkIsNewRecord(
+          user.id,
+          exercise.name,
+          parseFloat(set.kg) || 0,
+          parseInt(set.reps) || 0
+        );
+        if (isRecord) {
+          setNewRecords(prev => ({ ...prev, [setId]: true }));
+        } else {
+          setNewRecords(prev => {
+            const next = { ...prev };
+            delete next[setId];
+            return next;
+          });
+        }
+      }
+    } else if (set && set.completed) {
+      // If unchecking, remove record status
+      setNewRecords(prev => {
+        const next = { ...prev };
+        delete next[setId];
+        return next;
+      });
+    }
   };
 
   const updateSet = (exerciseId: string, setId: string, field: "kg" | "reps", value: string) => {
@@ -687,13 +724,56 @@ export default function ActiveWorkout() {
     setShowSummary(false);
   };
 
-  const handleFinishAndGoHome = () => {
-    const resetExercises = exercises.map(ex => ({
-      ...ex,
-      sets: ex.sets.map(s => ({ ...s, completed: false }))
-    }));
-    localStorage.setItem(storageKey, JSON.stringify(resetExercises));
-    navigate("/");
+  const handleFinishAndGoHome = async () => {
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Prepare data for Supabase
+        const workoutData = {
+          user_id: user.id,
+          name: id ? `Workout ${id}` : 'Custom Workout',
+          start_time: new Date(workoutStartTime).toISOString(),
+          end_time: new Date().toISOString(),
+          duration: workoutDuration,
+          volume: stats.volume,
+          sets_count: stats.setsCount,
+        };
+
+        const exercisesData = exercises.map((ex, index) => ({
+          user_id: user.id,
+          exercise_name: ex.name,
+          note: ex.note || '',
+          order: index,
+        }));
+
+        const setsData = exercises.map(ex => 
+          ex.sets.map((set, index) => ({
+            user_id: user.id,
+            exercise_name: ex.name,
+            set_number: index + 1,
+            type: set.type,
+            kg: parseFloat(set.kg) || 0,
+            reps: parseInt(set.reps) || 0,
+            completed: set.completed,
+            is_record: !!newRecords[set.id],
+          }))
+        );
+
+        await workoutService.saveWorkout(workoutData, exercisesData, setsData);
+      }
+    } catch (error) {
+      console.error("Failed to save workout to Supabase:", error);
+      // Fallback to local storage or show error? For now, proceed to clear and go home
+    } finally {
+      setIsSaving(false);
+      const resetExercises = exercises.map(ex => ({
+        ...ex,
+        sets: ex.sets.map(s => ({ ...s, completed: false }))
+      }));
+      localStorage.setItem(storageKey, JSON.stringify(resetExercises));
+      navigate("/");
+    }
   };
 
   return (
@@ -851,7 +931,12 @@ export default function ActiveWorkout() {
                             )}
                           />
                         </div>
-                        <div className="w-10 flex justify-center">
+                        <div className="w-10 flex justify-center relative">
+                          {newRecords[set.id] && (
+                            <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[8px] font-bold px-1 py-0.5 rounded-sm whitespace-nowrap z-10 animate-in zoom-in">
+                              NEW RECORD
+                            </div>
+                          )}
                           <button
                             onClick={() => toggleSet(exercise.id, set.id)}
                             className={cn(
@@ -1067,9 +1152,10 @@ export default function ActiveWorkout() {
             <div className="space-y-3 relative z-10">
               <button
                 onClick={handleFinishAndGoHome}
-                className="w-full py-4 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-md shadow-blue-500/20"
+                disabled={isSaving}
+                className="w-full py-4 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50"
               >
-                <Home className="w-5 h-5" /> Hoàn tất & Về nhà
+                <Home className="w-5 h-5" /> {isSaving ? "Đang lưu..." : "Hoàn tất & Về nhà"}
               </button>
               <button
                 onClick={handleRestartRoutine}

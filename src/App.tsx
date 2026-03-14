@@ -22,14 +22,8 @@ import { Session } from "@supabase/supabase-js";
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const isConfigured = !!import.meta.env.VITE_SUPABASE_URL && !!import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   useEffect(() => {
-    if (!isConfigured) {
-      setLoading(false);
-      return;
-    }
-
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
@@ -42,26 +36,13 @@ export default function App() {
     });
 
     return () => subscription.unsubscribe();
-  }, [isConfigured]);
+  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
       </div>
-    );
-  }
-
-  if (!isConfigured) {
-    return (
-      <ThemeProvider>
-        <div className="min-h-screen flex items-center justify-center bg-black p-6 text-center">
-          <div className="max-w-md space-y-4">
-            <h1 className="text-2xl font-bold text-white">Cấu hình Supabase chưa hoàn tất</h1>
-            <p className="text-zinc-400">Vui lòng thiết lập VITE_SUPABASE_URL và VITE_SUPABASE_ANON_KEY trong phần Settings để bắt đầu.</p>
-          </div>
-        </div>
-      </ThemeProvider>
     );
   }
 
