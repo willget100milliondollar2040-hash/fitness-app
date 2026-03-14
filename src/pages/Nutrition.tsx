@@ -7,10 +7,26 @@ import { cn } from "@/lib/utils";
 
 export default function Nutrition() {
   const [targetCalories, setTargetCalories] = useState(2000);
-  const [meals, setMeals] = useState([
-    { time: "Sáng", name: "Phở bò", cal: 450, protein: 20, carbs: 60, fat: 15, img: "https://picsum.photos/seed/pho/150/150" },
-    { time: "Trưa", name: "Cơm tấm sườn", cal: 600, protein: 30, carbs: 70, fat: 20, img: "https://picsum.photos/seed/comtam/150/150" },
-  ]);
+  const [meals, setMeals] = useState<any[]>(() => {
+    const savedNutrition = localStorage.getItem("nutritionData");
+    const today = new Date().toDateString();
+    if (savedNutrition) {
+      try {
+        const { date, savedMeals } = JSON.parse(savedNutrition);
+        if (date === today) {
+          return savedMeals || [];
+        }
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    const today = new Date().toDateString();
+    localStorage.setItem("nutritionData", JSON.stringify({ date: today, savedMeals: meals }));
+  }, [meals]);
   const [isLoading, setIsLoading] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);

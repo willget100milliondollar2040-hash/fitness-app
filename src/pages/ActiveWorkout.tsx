@@ -970,6 +970,13 @@ export default function ActiveWorkout() {
           >
             <Plus className="w-5 h-5" /> Thêm bài tập
           </button>
+
+          <button
+            onClick={() => setShowSummary(true)}
+            className="w-full py-4 mt-4 rounded-3xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+          >
+            <Check className="w-6 h-6" /> Hoàn thành buổi tập
+          </button>
         </div>
       </main>
 
