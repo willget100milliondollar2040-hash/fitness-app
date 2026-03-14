@@ -36,7 +36,9 @@ export default function Nutrition() {
         const height = parseFloat(parsed.height) || 170;
         const age = parseInt(parsed.age) || 25;
         const gender = parsed.gender || "Nam";
-        const goal = parsed.goal || "";
+        const mainGoal = parsed.mainGoal || "";
+        const diet = parsed.diet || "";
+        const frequency = parsed.frequency || "";
 
         // Mifflin-St Jeor Equation
         let bmr = (10 * weight) + (6.25 * height) - (5 * age);
@@ -49,17 +51,36 @@ export default function Nutrition() {
           bmr -= 78;
         }
 
-        // TDEE (Assume moderately active)
-        let tdee = bmr * 1.55;
-
-        // Adjust based on goal
-        if (goal.includes("Giảm mỡ")) {
-          tdee -= 500;
-        } else if (goal.includes("Tăng cơ")) {
-          tdee += 300;
+        // Activity Multiplier based on frequency
+        let activityMultiplier = 1.55; // default moderately active
+        if (frequency.includes("2–3")) {
+          activityMultiplier = 1.375; // Lightly active
+        } else if (frequency.includes("3–4")) {
+          activityMultiplier = 1.55; // Moderately active
+        } else if (frequency.includes("5–6")) {
+          activityMultiplier = 1.725; // Very active
         }
 
-        setTargetCalories(Math.round(tdee));
+        // TDEE
+        let tdee = bmr * activityMultiplier;
+
+        // Adjust based on goal and diet
+        let calorieAdjustment = 0;
+        
+        if (diet.includes("giảm cân") || diet.includes("Giảm cân")) {
+          calorieAdjustment = -500;
+        } else if (diet.includes("bulk") || diet.includes("tăng cân")) {
+          calorieAdjustment = 500; // Standard surplus for weight gain
+        } else {
+          // Fallback to mainGoal if diet is normal
+          if (mainGoal.includes("Giảm mỡ")) {
+            calorieAdjustment = -500;
+          } else if (mainGoal.includes("Build muscle") || mainGoal.includes("Tăng cơ")) {
+            calorieAdjustment = 300; // Lean bulk surplus
+          }
+        }
+
+        setTargetCalories(Math.round(tdee + calorieAdjustment));
       } catch (e) {
         console.error("Error parsing onboarding data", e);
       }
