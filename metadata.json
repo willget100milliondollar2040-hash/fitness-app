@@ -1,0 +1,5 @@
+{
+  "name": "BuddyFit VN",
+  "description": "AI-powered personal fitness coach tailored for Vietnamese users with buddy tracking and nutrition.",
+  "requestFramePermissions": ["camera"]
+}
