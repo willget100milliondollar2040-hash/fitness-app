@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 
 const steps = [
-  { id: "mainGoal", title: "Mục tiêu chính của bạn là gì?" },
-  { id: "level", title: "Level hiện tại" },
-  { id: "frequency", title: "Tần suất tập luyện" },
-  { id: "calisthenicsGoals", title: "Mục tiêu calisthenics" },
-  { id: "profile", title: "Thông tin cơ thể" },
+  { id: "mainGoal", title: "What is your main goal?" },
+  { id: "level", title: "Current level" },
+  { id: "frequency", title: "Workout frequency" },
+  { id: "calisthenicsGoals", title: "Calisthenics goals" },
+  { id: "profile", title: "Body profile" },
   { id: "timeframe", title: "Body goal timeframe" },
-  { id: "diet", title: "Chế độ ăn hiện tại" },
+  { id: "diet", title: "Current diet" },
 ];
 
 export default function Onboarding() {
@@ -77,13 +77,13 @@ export default function Onboarding() {
       case 0:
         const mainGoals = [
           "Build muscle 💪",
-          "Giảm mỡ 🔥",
-          "Tăng sức mạnh calisthenics",
-          "Giữ dáng / fitness chung"
+          "Lose fat 🔥",
+          "Increase calisthenics strength",
+          "Stay fit / general fitness"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(đây là câu quan trọng nhất)</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(this is the most important question)</p>
             {mainGoals.map((goal) => (
               <button
                 key={goal}
@@ -102,13 +102,13 @@ export default function Onboarding() {
         );
       case 1:
         const levels = [
-          "Beginner (không tập được pull up)",
-          "Intermediate (5–10 pull up)",
-          "Advanced (10+ pull up / skill)"
+          "Beginner (can't do a pull up)",
+          "Intermediate (5–10 pull ups)",
+          "Advanced (10+ pull ups / skills)"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>để tránh bài tập quá khó</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>to avoid exercises that are too hard</p>
             {levels.map((level) => (
               <button
                 key={level}
@@ -127,13 +127,13 @@ export default function Onboarding() {
         );
       case 2:
         const frequencies = [
-          "2–3 buổi",
-          "3–4 buổi",
-          "5–6 buổi"
+          "2–3 times",
+          "3–4 times",
+          "5–6 times"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn tập được bao nhiêu lần mỗi tuần và bao nhiêu phút mỗi buổi?</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>How many times per week and how many minutes per session?</p>
             {frequencies.map((freq) => (
               <button
                 key={freq}
@@ -156,12 +156,12 @@ export default function Onboarding() {
           "Muscle up",
           "Front lever",
           "Handstand",
-          "có cơ thể khoẻ hơn",
+          "Get stronger",
           "Planche"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(chọn nhiều)</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(select multiple)</p>
             {caliGoals.map((goal) => {
               const isSelected = answers.calisthenicsGoals.includes(goal);
               return (
@@ -185,7 +185,7 @@ export default function Onboarding() {
       case 4:
         return (
           <div className="space-y-6">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>để tính TDEE và calories</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>to calculate TDEE and calories</p>
             <div className="space-y-4">
               <div>
                 <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Height (cm)</label>
@@ -222,13 +222,13 @@ export default function Onboarding() {
         );
       case 5:
         const timeframes = [
-          "1–3 tháng",
-          "3–6 tháng",
-          "1 năm"
+          "1–3 months",
+          "3–6 months",
+          "1 year"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>→ giúp app đặt progress target</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>→ helps the app set progress targets</p>
             {timeframes.map((timeframe) => (
               <button
                 key={timeframe}
@@ -247,10 +247,10 @@ export default function Onboarding() {
         );
       case 6:
         const diets = [
-          "Ăn bình thường",
-          "Đang giảm cân",
-          "Đang bulk tăng cân",
-          "Ăn chay"
+          "Normal diet",
+          "Losing weight",
+          "Bulking / gaining weight",
+          "Vegetarian / Vegan"
         ];
         return (
           <div className="space-y-3">
@@ -326,7 +326,7 @@ export default function Onboarding() {
           disabled={!isStepValid()}
           className="w-full bg-black dark:bg-white dark:text-black text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-black dark:bg-white dark:text-black transition-all shadow-[0_4px_14px_rgba(0,0,0,0.3)] dark:shadow-[0_4px_14px_rgba(255,255,255,0.3)] disabled:shadow-none"
         >
-          {currentStep === steps.length - 1 ? "Hoàn thành & Nhận lịch tập" : "Tiếp tục"}
+          {currentStep === steps.length - 1 ? "Finish & Get Plan" : "Continue"}
           {currentStep < steps.length - 1 && <ChevronRight className="w-5 h-5" />}
         </button>
       </div>

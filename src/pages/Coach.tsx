@@ -32,7 +32,7 @@ export default function Coach() {
       const onboardingDataStr = localStorage.getItem("onboardingData");
       if (onboardingDataStr) {
         const data = JSON.parse(onboardingDataStr);
-        const initMsg = `Chào Coach, đây là thông tin của mình:\n1. Phong cách: ${data.style}\n2. Mục tiêu: ${data.goal}\n3. Thời gian: ${data.time}\n4. Trình độ: ${data.level}\n5. Tuổi/Giới tính: ${data.age} tuổi, ${data.gender}\n6. Năng lượng: ${data.energy}\n\nHãy tạo lịch tập 7 ngày cho mình nhé!`;
+        const initMsg = `Hi Coach, here is my information:\n1. Main Goal: ${data.mainGoal}\n2. Current Level: ${data.level}\n3. Workout Frequency: ${data.frequency}\n4. Calisthenics Goals: ${data.calisthenicsGoals.join(", ")}\n5. Body Profile: ${data.height}cm, ${data.weight}kg, ${data.age} years old\n6. Timeframe: ${data.timeframe}\n7. Current Diet: ${data.diet}\n\nPlease create a personalized workout schedule and nutrition advice for me!`;
         
         handleSendInitial(session, initMsg);
       } else {
@@ -40,7 +40,7 @@ export default function Coach() {
           {
             id: "init",
             role: "model",
-            text: "Chào bạn! Mình là BuddyFit AI Coach. Để mình có thể thiết kế lịch tập phù hợp nhất cho bạn, hãy cho mình biết 6 thông tin sau nhé:\n\n1. Bạn muốn tập theo phong cách nào? (A. Calisthenics / B. Gym)\n2. Mục tiêu chính của bạn trong 3 tháng tới là gì?\n3. Bạn có bao nhiêu thời gian mỗi buổi tập?\n4. Trình độ hiện tại của bạn?\n5. Tuổi và giới tính của bạn?\n6. Hôm nay bạn cảm thấy mức năng lượng thế nào?",
+            text: "Hello! I am BuddyFit AI Coach. To help me design the best workout schedule for you, please complete the onboarding process or tell me about your goals, fitness level, and schedule.",
           },
         ]);
       }
@@ -71,7 +71,7 @@ export default function Coach() {
       console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
-        { id: "error", role: "model", text: "Xin lỗi, mình đang gặp chút sự cố kết nối. Bạn thử lại sau nhé!" },
+        { id: "error", role: "model", text: "Sorry, I'm having some connection issues. Please try again later!" },
       ]);
     } finally {
       setIsLoading(false);
@@ -98,7 +98,7 @@ export default function Coach() {
       console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
-        { id: "error", role: "model", text: "Xin lỗi, mình đang gặp chút sự cố kết nối. Bạn thử lại sau nhé!" },
+        { id: "error", role: "model", text: "Sorry, I'm having some connection issues. Please try again later!" },
       ]);
     } finally {
       setIsLoading(false);
@@ -148,7 +148,7 @@ export default function Coach() {
             </div>
             <div className={cn("px-5 py-4 rounded-2xl border rounded-tl-sm shadow-sm flex items-center gap-2", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
               <Loader2 className={cn("w-4 h-4 animate-spin", isDark ? "text-white" : "text-black")} />
-              <span className={cn("text-sm font-medium", isDark ? "text-zinc-400" : "text-zinc-500")}>Đang suy nghĩ...</span>
+              <span className={cn("text-sm font-medium", isDark ? "text-zinc-400" : "text-zinc-500")}>Thinking...</span>
             </div>
           </div>
         )}
@@ -162,7 +162,7 @@ export default function Coach() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Nhập câu trả lời của bạn..."
+            placeholder="Type your message..."
             className={cn("w-full rounded-full pl-5 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-zinc-500/50 transition-all", isDark ? "bg-[#1c1c1e] text-white placeholder:text-zinc-500" : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400")}
             disabled={isLoading}
           />

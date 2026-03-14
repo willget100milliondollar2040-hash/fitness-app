@@ -40,9 +40,9 @@ export default function Progress() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
           <TrendingUp className="w-6 h-6 text-black dark:text-white" />
-          Tiến độ
+          Progress
         </h2>
-        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi sự thay đổi của bạn mỗi ngày.</p>
+        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Track your daily changes.</p>
       </motion.div>
 
       {/* Body Photos */}
@@ -55,25 +55,25 @@ export default function Progress() {
         <div className="flex justify-between items-center mb-4">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
             <Camera className="w-5 h-5 text-black dark:text-white" />
-            Ảnh Body Hàng Tuần
+            Weekly Body Photos
           </h3>
-          <button className="text-sm text-black dark:text-white font-medium hover:underline">Thêm ảnh</button>
+          <button className="text-sm text-black dark:text-white font-medium hover:underline">Add photo</button>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className={cn("relative rounded-2xl overflow-hidden border shadow-inner", isDark ? "border-zinc-800 bg-zinc-900" : "border-zinc-100 bg-zinc-50")}>
             <img src="https://picsum.photos/seed/before/300/400" alt="Before" className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-              <span className="text-white text-xs font-bold uppercase tracking-wider">Tuần 1</span>
+              <span className="text-white text-xs font-bold uppercase tracking-wider">Week 1</span>
             </div>
           </div>
           <div className="relative rounded-2xl overflow-hidden border-2 border-black dark:border-white shadow-lg">
             <img src="https://picsum.photos/seed/after/300/400" alt="After" className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
             <div className="absolute top-2 right-2 bg-black dark:bg-white dark:text-black text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-              Mới nhất
+              Latest
             </div>
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-              <span className="text-white text-xs font-bold uppercase tracking-wider">Tuần 4</span>
+              <span className="text-white text-xs font-bold uppercase tracking-wider">Week 4</span>
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function Progress() {
             <Activity className={cn("w-6 h-6", isDark ? "text-blue-400" : "text-blue-500")} />
           </div>
           <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{workouts.length}</span>
-          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Buổi tập</span>
+          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Workouts</span>
         </div>
         
         <div className={cn("p-5 rounded-3xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
@@ -101,7 +101,7 @@ export default function Progress() {
           <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>
             {workouts.reduce((acc, w) => acc + (w.volume || 0), 0).toLocaleString()}
           </span>
-          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tổng Volume (kg)</span>
+          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Total Volume (kg)</span>
         </div>
       </motion.div>
 
@@ -114,13 +114,13 @@ export default function Progress() {
       >
         <h3 className={cn("font-bold flex items-center gap-2 mb-4", isDark ? "text-white" : "text-zinc-900")}>
           <History className="w-5 h-5 text-blue-500" />
-          Lịch sử tập luyện
+          Workout History
         </h3>
         
         {loading ? (
-          <div className="text-center py-8 text-zinc-500">Đang tải dữ liệu...</div>
+          <div className="text-center py-8 text-zinc-500">Loading data...</div>
         ) : workouts.length === 0 ? (
-          <div className="text-center py-8 text-zinc-500">Chưa có dữ liệu tập luyện.</div>
+          <div className="text-center py-8 text-zinc-500">No workout data yet.</div>
         ) : (
           <div className="space-y-4">
             {workouts.map((workout) => (
@@ -129,7 +129,7 @@ export default function Progress() {
                   <div>
                     <h4 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{workout.name}</h4>
                     <div className={cn("text-xs mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                      {new Date(workout.start_time).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      {new Date(workout.start_time).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                   </div>
                   <div className="text-right">

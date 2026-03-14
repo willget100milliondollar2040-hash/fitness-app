@@ -122,10 +122,10 @@ export default function CreateRoutine() {
 
     const existingRoutinesStr = localStorage.getItem("routines");
     const defaultRoutines = [
-      { id: "push", title: "Push Day", subtitle: "Ngực, Vai, Tay sau", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
-      { id: "pull", title: "Pull Day", subtitle: "Lưng, Tay trước", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
-      { id: "legs", title: "Leg Day", subtitle: "Đùi, Mông, Bắp chân", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
-      { id: "fullbody", title: "Full Body", subtitle: "Toàn thân", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
+      { id: "push", title: "Push Day", subtitle: "Chest, Shoulders, Triceps", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
+      { id: "pull", title: "Pull Day", subtitle: "Back, Biceps", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
+      { id: "legs", title: "Leg Day", subtitle: "Quads, Hamstrings, Calves", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
+      { id: "fullbody", title: "Full Body", subtitle: "Full Body", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
     ];
     const existingRoutines = existingRoutinesStr ? JSON.parse(existingRoutinesStr) : defaultRoutines;
 
@@ -338,7 +338,7 @@ export default function CreateRoutine() {
         <div className={cn("absolute inset-0 z-50 flex flex-col", isDark ? "bg-black" : "bg-zinc-50")}>
           <header className={cn("px-4 py-4 border-b flex flex-col gap-3 shadow-sm z-10", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
             <div className="flex items-center justify-between">
-              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Chọn bài tập</h2>
+              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Select Exercise</h2>
               <button onClick={() => { setShowAddExercise(false); setSearchQuery(""); }} className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}>
                 <X className="w-5 h-5" />
               </button>
@@ -347,7 +347,7 @@ export default function CreateRoutine() {
               <Search className={cn("w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2", isDark ? "text-zinc-500" : "text-zinc-400")} />
               <input 
                 type="text"
-                placeholder="Tìm kiếm trong 200+ bài tập..."
+                placeholder="Search 200+ exercises..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn("w-full pl-10 pr-4 py-2.5 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl transition-all outline-none", isDark ? "bg-zinc-800 text-white placeholder:text-zinc-500 focus:bg-zinc-900" : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400 focus:bg-white")}
@@ -357,7 +357,7 @@ export default function CreateRoutine() {
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {filteredDB.length === 0 ? (
               <div className={cn("text-center py-10", isDark ? "text-zinc-500" : "text-zinc-500")}>
-                Không tìm thấy bài tập nào phù hợp.
+                No exercises found.
               </div>
             ) : (
               filteredDB.map((group) => (
@@ -365,7 +365,7 @@ export default function CreateRoutine() {
                   <div className="flex items-center justify-between mb-3 px-1">
                     <h3 className={cn("font-bold text-sm uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>{group.category}</h3>
                     {!searchQuery.trim() && (
-                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Hiển thị 5 bài</span>
+                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Showing 5 items</span>
                     )}
                   </div>
                   <div className="space-y-2">

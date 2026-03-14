@@ -27,6 +27,25 @@ export default function Nutrition() {
     const today = new Date().toDateString();
     localStorage.setItem("nutritionData", JSON.stringify({ date: today, savedMeals: meals }));
   }, [meals]);
+
+  // Check for new day while app is open
+  useEffect(() => {
+    const checkNewDay = setInterval(() => {
+      const today = new Date().toDateString();
+      const savedNutrition = localStorage.getItem("nutritionData");
+      if (savedNutrition) {
+        try {
+          const { date } = JSON.parse(savedNutrition);
+          if (date !== today) {
+            setMeals([]);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    }, 60000); // Check every minute
+    return () => clearInterval(checkNewDay);
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -37,7 +56,7 @@ export default function Nutrition() {
     protein: "",
     carbs: "",
     fat: "",
-    time: "Bữa phụ"
+    time: "Snack"
   });
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -51,19 +70,19 @@ export default function Nutrition() {
         const weight = parseFloat(parsed.weight) || 65;
         const height = parseFloat(parsed.height) || 170;
         const age = parseInt(parsed.age) || 25;
-        const gender = parsed.gender || "Nam";
+        const gender = parsed.gender || "Male";
         const mainGoal = parsed.mainGoal || "";
         const diet = parsed.diet || "";
         const frequency = parsed.frequency || "";
 
         // Mifflin-St Jeor Equation
         let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-        if (gender === "Nam") {
+        if (gender === "Male") {
           bmr += 5;
-        } else if (gender === "Nữ") {
+        } else if (gender === "Female") {
           bmr -= 161;
         } else {
-          // Average for "Khác"
+          // Average for "Other"
           bmr -= 78;
         }
 
@@ -83,15 +102,15 @@ export default function Nutrition() {
         // Adjust based on goal and diet
         let calorieAdjustment = 0;
         
-        if (diet.includes("giảm cân") || diet.includes("Giảm cân")) {
+        if (diet.includes("Losing weight")) {
           calorieAdjustment = -500;
-        } else if (diet.includes("bulk") || diet.includes("tăng cân")) {
+        } else if (diet.includes("Bulking")) {
           calorieAdjustment = 500; // Standard surplus for weight gain
         } else {
           // Fallback to mainGoal if diet is normal
-          if (mainGoal.includes("Giảm mỡ")) {
+          if (mainGoal.includes("Lose fat")) {
             calorieAdjustment = -500;
-          } else if (mainGoal.includes("Build muscle") || mainGoal.includes("Tăng cơ")) {
+          } else if (mainGoal.includes("Build muscle")) {
             calorieAdjustment = 300; // Lean bulk surplus
           }
         }
@@ -134,7 +153,7 @@ export default function Nutrition() {
                 },
               },
               {
-                text: "Analyze this food image. Estimate the calories, protein (g), carbs (g), and fat (g). Provide a short, natural name for the dish in Vietnamese (e.g., 'Cơm tấm sườn bì', 'Salad ức gà').",
+                text: "Analyze this food image. Estimate the calories, protein (g), carbs (g), and fat (g). Provide a short, natural name for the dish in English (e.g., 'Grilled Chicken Salad', 'Steak and Fries').",
               },
             ],
           },
@@ -143,11 +162,11 @@ export default function Nutrition() {
             responseSchema: {
               type: Type.OBJECT,
               properties: {
-                name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt)" },
-                cal: { type: Type.NUMBER, description: "Lượng calo ước tính" },
-                protein: { type: Type.NUMBER, description: "Lượng protein (g)" },
-                carbs: { type: Type.NUMBER, description: "Lượng carbs (g)" },
-                fat: { type: Type.NUMBER, description: "Lượng chất béo (g)" },
+                name: { type: Type.STRING, description: "Dish name (English)" },
+                cal: { type: Type.NUMBER, description: "Estimated calories" },
+                protein: { type: Type.NUMBER, description: "Protein (g)" },
+                carbs: { type: Type.NUMBER, description: "Carbs (g)" },
+                fat: { type: Type.NUMBER, description: "Fat (g)" },
               },
               required: ["name", "cal", "protein", "carbs", "fat"],
             },
@@ -157,7 +176,7 @@ export default function Nutrition() {
         if (response.text) {
           const result = JSON.parse(response.text);
           setPendingMeal({
-            time: "Bữa phụ",
+            time: "Snack",
             name: result.name,
             cal: result.cal,
             protein: result.protein,
@@ -170,7 +189,7 @@ export default function Nutrition() {
       };
     } catch (error) {
       console.error("Error analyzing image:", error);
-      alert("Có lỗi xảy ra khi phân tích ảnh. Vui lòng thử lại.");
+      alert("An error occurred while analyzing the image. Please try again.");
       setIsLoading(false);
       setPreviewImage(null);
     }
@@ -191,7 +210,7 @@ export default function Nutrition() {
 
   const handleConfirmManualMeal = () => {
     if (!manualMeal.name || !manualMeal.cal) {
-      alert("Vui lòng nhập tên món và lượng calo.");
+      alert("Please enter the dish name and calories.");
       return;
     }
 
@@ -213,7 +232,7 @@ export default function Nutrition() {
       protein: "",
       carbs: "",
       fat: "",
-      time: "Bữa phụ"
+      time: "Snack"
     });
   };
 
@@ -227,9 +246,9 @@ export default function Nutrition() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
           <Utensils className="w-6 h-6 text-black dark:text-white" />
-          Dinh dưỡng
+          Nutrition
         </h2>
-        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng hình ảnh hoặc nhập tay.</p>
+        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Track your meals easily with photos or manual entry.</p>
       </motion.div>
 
       {/* Calories Overview */}
@@ -250,8 +269,8 @@ export default function Nutrition() {
           </div>
         </div>
         <div className="flex justify-between w-full text-sm font-medium">
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
+          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Consumed: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
+          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Remaining: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
         </div>
       </motion.div>
 
@@ -272,7 +291,7 @@ export default function Nutrition() {
           ) : (
             <Camera className="w-6 h-6" />
           )}
-          <span className="text-[10px] uppercase tracking-wider">Chụp ảnh</span>
+          <span className="text-[10px] uppercase tracking-wider">Take Photo</span>
         </button>
         <button 
           onClick={() => galleryInputRef.current?.click()}
@@ -280,14 +299,14 @@ export default function Nutrition() {
           className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
         >
           <Upload className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Tải lên</span>
+          <span className="text-[10px] uppercase tracking-wider">Upload</span>
         </button>
         <button 
           onClick={() => setIsManualModalOpen(true)}
           className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
         >
           <Edit2 className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Nhập tay</span>
+          <span className="text-[10px] uppercase tracking-wider">Manual</span>
         </button>
         <input 
           type="file" 
@@ -314,7 +333,7 @@ export default function Nutrition() {
         className="space-y-4"
       >
         <div className="flex justify-between items-end">
-          <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Bữa ăn hôm nay</h3>
+          <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Today's Meals</h3>
           <button 
             onClick={() => setIsManualModalOpen(true)}
             className={cn("w-8 h-8 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-zinc-800 text-zinc-400 hover:bg-white/20 hover:text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-black")}
@@ -358,7 +377,7 @@ export default function Nutrition() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-black/50 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-3">
                 <ScanLine className="w-6 h-6 text-white animate-pulse" />
-                <span className="text-white font-medium">AI đang phân tích...</span>
+                <span className="text-white font-medium">AI is analyzing...</span>
               </div>
             </div>
           </div>
@@ -375,7 +394,7 @@ export default function Nutrition() {
           >
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>Nhập bữa ăn</h3>
+                <h3 className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>Add Meal</h3>
                 <button onClick={() => setIsManualModalOpen(false)} className="text-zinc-500 hover:text-zinc-700">
                   <X className="w-6 h-6" />
                 </button>
@@ -383,10 +402,10 @@ export default function Nutrition() {
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Tên món ăn</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Dish Name</label>
                   <input 
                     type="text"
-                    placeholder="VD: Cơm gà"
+                    placeholder="e.g., Chicken Rice"
                     value={manualMeal.name}
                     onChange={(e) => setManualMeal({...manualMeal, name: e.target.value})}
                     className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
@@ -405,17 +424,16 @@ export default function Nutrition() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Bữa ăn</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Meal Time</label>
                     <select 
                       value={manualMeal.time}
                       onChange={(e) => setManualMeal({...manualMeal, time: e.target.value})}
                       className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all appearance-none", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     >
-                      <option>Sáng</option>
-                      <option>Trưa</option>
-                      <option>Chiều</option>
-                      <option>Tối</option>
-                      <option>Bữa phụ</option>
+                      <option>Breakfast</option>
+                      <option>Lunch</option>
+                      <option>Dinner</option>
+                      <option>Snack</option>
                     </select>
                   </div>
                 </div>
@@ -459,13 +477,13 @@ export default function Nutrition() {
                   onClick={() => setIsManualModalOpen(false)}
                   className={cn("flex-1 py-3.5 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button 
                   onClick={handleConfirmManualMeal}
                   className="flex-1 py-3.5 rounded-xl font-bold text-white bg-black hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 shadow-md shadow-black/20 dark:shadow-white/20"
                 >
-                  <Check className="w-5 h-5" /> Lưu lại
+                  <Check className="w-5 h-5" /> Save
                 </button>
               </div>
             </div>
@@ -561,13 +579,13 @@ export default function Nutrition() {
                   onClick={handleCancelMeal}
                   className={cn("flex-1 py-3.5 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button 
                   onClick={handleConfirmMeal}
                   className="flex-1 py-3.5 rounded-xl font-bold text-white bg-black hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 shadow-md shadow-black/20 dark:shadow-white/20"
                 >
-                  <Check className="w-5 h-5" /> Xác nhận
+                  <Check className="w-5 h-5" /> Confirm
                 </button>
               </div>
             </div>

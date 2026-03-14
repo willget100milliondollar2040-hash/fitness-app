@@ -41,12 +41,12 @@ export default function Layout() {
     navigate("/");
   };
 
-  const navItems = [
-    { to: "/", icon: Dumbbell, label: "Buổi tập" },
+    const navItems = [
+    { to: "/", icon: Dumbbell, label: "Workout" },
     { to: "/coach", icon: MessageCircle, label: "AI Coach" },
     { to: "/buddy", icon: Users, label: "Buddy" },
-    { to: "/nutrition", icon: Utensils, label: "Dinh dưỡng" },
-    { to: "/progress", icon: TrendingUp, label: "Tiến độ" },
+    { to: "/nutrition", icon: Utensils, label: "Nutrition" },
+    { to: "/progress", icon: TrendingUp, label: "Progress" },
   ];
 
   return (
@@ -85,15 +85,15 @@ export default function Layout() {
                   isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
                 )}>
                   <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                    <p className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>Tài khoản</p>
-                    <p className={cn("text-sm font-medium truncate", isDark ? "text-white" : "text-zinc-900")}>{userEmail || "Người dùng BuddyFit"}</p>
+                    <p className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>Account</p>
+                    <p className={cn("text-sm font-medium truncate", isDark ? "text-white" : "text-zinc-900")}>{userEmail || "BuddyFit User"}</p>
                   </div>
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left font-medium"
                   >
                     <LogOut className="w-4 h-4" />
-                    Đăng xuất
+                    Sign Out
                   </button>
                 </div>
               </>

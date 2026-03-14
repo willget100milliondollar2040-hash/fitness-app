@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Play, Dumbbell, Activity, Flame, Plus, Trash2, X, ChevronDown, ClipboardList, Search, ArrowRight, Moon, Sun } from "lucide-react";
+import { Play, Dumbbell, Activity, Flame, Plus, Trash2, X, ChevronDown, ClipboardList, Search, ArrowRight, Moon, Sun, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
@@ -17,10 +17,10 @@ type Routine = {
 };
 
 const defaultRoutines: Routine[] = [
-  { id: "push", title: "Push Day", subtitle: "Ngực, Vai, Tay sau", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
-  { id: "pull", title: "Pull Day", subtitle: "Lưng, Tay trước", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
-  { id: "legs", title: "Leg Day", subtitle: "Đùi, Mông, Bắp chân", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
-  { id: "fullbody", title: "Full Body", subtitle: "Toàn thân", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
+  { id: "push", title: "Push Day", subtitle: "Chest, Shoulders, Triceps", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
+  { id: "pull", title: "Pull Day", subtitle: "Back, Biceps", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
+  { id: "legs", title: "Leg Day", subtitle: "Quads, Hamstrings, Calves", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
+  { id: "fullbody", title: "Full Body", subtitle: "Full Body", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
 ];
 
 const icons = {
@@ -63,6 +63,10 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className={cn("min-h-full pb-24 transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
       <div className="p-5 space-y-6">
@@ -81,6 +85,13 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-3">
             <span className="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-md">PRO</span>
+            <button
+              onClick={handleLogout}
+              className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-200 hover:bg-zinc-300 text-zinc-600")}
+              title="Log out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
             <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm border-2", isDark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-200 border-white")}>
               <img 
                 src="https://picsum.photos/seed/user123/100/100" 
@@ -170,7 +181,7 @@ export default function Dashboard() {
             })}
             {routines.length === 0 && (
               <div className={cn("text-center py-10", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                Chưa có routine nào. Hãy tạo một routine mới!
+                No routines yet. Create a new routine!
               </div>
             )}
           </div>
@@ -190,20 +201,20 @@ export default function Dashboard() {
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className={cn("rounded-3xl p-6 w-full max-w-sm shadow-2xl", isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900")}>
-            <h3 className="text-xl font-bold mb-2">Xoá Routine?</h3>
-            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn có chắc chắn muốn xoá routine này? Toàn bộ dữ liệu bài tập trong routine này sẽ bị mất.</p>
+            <h3 className="text-xl font-bold mb-2">Delete Routine?</h3>
+            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Are you sure you want to delete this routine? All workout data in this routine will be lost.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirmId(null)}
                 className={cn("flex-1 py-3 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 onClick={confirmDeleteRoutine}
                 className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors"
               >
-                Xoá
+                Delete
               </button>
             </div>
           </div>
