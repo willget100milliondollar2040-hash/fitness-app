@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, Navigate, useNavigate } from "react-router-dom";
-import { Dumbbell, MessageCircle, Users, Utensils, TrendingUp, Moon, Sun, LogOut } from "lucide-react";
+import { Dumbbell, MessageCircle, Users, Utensils, TrendingUp, Moon, Sun, LogOut, User, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "./ThemeProvider";
 import { Logo } from "./Logo";
@@ -42,11 +42,11 @@ export default function Layout() {
   };
 
     const navItems = [
-    { to: "/", icon: Dumbbell, label: "Workout" },
-    { to: "/coach", icon: MessageCircle, label: "AI Coach" },
-    { to: "/buddy", icon: Users, label: "Buddy" },
-    { to: "/nutrition", icon: Utensils, label: "Nutrition" },
-    { to: "/progress", icon: TrendingUp, label: "Progress" },
+    { to: "/", icon: Dumbbell, label: "Tập luyện" },
+    { to: "/buddy", icon: Users, label: "Bạn tập" },
+    { to: "/nutrition", icon: Utensils, label: "Dinh dưỡng" },
+    { to: "/progress", icon: TrendingUp, label: "Tiến độ" },
+    { to: "/marketplace", icon: ShoppingBag, label: "Cửa hàng" },
   ];
 
   return (
@@ -69,9 +69,9 @@ export default function Layout() {
           <div className="relative">
             <button 
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className={cn("w-8 h-8 rounded-full overflow-hidden border shadow-sm transition-transform active:scale-95", isDark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-100 border-zinc-200")}
+              className={cn("w-8 h-8 rounded-full overflow-hidden border shadow-sm transition-transform active:scale-95 flex items-center justify-center font-bold text-white bg-blue-500", isDark ? "border-zinc-700" : "border-zinc-200")}
             >
-              <img src="https://picsum.photos/seed/user1/100/100" alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              {userEmail ? userEmail[0].toUpperCase() : "U"}
             </button>
 
             {showProfileMenu && (
@@ -85,15 +85,25 @@ export default function Layout() {
                   isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
                 )}>
                   <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                    <p className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>Account</p>
-                    <p className={cn("text-sm font-medium truncate", isDark ? "text-white" : "text-zinc-900")}>{userEmail || "BuddyFit User"}</p>
+                    <p className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>Tài khoản</p>
+                    <p className={cn("text-sm font-medium truncate", isDark ? "text-white" : "text-zinc-900")}>{userEmail || "Người dùng BuddyFit"}</p>
                   </div>
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      navigate("/profile");
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors text-left font-medium"
+                  >
+                    <User className="w-4 h-4" />
+                    Hồ sơ
+                  </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left font-medium"
                   >
                     <LogOut className="w-4 h-4" />
-                    Sign Out
+                    Đăng xuất
                   </button>
                 </div>
               </>

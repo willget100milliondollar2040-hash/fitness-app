@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 import { workoutService } from "../lib/workoutService";
 import { supabase } from "../lib/supabase";
+import { WorkoutTimer } from "../components/workout/WorkoutTimer";
+import { ExerciseList } from "../components/workout/ExerciseList";
+import { WorkoutSummary } from "../components/workout/WorkoutSummary";
 
 export type SetType = {
   id: string;
@@ -53,7 +56,7 @@ export const getExerciseImage = (name: string) => {
     if (keyLower.replace(/-/g, ' ') === normalized.replace(/-/g, ' ')) return value;
   }
 
-  return `https://picsum.photos/seed/${encodeURIComponent(name)}/100/100`;
+  return "";
 };
 
 const AVATAR_COLORS = [
@@ -90,7 +93,7 @@ export function ExerciseImage({ name, className }: { name: string, className?: s
       {/* Icon Overlay (Subtle) */}
       <Dumbbell className="w-1/2 h-1/2 absolute opacity-10 text-white" />
       
-      {!error && (
+      {!error && src && (
         <img 
           src={src} 
           alt={name} 
@@ -786,9 +789,10 @@ export default function ActiveWorkout() {
       <header className={cn("px-4 py-3 border-b flex items-center justify-between sticky top-0 z-20 transition-colors duration-300", isDark ? "bg-black border-zinc-800" : "bg-white border-zinc-100")}>
         <button onClick={() => navigate(-1)} className={cn("flex items-center gap-2 font-medium", isDark ? "text-white" : "text-zinc-900")}>
           <ChevronDown className="w-5 h-5" />
-          Log Workout
+          Ghi lại bài tập
         </button>
         <div className="flex items-center gap-3">
+          <WorkoutTimer elapsedTime={workoutDuration} />
           <div className={cn("flex items-center gap-1 px-2 py-1.5 rounded-lg border", isDark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-100 border-zinc-200")}>
             <Clock className={cn("w-4 h-4", isDark ? "text-zinc-400" : "text-zinc-500")} />
             <select
@@ -809,7 +813,7 @@ export default function ActiveWorkout() {
             onClick={() => setShowSummary(true)}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg font-medium transition-colors"
           >
-            Finish
+            Hoàn thành
           </button>
         </div>
       </header>
@@ -819,167 +823,46 @@ export default function ActiveWorkout() {
         {/* Summary */}
         <div className={cn("px-6 py-4 flex justify-between items-center border-b transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
           <div>
-            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Time</div>
+            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Thời gian</div>
             <div className="text-blue-500 font-medium font-mono text-lg leading-none">{formatTime(workoutDuration)}</div>
           </div>
           <div>
-            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume</div>
+            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Khối lượng</div>
             <div className={cn("font-medium text-lg leading-none", isDark ? "text-white" : "text-zinc-900")}>{stats.volume} <span className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>kg</span></div>
           </div>
           <div>
-            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Sets</div>
+            <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Hiệp</div>
             <div className={cn("font-medium text-lg leading-none", isDark ? "text-white" : "text-zinc-900")}>{stats.setsCount}</div>
           </div>
         </div>
 
         {/* Exercises */}
         <div className="p-4 space-y-6">
-          {exercises.map((exercise) => (
-            <div key={exercise.id} className={cn("rounded-3xl p-5 shadow-[0_2px_10px_rgb(0,0,0,0.02)] border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-              {/* Exercise Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="cursor-pointer"
-                    onClick={() => setSelectedExerciseImage(getExerciseImage(exercise.name))}
-                  >
-                    <ExerciseImage name={exercise.name} className="w-12 h-12 rounded-full border border-zinc-200 dark:border-zinc-700" />
-                  </div>
-                  <h3 className="font-bold text-blue-500 text-lg leading-tight">{exercise.name}</h3>
-                </div>
-                <button onClick={() => removeExercise(exercise.id)} className={cn("transition-colors p-2", isDark ? "text-zinc-500 hover:text-red-400" : "text-zinc-400 hover:text-red-500")}>
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Note */}
-              <input
-                type="text"
-                value={exercise.note || ""}
-                onChange={(e) => updateExerciseNote(exercise.id, e.target.value)}
-                placeholder="Add routine notes here"
-                className={cn(
-                  "w-full text-sm bg-transparent outline-none mb-2",
-                  isDark ? "text-zinc-300 placeholder:text-zinc-600" : "text-zinc-700 placeholder:text-zinc-400"
-                )}
-              />
-
-              {/* Rest Timer Button */}
-              <button 
-                onClick={() => setActiveRestTimerExerciseId(exercise.id)}
-                className="flex items-center gap-1 text-sm font-medium text-blue-500 mb-4"
-              >
-                <Clock className="w-4 h-4" />
-                Rest Timer: {exercise.restTimer || "Off"}
-              </button>
-
-              {/* Sets Table */}
-              <div className="w-full">
-                <div className={cn("flex text-xs font-bold uppercase tracking-wider mb-2 px-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                  <div className="w-10 text-center">Set</div>
-                  <div className="flex-1 text-center">Prev</div>
-                  <div className="w-14 text-center">kg</div>
-                  <div className="w-14 text-center">Reps</div>
-                  <div className="w-10 text-center"><Check className="w-4 h-4 mx-auto" /></div>
-                </div>
-
-                <div className="space-y-1">
-                  {exercise.sets.map((set, index) => {
-                    const setNumber = set.type === "W" ? "W" : exercise.sets.filter(s => s.type === "N").indexOf(set) + 1;
-                    return (
-                      <div
-                        key={set.id}
-                        className={cn(
-                          "flex items-center py-2 px-1 rounded-xl transition-colors group relative",
-                          set.completed ? (isDark ? "bg-white/20" : "bg-zinc-200") : "bg-transparent"
-                        )}
-                      >
-                        {/* Delete Set Button (shows on hover/active) */}
-                        <button 
-                          onClick={() => removeSet(exercise.id, set.id)}
-                          className={cn("absolute -left-2 w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity", isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500")}
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-
-                        <div className={cn(
-                          "w-10 text-center font-bold",
-                          set.type === "W" ? "text-orange-400" : (isDark ? "text-white" : "text-zinc-900")
-                        )}>
-                          {setNumber}
-                        </div>
-                        <div className={cn("flex-1 text-center text-sm font-medium truncate px-1", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                          {set.previous}
-                        </div>
-                        <div className="w-14 px-1">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={set.kg}
-                            onChange={(e) => updateSet(exercise.id, set.id, "kg", e.target.value)}
-                            className={cn(
-                              "w-full text-center font-bold text-lg bg-transparent outline-none",
-                              set.completed ? (isDark ? "text-white" : "text-zinc-900") : (isDark ? "text-zinc-500" : "text-zinc-400")
-                            )}
-                          />
-                        </div>
-                        <div className="w-14 px-1">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            value={set.reps}
-                            onChange={(e) => updateSet(exercise.id, set.id, "reps", e.target.value)}
-                            className={cn(
-                              "w-full text-center font-bold text-lg bg-transparent outline-none",
-                              set.completed ? (isDark ? "text-white" : "text-zinc-900") : (isDark ? "text-zinc-500" : "text-zinc-400")
-                            )}
-                          />
-                        </div>
-                        <div className="w-10 flex justify-center relative">
-                          {newRecords[set.id] && (
-                            <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[8px] font-bold px-1 py-0.5 rounded-sm whitespace-nowrap z-10 animate-in zoom-in">
-                              NEW RECORD
-                            </div>
-                          )}
-                          <button
-                            onClick={() => toggleSet(exercise.id, set.id)}
-                            className={cn(
-                              "w-7 h-7 rounded-md flex items-center justify-center transition-colors",
-                              set.completed
-                                ? "bg-black dark:bg-white dark:text-black text-white"
-                                : (isDark ? "bg-zinc-700 text-zinc-400 hover:bg-zinc-600" : "bg-zinc-200 text-zinc-500 hover:bg-zinc-300 hover:text-zinc-700")
-                            )}
-                          >
-                            <Check className="w-4 h-4" strokeWidth={3} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <button
-                  onClick={() => addSet(exercise.id)}
-                  className={cn("w-full mt-3 py-2.5 rounded-xl font-medium flex items-center justify-center gap-1 transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
-                >
-                  <Plus className="w-4 h-4" /> Add Set
-                </button>
-              </div>
-            </div>
-          ))}
+          <ExerciseList
+            exercises={exercises}
+            newRecords={newRecords}
+            onRemoveExercise={(id) => setDeleteExerciseId(id)}
+            onUpdateNote={updateExerciseNote}
+            onSetActiveRestTimer={setActiveRestTimerExerciseId}
+            onAddSet={addSet}
+            onRemoveSet={removeSet}
+            onUpdateSet={updateSet}
+            onToggleComplete={toggleSet}
+            onImageClick={(name) => setSelectedExerciseImage(getExerciseImage(name))}
+          />
 
           <button
             onClick={() => setShowAddExercise(true)}
             className={cn("w-full py-4 rounded-3xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-colors", isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-500 hover:bg-blue-50")}
           >
-            <Plus className="w-5 h-5" /> Add exercise
+            <Plus className="w-5 h-5" /> Thêm bài tập
           </button>
 
           <button
             onClick={() => setShowSummary(true)}
             className="w-full py-4 mt-4 rounded-3xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
           >
-            <Check className="w-6 h-6" /> Finish Workout
+            <Check className="w-6 h-6" /> Hoàn thành bài tập
           </button>
         </div>
       </main>
@@ -989,7 +872,7 @@ export default function ActiveWorkout() {
         <div className={cn("absolute inset-0 z-50 flex flex-col", isDark ? "bg-black" : "bg-zinc-50")}>
           <header className={cn("px-4 py-4 border-b flex flex-col gap-3 shadow-sm z-10", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
             <div className="flex items-center justify-between">
-              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Select Exercise</h2>
+              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Chọn bài tập</h2>
               <button onClick={() => { setShowAddExercise(false); setSearchQuery(""); }} className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}>
                 <X className="w-5 h-5" />
               </button>
@@ -998,7 +881,7 @@ export default function ActiveWorkout() {
               <Search className={cn("w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2", isDark ? "text-zinc-500" : "text-zinc-400")} />
               <input 
                 type="text"
-                placeholder="Search 200+ exercises..."
+                placeholder="Tìm kiếm hơn 200 bài tập..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn("w-full pl-10 pr-4 py-2.5 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl transition-all outline-none", isDark ? "bg-zinc-800 text-white placeholder:text-zinc-500 focus:bg-zinc-900" : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400 focus:bg-white")}
@@ -1008,7 +891,7 @@ export default function ActiveWorkout() {
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {filteredDB.length === 0 ? (
               <div className={cn("text-center py-10", isDark ? "text-zinc-500" : "text-zinc-500")}>
-                No exercises found.
+                Không tìm thấy bài tập nào.
               </div>
             ) : (
               filteredDB.map((group) => (
@@ -1016,7 +899,7 @@ export default function ActiveWorkout() {
                   <div className="flex items-center justify-between mb-3 px-1">
                     <h3 className={cn("font-bold text-sm uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>{group.category}</h3>
                     {!searchQuery.trim() && (
-                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Showing 5 items</span>
+                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Hiển thị 5 mục</span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -1059,20 +942,20 @@ export default function ActiveWorkout() {
       {deleteExerciseId && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className={cn("rounded-3xl p-6 w-full max-w-sm shadow-2xl mx-4", isDark ? "bg-[#1c1c1e]" : "bg-white")}>
-            <h3 className={cn("text-xl font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Delete Exercise?</h3>
-            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Are you sure you want to delete this exercise from the routine?</p>
+            <h3 className={cn("text-xl font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Xóa bài tập?</h3>
+            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn có chắc chắn muốn xóa bài tập này khỏi lịch tập không?</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteExerciseId(null)}
                 className={cn("flex-1 py-3 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={confirmRemoveExercise}
                 className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors"
               >
-                Delete
+                Xóa
               </button>
             </div>
           </div>
@@ -1085,13 +968,13 @@ export default function ActiveWorkout() {
           <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 animate-pulse" />
             <div>
-              <div className="text-xs text-blue-200 font-medium uppercase tracking-wider">Rest Time</div>
+              <div className="text-xs text-blue-200 font-medium uppercase tracking-wider">Thời gian nghỉ</div>
               <div className="text-2xl font-bold font-mono leading-none">{formatTime(restTimer)}</div>
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setRestTimer(prev => prev + 30)} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">+30s</button>
-            <button onClick={stopRestTimer} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">Skip</button>
+            <button onClick={stopRestTimer} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">Bỏ qua</button>
           </div>
         </div>
       )}
@@ -1101,7 +984,7 @@ export default function ActiveWorkout() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
           <div className={cn("w-full max-w-md rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom-full duration-300", isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900")}>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Rest Timer</h3>
+              <h3 className="text-xl font-bold">Thời gian nghỉ</h3>
               <button onClick={() => setActiveRestTimerExerciseId(null)} className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700" : "bg-zinc-100 hover:bg-zinc-200")}>
                 <X className="w-5 h-5" />
               </button>
@@ -1134,49 +1017,13 @@ export default function ActiveWorkout() {
 
       {/* Summary Modal */}
       {showSummary && (
-        <div className={cn("absolute inset-0 z-50 flex flex-col items-center justify-center p-6", isDark ? "bg-black/80 backdrop-blur-sm" : "bg-zinc-50/80 backdrop-blur-sm")}>
-          <div className={cn("w-full max-w-sm rounded-3xl p-8 shadow-2xl border text-center relative overflow-hidden", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-400 to-zinc-400 dark:to-zinc-600 opacity-20" />
-            
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-zinc-500 dark:to-zinc-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg relative z-10">
-              <Trophy className="w-10 h-10 text-white" />
-            </div>
-            
-            <h2 className={cn("text-2xl font-bold mb-2 relative z-10", isDark ? "text-white" : "text-zinc-900")}>Awesome!</h2>
-            <p className={cn("mb-8 relative z-10", isDark ? "text-zinc-400" : "text-zinc-500")}>You have completed your workout today.</p>
-            
-            <div className="grid grid-cols-3 gap-4 mb-8 relative z-10">
-              <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
-                <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Time</div>
-                <div className="text-blue-500 font-bold text-lg">{formatTime(workoutDuration)}</div>
-              </div>
-              <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
-                <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume</div>
-                <div className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{stats.volume}<span className={cn("text-xs font-normal ml-1", isDark ? "text-zinc-500" : "text-zinc-500")}>kg</span></div>
-              </div>
-              <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
-                <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Sets</div>
-                <div className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{stats.setsCount}</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3 relative z-10">
-              <button
-                onClick={handleFinishAndGoHome}
-                disabled={isSaving}
-                className="w-full py-4 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50"
-              >
-                <Home className="w-5 h-5" /> {isSaving ? "Saving..." : "Finish & Go Home"}
-              </button>
-              <button
-                onClick={handleRestartRoutine}
-                className={cn("w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
-              >
-                <RotateCcw className="w-5 h-5" /> Restart Workout
-              </button>
-            </div>
-          </div>
-        </div>
+        <WorkoutSummary 
+          elapsedTime={workoutDuration}
+          exercises={exercises}
+          isSaving={isSaving}
+          onFinish={handleFinishAndGoHome}
+          onRestart={handleRestartRoutine}
+        />
       )}
       {/* Exercise Image Modal */}
       {selectedExerciseImage && (

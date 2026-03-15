@@ -67,8 +67,34 @@ CREATE TABLE profiles (
     email TEXT UNIQUE NOT NULL,
     full_name TEXT,
     avatar_url TEXT,
+    weight NUMERIC,
+    height NUMERIC,
+    goals TEXT[],
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Create routines table
+CREATE TABLE routines (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    title TEXT NOT NULL,
+    subtitle TEXT,
+    duration TEXT,
+    icon_name TEXT,
+    color TEXT,
+    bg TEXT,
+    exercises JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Set up RLS for routines
+ALTER TABLE routines ENABLE ROW LEVEL SECURITY;
+
+-- Routines policies
+CREATE POLICY "Users can view their own routines" ON routines FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own routines" ON routines FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own routines" ON routines FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own routines" ON routines FOR DELETE USING (auth.uid() = user_id);
 
 -- Create friendships table
 CREATE TABLE friendships (
@@ -111,3 +137,12 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Create avatars bucket
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
+
+-- Set up storage policies for avatars bucket
+CREATE POLICY "Avatar images are publicly accessible." ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Anyone can upload an avatar." ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars');
+CREATE POLICY "Anyone can update their avatar." ON storage.objects FOR UPDATE USING (bucket_id = 'avatars');
+CREATE POLICY "Anyone can delete their avatar." ON storage.objects FOR DELETE USING (bucket_id = 'avatars');

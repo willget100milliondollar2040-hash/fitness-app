@@ -4,15 +4,16 @@ import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
+import { supabase } from "@/lib/supabase";
 
 const steps = [
-  { id: "mainGoal", title: "What is your main goal?" },
-  { id: "level", title: "Current level" },
-  { id: "frequency", title: "Workout frequency" },
-  { id: "calisthenicsGoals", title: "Calisthenics goals" },
-  { id: "profile", title: "Body profile" },
-  { id: "timeframe", title: "Body goal timeframe" },
-  { id: "diet", title: "Current diet" },
+  { id: "mainGoal", title: "Mục tiêu chính của bạn là gì?" },
+  { id: "level", title: "Trình độ hiện tại" },
+  { id: "frequency", title: "Tần suất tập luyện" },
+  { id: "calisthenicsGoals", title: "Mục tiêu Calisthenics" },
+  { id: "profile", title: "Hồ sơ cơ thể" },
+  { id: "timeframe", title: "Thời gian đạt mục tiêu" },
+  { id: "diet", title: "Chế độ ăn hiện tại" },
 ];
 
 export default function Onboarding() {
@@ -31,14 +32,31 @@ export default function Onboarding() {
   });
   const { isDark } = useTheme();
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       // Complete onboarding
       localStorage.setItem("onboardingData", JSON.stringify(answers));
       localStorage.setItem("onboardingComplete", "true");
-      navigate("/coach");
+      
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const goals = [answers.mainGoal, ...answers.calisthenicsGoals].filter(Boolean);
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            weight: parseFloat(answers.weight) || null,
+            height: parseFloat(answers.height) || null,
+            goals: goals,
+          });
+        }
+      } catch (e) {
+        console.error("Failed to save profile", e);
+      }
+      
+      navigate("/");
     }
   };
 
@@ -76,14 +94,14 @@ export default function Onboarding() {
     switch (currentStep) {
       case 0:
         const mainGoals = [
-          "Build muscle 💪",
-          "Lose fat 🔥",
-          "Increase calisthenics strength",
-          "Stay fit / general fitness"
+          "Tăng cơ 💪",
+          "Giảm mỡ 🔥",
+          "Tăng sức mạnh calisthenics",
+          "Giữ dáng / thể lực chung"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(this is the most important question)</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(đây là câu hỏi quan trọng nhất)</p>
             {mainGoals.map((goal) => (
               <button
                 key={goal}
@@ -102,13 +120,13 @@ export default function Onboarding() {
         );
       case 1:
         const levels = [
-          "Beginner (can't do a pull up)",
-          "Intermediate (5–10 pull ups)",
-          "Advanced (10+ pull ups / skills)"
+          "Người mới (chưa kéo xà được)",
+          "Trung bình (5–10 cái kéo xà)",
+          "Nâng cao (10+ cái kéo xà / kỹ năng)"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>to avoid exercises that are too hard</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>để tránh các bài tập quá khó</p>
             {levels.map((level) => (
               <button
                 key={level}
@@ -127,13 +145,13 @@ export default function Onboarding() {
         );
       case 2:
         const frequencies = [
-          "2–3 times",
-          "3–4 times",
-          "5–6 times"
+          "2–3 lần",
+          "3–4 lần",
+          "5–6 lần"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>How many times per week and how many minutes per session?</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>Bao nhiêu lần mỗi tuần và bao nhiêu phút mỗi buổi?</p>
             {frequencies.map((freq) => (
               <button
                 key={freq}
@@ -152,16 +170,16 @@ export default function Onboarding() {
         );
       case 3:
         const caliGoals = [
-          "Pull up",
-          "Muscle up",
+          "Kéo xà (Pull up)",
+          "Lên xà (Muscle up)",
           "Front lever",
-          "Handstand",
-          "Get stronger",
+          "Trồng chuối (Handstand)",
+          "Khỏe hơn",
           "Planche"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(select multiple)</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>(chọn nhiều mục)</p>
             {caliGoals.map((goal) => {
               const isSelected = answers.calisthenicsGoals.includes(goal);
               return (
@@ -185,10 +203,10 @@ export default function Onboarding() {
       case 4:
         return (
           <div className="space-y-6">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>to calculate TDEE and calories</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>để tính TDEE và calo</p>
             <div className="space-y-4">
               <div>
-                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Height (cm)</label>
+                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Chiều cao (cm)</label>
                 <input
                   type="number"
                   placeholder="170"
@@ -198,7 +216,7 @@ export default function Onboarding() {
                 />
               </div>
               <div>
-                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Weight (kg)</label>
+                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Cân nặng (kg)</label>
                 <input
                   type="number"
                   placeholder="65"
@@ -208,7 +226,7 @@ export default function Onboarding() {
                 />
               </div>
               <div>
-                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Age</label>
+                <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-300" : "text-zinc-700")}>Tuổi</label>
                 <input
                   type="number"
                   placeholder="25"
@@ -222,13 +240,13 @@ export default function Onboarding() {
         );
       case 5:
         const timeframes = [
-          "1–3 months",
-          "3–6 months",
-          "1 year"
+          "1–3 tháng",
+          "3–6 tháng",
+          "1 năm"
         ];
         return (
           <div className="space-y-3">
-            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>→ helps the app set progress targets</p>
+            <p className={cn("text-sm mb-4", isDark ? "text-zinc-400" : "text-zinc-500")}>→ giúp ứng dụng đặt mục tiêu tiến độ</p>
             {timeframes.map((timeframe) => (
               <button
                 key={timeframe}
@@ -247,10 +265,10 @@ export default function Onboarding() {
         );
       case 6:
         const diets = [
-          "Normal diet",
-          "Losing weight",
-          "Bulking / gaining weight",
-          "Vegetarian / Vegan"
+          "Chế độ ăn bình thường",
+          "Đang giảm cân",
+          "Đang tăng cân / xả cơ",
+          "Ăn chay / Thuần chay"
         ];
         return (
           <div className="space-y-3">
@@ -326,7 +344,7 @@ export default function Onboarding() {
           disabled={!isStepValid()}
           className="w-full bg-black dark:bg-white dark:text-black text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-black dark:bg-white dark:text-black transition-all shadow-[0_4px_14px_rgba(0,0,0,0.3)] dark:shadow-[0_4px_14px_rgba(255,255,255,0.3)] disabled:shadow-none"
         >
-          {currentStep === steps.length - 1 ? "Finish & Get Plan" : "Continue"}
+          {currentStep === steps.length - 1 ? "Hoàn thành & Nhận kế hoạch" : "Tiếp tục"}
           {currentStep < steps.length - 1 && <ChevronRight className="w-5 h-5" />}
         </button>
       </div>

@@ -9,9 +9,6 @@ export const supabase = createClient(
   supabaseUrl, 
   supabaseAnonKey,
   {
-    global: {
-      fetch: (url, options) => window.fetch(url, options),
-    },
     auth: {
       persistSession: true,
       autoRefreshToken: true,

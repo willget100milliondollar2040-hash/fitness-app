@@ -25,7 +25,7 @@ export default function Auth() {
           password,
         });
         if (error) throw error;
-        setMessage({ type: 'success', text: 'Check your email to confirm registration!' });
+        setMessage({ type: 'success', text: 'Kiểm tra email của bạn để xác nhận đăng ký!' });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -34,7 +34,7 @@ export default function Auth() {
         if (error) throw error;
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'An error occurred' });
+      setMessage({ type: 'error', text: error.message || 'Đã xảy ra lỗi' });
     } finally {
       setLoading(false);
     }
@@ -58,10 +58,10 @@ export default function Auth() {
             <Dumbbell className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {isSignUp ? "Create an account" : "Welcome back"}
+            {isSignUp ? "Tạo tài khoản" : "Chào mừng trở lại"}
           </h1>
           <p className={cn("text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>
-            {isSignUp ? "Start your fitness journey today" : "Log in to continue tracking your progress"}
+            {isSignUp ? "Bắt đầu hành trình thể hình của bạn ngay hôm nay" : "Đăng nhập để tiếp tục theo dõi tiến độ"}
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function Auth() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Password</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Mật khẩu</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
               <input
@@ -119,7 +119,7 @@ export default function Auth() {
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              isSignUp ? "Sign Up" : "Log In"
+              isSignUp ? "Đăng ký" : "Đăng nhập"
             )}
           </button>
         </form>
@@ -132,7 +132,7 @@ export default function Auth() {
               isDark ? "text-zinc-400" : "text-zinc-500"
             )}
           >
-            {isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up now"}
+            {isSignUp ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký ngay"}
           </button>
         </div>
       </motion.div>

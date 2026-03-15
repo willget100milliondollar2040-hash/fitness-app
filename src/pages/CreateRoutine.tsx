@@ -4,6 +4,8 @@ import { X, Dumbbell, Clock, Plus, Search, Trash2, MoreVertical } from "lucide-r
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 import { EXERCISE_DB, ExerciseType, SetType, getExerciseImage, ExerciseImage } from "./ActiveWorkout";
+import { supabase } from "../lib/supabase";
+import { workoutService } from "../lib/workoutService";
 
 export default function CreateRoutine() {
   const navigate = useNavigate();
@@ -117,43 +119,45 @@ export default function CreateRoutine() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim() && exercises.length === 0) return;
 
-    const existingRoutinesStr = localStorage.getItem("routines");
-    const defaultRoutines = [
-      { id: "push", title: "Push Day", subtitle: "Chest, Shoulders, Triceps", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
-      { id: "pull", title: "Pull Day", subtitle: "Back, Biceps", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
-      { id: "legs", title: "Leg Day", subtitle: "Quads, Hamstrings, Calves", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
-      { id: "fullbody", title: "Full Body", subtitle: "Full Body", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
-    ];
-    const existingRoutines = existingRoutinesStr ? JSON.parse(existingRoutinesStr) : defaultRoutines;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("You must be logged in to create a routine.");
+        return;
+      }
 
-    const newRoutine = {
-      id: "routine_" + Date.now(),
-      title: title.trim() || "New Routine",
-      subtitle: `${exercises.length} exercises`,
-      duration: "1h 00m",
-      iconName: "Activity",
-      color: "text-blue-500",
-      bg: "bg-blue-100",
-      exercises: exercises, // Save the template exercises
-    };
+      const newRoutine = {
+        user_id: user.id,
+        title: title.trim() || "Bài tập mới",
+        subtitle: `${exercises.length} bài tập`,
+        duration: "1h 00m",
+        icon_name: "Activity",
+        color: "text-blue-500",
+        bg: "bg-blue-100",
+        exercises: exercises, // Save the template exercises
+      };
 
-    localStorage.setItem("routines", JSON.stringify([...existingRoutines, newRoutine]));
-    navigate("/");
+      await workoutService.saveRoutine(newRoutine);
+      navigate("/");
+    } catch (e) {
+      console.error("Error saving routine", e);
+      alert("Lưu bài tập thất bại. Vui lòng thử lại.");
+    }
   };
 
-  const restTimerOptions = ["Off", "20s", "25s", "30s", "45s", "1m 00s", "1m 30s", "2m 00s", "3m 00s"];
+  const restTimerOptions = ["Tắt", "20s", "25s", "30s", "45s", "1m 00s", "1m 30s", "2m 00s", "3m 00s"];
 
   return (
     <div className={cn("flex flex-col h-[100dvh] max-w-md mx-auto relative transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
       {/* Header */}
       <header className={cn("px-4 py-3 flex items-center justify-between sticky top-0 z-20 transition-colors duration-300", isDark ? "bg-[#1c1c1e]" : "bg-white border-b border-zinc-100")}>
         <button onClick={() => navigate(-1)} className="text-blue-500 font-medium text-lg">
-          Cancel
+          Hủy
         </button>
-        <h1 className="font-bold text-lg">Create Routine</h1>
+        <h1 className="font-bold text-lg">Tạo bài tập</h1>
         <button 
           onClick={handleSave}
           disabled={!title.trim() && exercises.length === 0}
@@ -164,14 +168,14 @@ export default function CreateRoutine() {
               : "bg-blue-500 text-white hover:bg-blue-600"
           )}
         >
-          Save
+          Lưu
         </button>
       </header>
 
       {/* Help Banner */}
       {showHelpBanner && (
         <div className="bg-[#fff3cd] text-[#856404] px-4 py-3 flex items-center justify-between text-sm font-medium">
-          <span>You're creating a Routine. Tap for help...</span>
+          <span>Bạn đang tạo một Bài tập. Nhấn để xem trợ giúp...</span>
           <button onClick={() => setShowHelpBanner(false)}>
             <X className="w-4 h-4" />
           </button>
@@ -184,7 +188,7 @@ export default function CreateRoutine() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Routine title"
+          placeholder="Tên bài tập"
           className={cn(
             "w-full text-2xl font-bold bg-transparent border-b pb-2 mb-8 outline-none placeholder:font-bold",
             isDark ? "border-zinc-800 placeholder:text-zinc-700" : "border-zinc-200 placeholder:text-zinc-300"
@@ -195,13 +199,13 @@ export default function CreateRoutine() {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Dumbbell className={cn("w-12 h-12 mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
             <p className={cn("text-lg mb-8", isDark ? "text-zinc-400" : "text-zinc-500")}>
-              Get started by adding an exercise to your routine.
+              Bắt đầu bằng cách thêm một bài tập vào danh sách của bạn.
             </p>
             <button 
               onClick={() => setShowAddExercise(true)}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
-              <Plus className="w-5 h-5" /> Add exercise
+              <Plus className="w-5 h-5" /> Thêm bài tập
             </button>
           </div>
         ) : (
@@ -234,7 +238,7 @@ export default function CreateRoutine() {
                   type="text"
                   value={exercise.note || ""}
                   onChange={(e) => updateExerciseNote(exercise.id, e.target.value)}
-                  placeholder="Add routine notes here"
+                  placeholder="Thêm ghi chú bài tập ở đây"
                   className={cn(
                     "w-full text-sm bg-transparent outline-none mb-2",
                     isDark ? "text-zinc-300 placeholder:text-zinc-600" : "text-zinc-700 placeholder:text-zinc-400"
@@ -247,15 +251,15 @@ export default function CreateRoutine() {
                   className="flex items-center gap-1 text-sm font-medium text-blue-500 mb-4"
                 >
                   <Clock className="w-4 h-4" />
-                  Rest Timer: {exercise.restTimer || "Off"}
+                  Thời gian nghỉ: {exercise.restTimer || "Tắt"}
                 </button>
 
                 {/* Sets Table */}
                 <div className="w-full">
                   <div className={cn("flex text-xs font-bold uppercase tracking-wider mb-2 px-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                    <div className="w-10 text-center">Set</div>
+                    <div className="w-10 text-center">Hiệp</div>
                     <div className="w-14 text-center">kg</div>
-                    <div className="w-14 text-center">Reps</div>
+                    <div className="w-14 text-center">Lần</div>
                   </div>
 
                   <div className="space-y-1">
@@ -317,7 +321,7 @@ export default function CreateRoutine() {
                     onClick={() => addSet(exercise.id)}
                     className={cn("w-full mt-3 py-2.5 rounded-xl font-medium flex items-center justify-center gap-1 transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
                   >
-                    <Plus className="w-4 h-4" /> Add Set
+                    <Plus className="w-4 h-4" /> Thêm hiệp
                   </button>
                 </div>
               </div>
@@ -327,7 +331,7 @@ export default function CreateRoutine() {
               onClick={() => setShowAddExercise(true)}
               className={cn("w-full py-4 rounded-3xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-colors", isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-500 hover:bg-blue-50")}
             >
-              <Plus className="w-5 h-5" /> Add exercise
+              <Plus className="w-5 h-5" /> Thêm bài tập
             </button>
           </div>
         )}
@@ -338,7 +342,7 @@ export default function CreateRoutine() {
         <div className={cn("absolute inset-0 z-50 flex flex-col", isDark ? "bg-black" : "bg-zinc-50")}>
           <header className={cn("px-4 py-4 border-b flex flex-col gap-3 shadow-sm z-10", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
             <div className="flex items-center justify-between">
-              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Select Exercise</h2>
+              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Chọn bài tập</h2>
               <button onClick={() => { setShowAddExercise(false); setSearchQuery(""); }} className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}>
                 <X className="w-5 h-5" />
               </button>
@@ -347,7 +351,7 @@ export default function CreateRoutine() {
               <Search className={cn("w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2", isDark ? "text-zinc-500" : "text-zinc-400")} />
               <input 
                 type="text"
-                placeholder="Search 200+ exercises..."
+                placeholder="Tìm kiếm hơn 200 bài tập..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn("w-full pl-10 pr-4 py-2.5 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl transition-all outline-none", isDark ? "bg-zinc-800 text-white placeholder:text-zinc-500 focus:bg-zinc-900" : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400 focus:bg-white")}
@@ -357,7 +361,7 @@ export default function CreateRoutine() {
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {filteredDB.length === 0 ? (
               <div className={cn("text-center py-10", isDark ? "text-zinc-500" : "text-zinc-500")}>
-                No exercises found.
+                Không tìm thấy bài tập nào.
               </div>
             ) : (
               filteredDB.map((group) => (
@@ -365,7 +369,7 @@ export default function CreateRoutine() {
                   <div className="flex items-center justify-between mb-3 px-1">
                     <h3 className={cn("font-bold text-sm uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>{group.category}</h3>
                     {!searchQuery.trim() && (
-                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Showing 5 items</span>
+                      <span className={cn("text-xs", isDark ? "text-zinc-600" : "text-zinc-400")}>Hiển thị 5 mục</span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -409,7 +413,7 @@ export default function CreateRoutine() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
           <div className={cn("w-full max-w-md rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom-full duration-300", isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900")}>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Rest Timer</h3>
+              <h3 className="text-xl font-bold">Thời gian nghỉ</h3>
               <button onClick={() => setActiveRestTimerExerciseId(null)} className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700" : "bg-zinc-100 hover:bg-zinc-200")}>
                 <X className="w-5 h-5" />
               </button>

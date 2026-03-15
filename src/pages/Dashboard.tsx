@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Play, Dumbbell, Activity, Flame, Plus, Trash2, X, ChevronDown, ClipboardList, Search, ArrowRight, Moon, Sun, LogOut } from "lucide-react";
+import { Play, Dumbbell, Activity, Flame, Plus, Trash2, X, ChevronDown, ClipboardList, Search, ArrowRight, Moon, Sun, LogOut, Trophy, Medal, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 import { supabase } from "../lib/supabase";
+import { workoutService } from "../lib/workoutService";
 
 type Routine = {
   id: string;
@@ -14,6 +15,7 @@ type Routine = {
   iconName: "Flame" | "Activity" | "Dumbbell";
   color: string;
   bg: string;
+  exercises?: any[];
 };
 
 const defaultRoutines: Routine[] = [
@@ -34,30 +36,137 @@ export default function Dashboard() {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [streak, setStreak] = useState(0);
+  const [totalWorkouts, setTotalWorkouts] = useState(0);
   const { isDark } = useTheme();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserEmail(user.email || null);
+      if (user) {
+        setUserEmail(user.email || null);
+        setUserId(user.id);
+        fetchRoutines(user.id);
+        fetchStats(user.id);
+      }
     });
-
-    const saved = localStorage.getItem("routines");
-    if (saved) {
-      setRoutines(JSON.parse(saved));
-    } else {
-      setRoutines(defaultRoutines);
-      localStorage.setItem("routines", JSON.stringify(defaultRoutines));
-    }
   }, []);
 
-  const saveRoutines = (newRoutines: Routine[]) => {
-    setRoutines(newRoutines);
-    localStorage.setItem("routines", JSON.stringify(newRoutines));
+  const fetchStats = async (uid: string) => {
+    try {
+      const history = await workoutService.getWorkoutHistory(uid);
+      if (history && history.length > 0) {
+        setTotalWorkouts(history.length);
+        
+        // Calculate simple streak
+        const dates = history.map(w => new Date(w.start_time).toDateString());
+        const uniqueDates = [...new Set(dates)].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+        
+        let currentStreak = 0;
+        let checkDate = new Date();
+        
+        // Check if worked out today
+        if (uniqueDates[0] === checkDate.toDateString()) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+          
+          for (let i = 1; i < uniqueDates.length; i++) {
+            if (uniqueDates[i] === checkDate.toDateString()) {
+              currentStreak++;
+              checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+              break;
+            }
+          }
+        } else {
+          // Check if worked out yesterday
+          checkDate.setDate(checkDate.getDate() - 1);
+          if (uniqueDates[0] === checkDate.toDateString()) {
+            currentStreak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+            
+            for (let i = 1; i < uniqueDates.length; i++) {
+              if (uniqueDates[i] === checkDate.toDateString()) {
+                currentStreak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+              } else {
+                break;
+              }
+            }
+          }
+        }
+        setStreak(currentStreak);
+      }
+    } catch (e) {
+      console.error("Failed to fetch stats", e);
+    }
   };
 
-  const confirmDeleteRoutine = () => {
-    if (deleteConfirmId) {
-      saveRoutines(routines.filter((r) => r.id !== deleteConfirmId));
+  const fetchRoutines = async (uid: string) => {
+    try {
+      const data = await workoutService.getRoutines(uid);
+      if (data && data.length > 0) {
+        setRoutines(data.map(r => ({
+          id: r.id,
+          title: r.title,
+          subtitle: r.subtitle || "",
+          duration: r.duration || "",
+          iconName: r.icon_name as any,
+          color: r.color || "",
+          bg: r.bg || "",
+          exercises: r.exercises
+        })));
+      } else {
+        // Migration from localStorage if available
+        const saved = localStorage.getItem("routines");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setRoutines(parsed);
+          // Optionally save them to Supabase
+          parsed.forEach((r: any) => {
+            workoutService.saveRoutine({
+              user_id: uid,
+              title: r.title,
+              subtitle: r.subtitle,
+              duration: r.duration,
+              icon_name: r.iconName,
+              color: r.color,
+              bg: r.bg,
+              exercises: r.exercises || []
+            });
+          });
+        } else {
+          setRoutines(defaultRoutines);
+          // Save defaults to Supabase
+          defaultRoutines.forEach(r => {
+            workoutService.saveRoutine({
+              user_id: uid,
+              title: r.title,
+              subtitle: r.subtitle,
+              duration: r.duration,
+              icon_name: r.iconName,
+              color: r.color,
+              bg: r.bg,
+              exercises: []
+            });
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch routines", e);
+    }
+  };
+
+  const confirmDeleteRoutine = async () => {
+    if (deleteConfirmId && userId) {
+      try {
+        // If it's a default routine that hasn't been saved to DB with a UUID, this might fail,
+        // but we'll remove it from UI anyway.
+        await workoutService.deleteRoutine(deleteConfirmId);
+      } catch (e) {
+        console.error(e);
+      }
+      setRoutines(routines.filter((r) => r.id !== deleteConfirmId));
       localStorage.removeItem(`workout_${deleteConfirmId}`);
       setDeleteConfirmId(null);
     }
@@ -92,32 +201,51 @@ export default function Dashboard() {
             >
               <LogOut className="w-5 h-5" />
             </button>
-            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm border-2", isDark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-200 border-white")}>
-              <img 
-                src="https://picsum.photos/seed/user123/100/100" 
-                alt="User" 
-                referrerPolicy="no-referrer"
-                className="w-full h-full rounded-full object-cover"
-              />
+            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm border-2 bg-blue-500", isDark ? "border-zinc-700" : "border-white")}>
+              {userEmail ? userEmail[0].toUpperCase() : "U"}
             </div>
+          </div>
+        </motion.div>
+
+        {/* Gamification Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 gap-4"
+        >
+          <div className={cn("rounded-3xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
+            <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center mb-3">
+              <Flame className="w-6 h-6 text-orange-500" />
+            </div>
+            <h3 className={cn("text-3xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{streak}</h3>
+            <p className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Ngày liên tiếp</p>
+          </div>
+          
+          <div className={cn("rounded-3xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-3">
+              <Trophy className="w-6 h-6 text-blue-500" />
+            </div>
+            <h3 className={cn("text-3xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{totalWorkouts}</h3>
+            <p className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Buổi tập</p>
           </div>
         </motion.div>
 
         {/* Start Empty Workout */}
         <motion.button 
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
           onClick={() => navigate("/workout/empty")}
           className={cn(
             "w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors",
             isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white" : "bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-900 shadow-sm"
           )}
         >
-          <Plus className="w-5 h-5" /> Start Empty Workout
+          <Plus className="w-5 h-5" /> Bắt đầu bài tập trống
         </motion.button>
 
         {/* Routines Section */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <h2 className="text-xl font-bold mb-4">Routines</h2>
+          <h2 className="text-xl font-bold mb-4">Lịch tập</h2>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <button 
               onClick={() => navigate("/routine/new")}
@@ -127,16 +255,17 @@ export default function Dashboard() {
               )}
             >
               <ClipboardList className="w-6 h-6" />
-              <span className="font-medium">New Routine</span>
+              <span className="font-medium">Tạo lịch tập</span>
             </button>
             <button 
+              onClick={() => navigate("/marketplace")}
               className={cn(
                 "py-6 rounded-xl flex flex-col items-center justify-center gap-3 transition-colors",
                 isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white" : "bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-900 shadow-sm"
               )}
             >
               <Search className="w-6 h-6" />
-              <span className="font-medium">Explore Routines</span>
+              <span className="font-medium">Khám phá</span>
             </button>
           </div>
 
@@ -181,7 +310,7 @@ export default function Dashboard() {
             })}
             {routines.length === 0 && (
               <div className={cn("text-center py-10", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                No routines yet. Create a new routine!
+                Chưa có lịch tập nào. Hãy tạo lịch tập mới!
               </div>
             )}
           </div>
@@ -192,7 +321,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           className="w-full mt-8 bg-[#2c3e50] hover:bg-[#34495e] text-white p-4 rounded-xl flex items-center justify-between transition-colors"
         >
-          <span className="font-medium">How to get started</span>
+          <span className="font-medium">Hướng dẫn bắt đầu</span>
           <ArrowRight className="w-5 h-5" />
         </motion.button>
       </div>
@@ -201,20 +330,20 @@ export default function Dashboard() {
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className={cn("rounded-3xl p-6 w-full max-w-sm shadow-2xl", isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900")}>
-            <h3 className="text-xl font-bold mb-2">Delete Routine?</h3>
-            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Are you sure you want to delete this routine? All workout data in this routine will be lost.</p>
+            <h3 className="text-xl font-bold mb-2">Xóa lịch tập?</h3>
+            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn có chắc chắn muốn xóa lịch tập này không? Tất cả dữ liệu bài tập trong lịch này sẽ bị mất.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirmId(null)}
                 className={cn("flex-1 py-3 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={confirmDeleteRoutine}
                 className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors"
               >
-                Delete
+                Xóa
               </button>
             </div>
           </div>

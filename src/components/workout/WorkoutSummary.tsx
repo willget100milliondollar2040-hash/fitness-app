@@ -1,0 +1,88 @@
+import { motion } from "motion/react";
+import { Trophy, Clock, Activity, Dumbbell, ArrowRight, Home, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useTheme } from "../ThemeProvider";
+import { ExerciseType } from "../../pages/ActiveWorkout";
+
+interface WorkoutSummaryProps {
+  elapsedTime: number;
+  exercises: ExerciseType[];
+  isSaving: boolean;
+  onFinish: () => void;
+  onRestart: () => void;
+}
+
+export function WorkoutSummary({ elapsedTime, exercises, isSaving, onFinish, onRestart }: WorkoutSummaryProps) {
+  const { isDark } = useTheme();
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const totalVolume = exercises.reduce((acc, ex) => {
+    return acc + ex.sets.reduce((setAcc, set) => {
+      if (set.completed) {
+        return setAcc + (parseFloat(set.kg) || 0) * (parseInt(set.reps) || 0);
+      }
+      return setAcc;
+    }, 0);
+  }, 0);
+
+  const totalSets = exercises.reduce((acc, ex) => {
+    return acc + ex.sets.filter(s => s.completed).length;
+  }, 0);
+
+  return (
+    <div className={cn("absolute inset-0 z-50 flex flex-col items-center justify-center p-6", isDark ? "bg-black/80 backdrop-blur-sm" : "bg-zinc-50/80 backdrop-blur-sm")}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={cn("w-full max-w-sm rounded-3xl p-8 shadow-2xl border text-center relative overflow-hidden", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+      >
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-400 to-zinc-400 dark:to-zinc-600 opacity-20" />
+        
+        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-zinc-500 dark:to-zinc-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg relative z-10">
+          <Trophy className="w-10 h-10 text-white" />
+        </div>
+        
+        <h2 className={cn("text-2xl font-bold mb-2 relative z-10", isDark ? "text-white" : "text-zinc-900")}>Tuyệt vời!</h2>
+        <p className={cn("mb-8 relative z-10", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn đã hoàn thành buổi tập hôm nay.</p>
+        
+        <div className="grid grid-cols-3 gap-4 mb-8 relative z-10">
+          <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
+            <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Thời gian</div>
+            <div className="text-blue-500 font-bold text-lg">{formatTime(elapsedTime)}</div>
+          </div>
+          <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
+            <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Khối lượng</div>
+            <div className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{totalVolume}<span className={cn("text-xs font-normal ml-1", isDark ? "text-zinc-500" : "text-zinc-500")}>kg</span></div>
+          </div>
+          <div className={cn("rounded-2xl p-3", isDark ? "bg-zinc-800/50" : "bg-zinc-50")}>
+            <div className={cn("text-xs font-medium mb-1 uppercase", isDark ? "text-zinc-500" : "text-zinc-400")}>Hiệp</div>
+            <div className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{totalSets}</div>
+          </div>
+        </div>
+        
+        <div className="space-y-3 relative z-10">
+          <button
+            onClick={onFinish}
+            disabled={isSaving}
+            className="w-full py-4 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 disabled:opacity-50"
+          >
+            <Home className="w-5 h-5" /> {isSaving ? "Đang lưu..." : "Hoàn thành & Về trang chủ"}
+          </button>
+          <button
+            onClick={onRestart}
+            className={cn("w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
+          >
+            <RotateCcw className="w-5 h-5" /> Tập lại từ đầu
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

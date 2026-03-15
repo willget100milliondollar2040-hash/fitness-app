@@ -140,5 +140,84 @@ export const workoutService = {
       console.error('Error fetching workout history:', error);
       return [];
     }
+  },
+
+  async getRoutines(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('routines')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching routines:', error);
+      return [];
+    }
+  },
+
+  async saveRoutine(routine: any) {
+    try {
+      const { data, error } = await supabase
+        .from('routines')
+        .upsert(routine)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error saving routine:', error);
+      throw error;
+    }
+  },
+
+  async deleteRoutine(routineId: string) {
+    try {
+      const { error } = await supabase
+        .from('routines')
+        .delete()
+        .eq('id', routineId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting routine:', error);
+      throw error;
+    }
+  },
+
+  async getProfile(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  },
+
+  async updateProfile(userId: string, profileData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
   }
 };

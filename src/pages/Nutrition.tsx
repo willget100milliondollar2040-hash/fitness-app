@@ -221,7 +221,7 @@ export default function Nutrition() {
       protein: Number(manualMeal.protein) || 0,
       carbs: Number(manualMeal.carbs) || 0,
       fat: Number(manualMeal.fat) || 0,
-      img: "https://picsum.photos/seed/manual/150/150"
+      img: ""
     };
 
     setMeals((prev) => [newMeal, ...prev]);
@@ -246,9 +246,9 @@ export default function Nutrition() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
           <Utensils className="w-6 h-6 text-black dark:text-white" />
-          Nutrition
+          Dinh dưỡng
         </h2>
-        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Track your meals easily with photos or manual entry.</p>
+        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng ảnh hoặc nhập thủ công.</p>
       </motion.div>
 
       {/* Calories Overview */}
@@ -269,8 +269,8 @@ export default function Nutrition() {
           </div>
         </div>
         <div className="flex justify-between w-full text-sm font-medium">
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Consumed: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Remaining: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
+          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
+          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
         </div>
       </motion.div>
 
@@ -291,7 +291,7 @@ export default function Nutrition() {
           ) : (
             <Camera className="w-6 h-6" />
           )}
-          <span className="text-[10px] uppercase tracking-wider">Take Photo</span>
+          <span className="text-[10px] uppercase tracking-wider">Chụp ảnh</span>
         </button>
         <button 
           onClick={() => galleryInputRef.current?.click()}
@@ -299,14 +299,14 @@ export default function Nutrition() {
           className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
         >
           <Upload className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Upload</span>
+          <span className="text-[10px] uppercase tracking-wider">Tải lên</span>
         </button>
         <button 
           onClick={() => setIsManualModalOpen(true)}
           className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
         >
           <Edit2 className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Manual</span>
+          <span className="text-[10px] uppercase tracking-wider">Thủ công</span>
         </button>
         <input 
           type="file" 
@@ -333,7 +333,7 @@ export default function Nutrition() {
         className="space-y-4"
       >
         <div className="flex justify-between items-end">
-          <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Today's Meals</h3>
+          <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Bữa ăn hôm nay</h3>
           <button 
             onClick={() => setIsManualModalOpen(true)}
             className={cn("w-8 h-8 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-zinc-800 text-zinc-400 hover:bg-white/20 hover:text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-black")}
@@ -345,8 +345,12 @@ export default function Nutrition() {
         <div className="space-y-3">
           {meals.map((meal, i) => (
             <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner">
-                <img className="w-full h-full object-cover" src={meal.img} alt={meal.name} referrerPolicy="no-referrer" />
+              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner flex items-center justify-center">
+                {meal.img ? (
+                  <img className="w-full h-full object-cover" src={meal.img} alt={meal.name} referrerPolicy="no-referrer" />
+                ) : (
+                  <Utensils className={cn("w-6 h-6", isDark ? "text-zinc-600" : "text-zinc-400")} />
+                )}
               </div>
               <div className="flex-1">
                 <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{meal.time}</span>
@@ -377,7 +381,7 @@ export default function Nutrition() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-black/50 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-3">
                 <ScanLine className="w-6 h-6 text-white animate-pulse" />
-                <span className="text-white font-medium">AI is analyzing...</span>
+                <span className="text-white font-medium">AI đang phân tích...</span>
               </div>
             </div>
           </div>
@@ -394,7 +398,7 @@ export default function Nutrition() {
           >
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>Add Meal</h3>
+                <h3 className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>Thêm bữa ăn</h3>
                 <button onClick={() => setIsManualModalOpen(false)} className="text-zinc-500 hover:text-zinc-700">
                   <X className="w-6 h-6" />
                 </button>
@@ -402,10 +406,10 @@ export default function Nutrition() {
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Dish Name</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Tên món ăn</label>
                   <input 
                     type="text"
-                    placeholder="e.g., Chicken Rice"
+                    placeholder="VD: Cơm gà"
                     value={manualMeal.name}
                     onChange={(e) => setManualMeal({...manualMeal, name: e.target.value})}
                     className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
@@ -414,7 +418,7 @@ export default function Nutrition() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Calories (kcal)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Calo (kcal)</label>
                     <input 
                       type="number"
                       placeholder="0"
@@ -424,16 +428,16 @@ export default function Nutrition() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Meal Time</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Bữa ăn</label>
                     <select 
                       value={manualMeal.time}
                       onChange={(e) => setManualMeal({...manualMeal, time: e.target.value})}
                       className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all appearance-none", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     >
-                      <option>Breakfast</option>
-                      <option>Lunch</option>
-                      <option>Dinner</option>
-                      <option>Snack</option>
+                      <option>Bữa sáng</option>
+                      <option>Bữa trưa</option>
+                      <option>Bữa tối</option>
+                      <option>Ăn vặt</option>
                     </select>
                   </div>
                 </div>
@@ -477,13 +481,13 @@ export default function Nutrition() {
                   onClick={() => setIsManualModalOpen(false)}
                   className={cn("flex-1 py-3.5 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button 
                   onClick={handleConfirmManualMeal}
                   className="flex-1 py-3.5 rounded-xl font-bold text-white bg-black hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 shadow-md shadow-black/20 dark:shadow-white/20"
                 >
-                  <Check className="w-5 h-5" /> Save
+                  <Check className="w-5 h-5" /> Lưu
                 </button>
               </div>
             </div>
@@ -579,13 +583,13 @@ export default function Nutrition() {
                   onClick={handleCancelMeal}
                   className={cn("flex-1 py-3.5 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button 
                   onClick={handleConfirmMeal}
                   className="flex-1 py-3.5 rounded-xl font-bold text-white bg-black hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 shadow-md shadow-black/20 dark:shadow-white/20"
                 >
-                  <Check className="w-5 h-5" /> Confirm
+                  <Check className="w-5 h-5" /> Xác nhận
                 </button>
               </div>
             </div>
