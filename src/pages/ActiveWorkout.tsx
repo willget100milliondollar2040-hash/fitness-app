@@ -445,7 +445,33 @@ export default function ActiveWorkout() {
   const [defaultRestTime, setDefaultRestTime] = useState<number>(90);
   const { isDark } = useTheme();
   const [newRecords, setNewRecords] = useState<Record<string, boolean>>({});
+  const [exerciseRecords, setExerciseRecords] = useState<Record<string, { maxKg: number, reps: number } | null>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [showMuscleDistribution, setShowMuscleDistribution] = useState(false);
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const updatedRecords = { ...exerciseRecords };
+      let hasChanges = false;
+
+      for (const ex of exercises) {
+        if (updatedRecords[ex.name] === undefined) {
+          const record = await workoutService.getExerciseRecords(user.id, ex.name);
+          updatedRecords[ex.name] = record;
+          hasChanges = true;
+        }
+      }
+
+      if (hasChanges) {
+        setExerciseRecords(updatedRecords);
+      }
+    };
+
+    fetchRecords();
+  }, [exercises]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -487,6 +513,23 @@ export default function ActiveWorkout() {
     if (timerStr.includes("m")) return parseInt(timerStr) * 60;
     if (timerStr.includes("s")) return parseInt(timerStr);
     return defaultTime;
+  };
+
+  const formatRestTimerString = (seconds: number) => {
+    if (seconds <= 0) return "Tắt";
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m === 0) return `${s}s`;
+    return `${m}m ${s.toString().padStart(2, '0')}s`;
+  };
+
+  const updateRestTimerCustom = (delta: number) => {
+    if (!activeRestTimerExerciseId) return;
+    const current = exercises.find(ex => ex.id === activeRestTimerExerciseId);
+    if (!current) return;
+    const currentSeconds = parseRestTimer(current.restTimer, 0);
+    const newSeconds = Math.max(0, currentSeconds + delta);
+    updateRestTimer(formatRestTimerString(newSeconds));
   };
 
   const startRestTimer = (exerciseRestTimer?: string) => {
@@ -574,19 +617,35 @@ export default function ActiveWorkout() {
   const stats = useMemo(() => {
     let volume = 0;
     let setsCount = 0;
+    const muscleStats: Record<string, number> = {};
+
     exercises.forEach(ex => {
+      // Find muscle for this exercise
+      let muscle = "Khác";
+      for (const group of EXERCISE_DB) {
+        const found = group.items.find(item => 
+          (typeof item === 'string' ? item : item.name) === ex.name
+        );
+        if (found && typeof found !== 'string' && found.muscle) {
+          muscle = found.muscle;
+          break;
+        }
+      }
+
       ex.sets.forEach(set => {
         if (set.completed) {
           setsCount++;
           const kg = parseFloat(set.kg) || 0;
           const reps = parseInt(set.reps) || 0;
-          // For bodyweight exercises, we might just count reps or add bodyweight.
-          // Here we just use kg * reps. If kg is 0, volume is 0.
           volume += kg * reps;
+
+          // Add to muscle stats
+          if (!muscleStats[muscle]) muscleStats[muscle] = 0;
+          muscleStats[muscle] += 1;
         }
       });
     });
-    return { volume, setsCount };
+    return { volume, setsCount, muscleStats };
   }, [exercises]);
 
   const toggleSet = async (exerciseId: string, setId: string) => {
@@ -844,6 +903,20 @@ export default function ActiveWorkout() {
             <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Hiệp</div>
             <div className={cn("font-medium text-lg leading-none", isDark ? "text-white" : "text-zinc-900")}>{stats.setsCount}</div>
           </div>
+          <button 
+            onClick={() => setShowMuscleDistribution(true)}
+            className={cn("p-2 rounded-lg transition-colors", isDark ? "hover:bg-zinc-800" : "hover:bg-zinc-100")}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn(isDark ? "text-zinc-400" : "text-zinc-500")}>
+              <path d="M12 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+              <path d="M12 4v7"/>
+              <path d="M12 11v10"/>
+              <path d="M12 11l4 10"/>
+              <path d="M12 11l-4 10"/>
+              <path d="M12 4l4 5"/>
+              <path d="M12 4l-4 5"/>
+            </svg>
+          </button>
         </div>
 
         {/* Exercises */}
@@ -851,6 +924,7 @@ export default function ActiveWorkout() {
           <ExerciseList
             exercises={exercises}
             newRecords={newRecords}
+            exerciseRecords={exerciseRecords}
             onRemoveExercise={(id) => setDeleteExerciseId(id)}
             onUpdateNote={updateExerciseNote}
             onSetActiveRestTimer={setActiveRestTimerExerciseId}
@@ -983,6 +1057,7 @@ export default function ActiveWorkout() {
             </div>
           </div>
           <div className="flex gap-2">
+            <button onClick={() => setRestTimer(prev => Math.max(0, prev - 30))} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">-30s</button>
             <button onClick={() => setRestTimer(prev => prev + 30)} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">+30s</button>
             <button onClick={stopRestTimer} className="px-3 py-2 bg-blue-500 hover:bg-blue-400 rounded-xl text-sm font-bold transition-colors">Bỏ qua</button>
           </div>
@@ -1000,6 +1075,24 @@ export default function ActiveWorkout() {
               </button>
             </div>
             
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <button 
+                onClick={() => updateRestTimerCustom(-15)} 
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold transition-colors active:scale-95", isDark ? "bg-zinc-800 text-white hover:bg-zinc-700" : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200")}
+              >
+                -
+              </button>
+              <div className="text-4xl font-mono font-bold w-32 text-center">
+                {exercises.find(ex => ex.id === activeRestTimerExerciseId)?.restTimer || "Tắt"}
+              </div>
+              <button 
+                onClick={() => updateRestTimerCustom(15)} 
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold transition-colors active:scale-95", isDark ? "bg-zinc-800 text-white hover:bg-zinc-700" : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200")}
+              >
+                +
+              </button>
+            </div>
+
             <div className="grid grid-cols-3 gap-3">
               {restTimerOptions.map((time) => {
                 const currentExercise = exercises.find(ex => ex.id === activeRestTimerExerciseId);
@@ -1058,6 +1151,48 @@ export default function ActiveWorkout() {
               referrerPolicy="no-referrer"
               className="w-full h-auto object-contain" 
             />
+          </div>
+        </div>
+      )}
+
+      {/* Muscle Distribution Modal */}
+      {showMuscleDistribution && (
+        <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-sm" onClick={() => setShowMuscleDistribution(false)}>
+          <div 
+            className={cn("w-full rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-full", isDark ? "bg-[#1c1c1e]" : "bg-white")}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-zinc-400/30 rounded-full mx-auto mb-6" />
+            <h2 className={cn("text-xl font-bold mb-6 text-center", isDark ? "text-white" : "text-zinc-900")}>Muscle Distribution</h2>
+            
+            <div className="flex justify-center gap-4 mb-8">
+              <img src="https://storage.googleapis.com/aistudio-user-content/0b217a6d-20d0-4740-9a29-06385d01323a/c6166416-0929-4592-8818-80f488663806.jpg" alt="Front Muscles" className="w-32 h-auto object-contain opacity-80 mix-blend-screen" referrerPolicy="no-referrer" />
+              <img src="https://storage.googleapis.com/aistudio-user-content/0b217a6d-20d0-4740-9a29-06385d01323a/29e2467d-92a2-4a00-9833-28c035310b10.jpg" alt="Back Muscles" className="w-32 h-auto object-contain opacity-80 mix-blend-screen" referrerPolicy="no-referrer" />
+            </div>
+
+            <div className="space-y-4">
+              <div className={cn("flex justify-between text-sm font-medium mb-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
+                <span>Muscle</span>
+                <span>Completed Sets</span>
+              </div>
+              
+              {Object.entries(stats.muscleStats).map(([muscle, count]) => {
+                const maxSets = Math.max(...Object.values(stats.muscleStats), 1);
+                const percentage = (count / maxSets) * 100;
+                return (
+                  <div key={muscle} className="flex items-center gap-4">
+                    <span className={cn("w-24 text-sm font-medium truncate", isDark ? "text-zinc-300" : "text-zinc-700")}>{muscle}</span>
+                    <div className="flex-1 h-4 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${percentage}%` }} />
+                    </div>
+                    <span className={cn("w-8 text-right text-sm font-medium", isDark ? "text-white" : "text-zinc-900")}>{count}</span>
+                  </div>
+                );
+              })}
+              {Object.keys(stats.muscleStats).length === 0 && (
+                <div className="text-center text-zinc-500 text-sm py-4">Chưa có bài tập nào hoàn thành</div>
+              )}
+            </div>
           </div>
         </div>
       )}

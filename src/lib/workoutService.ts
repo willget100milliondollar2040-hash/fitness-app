@@ -120,6 +120,33 @@ export const workoutService = {
     }
   },
 
+  async getExerciseRecords(userId: string, exerciseName: string) {
+    try {
+      const { data, error } = await supabase
+        .from('workout_sets')
+        .select('kg, reps')
+        .eq('user_id', userId)
+        .eq('exercise_name', exerciseName)
+        .eq('completed', true)
+        .order('kg', { ascending: false })
+        .order('reps', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        return {
+          maxKg: data[0].kg,
+          reps: data[0].reps
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching exercise records:', error);
+      return null;
+    }
+  },
+
   async getWorkoutHistory(userId: string) {
     try {
       const { data, error } = await supabase

@@ -43,13 +43,15 @@ export function SetTracker({
         </button>
       </div>
 
-      <div className={cn("w-6 text-center font-bold", set.completed ? (isDark ? "text-white" : "text-zinc-900") : (isDark ? "text-zinc-400" : "text-zinc-500"))}>
-        {setNumber}
+      <div className="w-6 flex justify-center">
+        <div className={cn("h-6 min-w-[1.5rem] px-1 rounded-md flex items-center justify-center font-bold text-xs", set.completed ? (isDark ? "bg-white/20 text-white" : "bg-zinc-300 text-zinc-900") : (isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-200 text-zinc-500"))}>
+          {setNumber}
+        </div>
       </div>
       <div className={cn("flex-1 text-center font-medium text-sm", set.completed ? (isDark ? "text-white" : "text-zinc-900") : (isDark ? "text-zinc-500" : "text-zinc-400"))}>
         {set.previous}
       </div>
-      <div className="w-14 px-1">
+      <div className="w-16 px-1">
         <input
           type="text"
           inputMode="decimal"
@@ -61,7 +63,7 @@ export function SetTracker({
           )}
         />
       </div>
-      <div className="w-14 px-1">
+      <div className="w-16 px-1">
         <input
           type="text"
           inputMode="numeric"

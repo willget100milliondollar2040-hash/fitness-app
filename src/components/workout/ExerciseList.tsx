@@ -1,4 +1,5 @@
-import { Plus, Trash2, Clock, Check } from "lucide-react";
+import { useState } from "react";
+import { Plus, Trash2, Clock, Check, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../ThemeProvider";
 import { ExerciseType, ExerciseImage } from "../../pages/ActiveWorkout";
@@ -7,6 +8,7 @@ import { SetTracker } from "./SetTracker";
 interface ExerciseListProps {
   exercises: ExerciseType[];
   newRecords: Record<string, boolean>;
+  exerciseRecords: Record<string, { maxKg: number, reps: number } | null>;
   onRemoveExercise: (id: string) => void;
   onUpdateNote: (id: string, note: string) => void;
   onSetActiveRestTimer: (id: string) => void;
@@ -20,6 +22,7 @@ interface ExerciseListProps {
 export function ExerciseList({
   exercises,
   newRecords,
+  exerciseRecords,
   onRemoveExercise,
   onUpdateNote,
   onSetActiveRestTimer,
@@ -30,10 +33,19 @@ export function ExerciseList({
   onImageClick
 }: ExerciseListProps) {
   const { isDark } = useTheme();
+  const [expandedRecordId, setExpandedRecordId] = useState<string | null>(null);
+
+  const toggleRecord = (id: string) => {
+    setExpandedRecordId(prev => prev === id ? null : id);
+  };
 
   return (
     <div className="space-y-6">
-      {exercises.map((exercise) => (
+      {exercises.map((exercise) => {
+        const record = exerciseRecords[exercise.name];
+        const isExpanded = expandedRecordId === exercise.id;
+        
+        return (
         <div 
           key={exercise.id} 
           className={cn(
@@ -49,10 +61,19 @@ export function ExerciseList({
             >
               <ExerciseImage name={exercise.name} className="w-14 h-14 rounded-2xl" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className={cn("font-bold text-lg truncate", isDark ? "text-white" : "text-zinc-900")}>
-                {exercise.name}
-              </h3>
+            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => toggleRecord(exercise.id)}>
+              <div className="flex items-center gap-2">
+                <h3 className={cn("font-bold text-lg truncate", isDark ? "text-white" : "text-zinc-900")}>
+                  {exercise.name}
+                </h3>
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-zinc-500" /> : <ChevronDown className="w-4 h-4 text-zinc-500" />}
+              </div>
+              {isExpanded && (
+                <div className="mt-1 flex items-center gap-1 text-xs font-medium text-yellow-500">
+                  <Trophy className="w-3 h-3" />
+                  {record ? `Kỷ lục: ${record.maxKg}kg x ${record.reps} lần` : "Chưa có kỷ lục"}
+                </div>
+              )}
             </div>
             <button onClick={() => onRemoveExercise(exercise.id)} className={cn("transition-colors p-2", isDark ? "text-zinc-500 hover:text-red-400" : "text-zinc-400 hover:text-red-500")}>
               <Trash2 className="w-5 h-5" />
@@ -83,10 +104,10 @@ export function ExerciseList({
           {/* Sets Table */}
           <div className="w-full">
             <div className={cn("flex text-xs font-bold uppercase tracking-wider mb-2 px-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
-              <div className="w-14 text-center">Hiệp</div>
-              <div className="flex-1 text-center">Trước</div>
-              <div className="w-14 text-center">kg</div>
-              <div className="w-14 text-center">Lần</div>
+              <div className="w-14 text-center">SET</div>
+              <div className="flex-1 text-center">PREVIOUS</div>
+              <div className="w-16 text-center">+KG</div>
+              <div className="w-16 text-center">REPS</div>
               <div className="w-10 text-center"><Check className="w-4 h-4 mx-auto" /></div>
             </div>
 
@@ -113,15 +134,16 @@ export function ExerciseList({
             <button
               onClick={() => onAddSet(exercise.id)}
               className={cn(
-                "w-full mt-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors",
-                isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900"
+                "w-full mt-2 py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition-colors text-sm",
+                isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700"
               )}
             >
-              <Plus className="w-5 h-5" /> Thêm hiệp
+              <Plus className="w-4 h-4" /> Add Set
             </button>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
