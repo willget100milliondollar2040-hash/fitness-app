@@ -69,7 +69,13 @@ CREATE TABLE profiles (
     avatar_url TEXT,
     weight NUMERIC,
     height NUMERIC,
+    age INTEGER,
     goals TEXT[],
+    level TEXT,
+    frequency TEXT,
+    timeframe TEXT,
+    diet TEXT,
+    onboarding_complete BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

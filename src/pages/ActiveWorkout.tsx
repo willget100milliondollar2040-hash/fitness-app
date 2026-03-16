@@ -1778,6 +1778,24 @@ export default function ActiveWorkout() {
         setRestTimer((prev) => {
           if (prev <= 1) {
             setIsResting(false);
+            // Play notification sound
+            try {
+              const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+              if (AudioContextClass) {
+                const context = new AudioContextClass();
+                const oscillator = context.createOscillator();
+                const gain = context.createGain();
+                oscillator.connect(gain);
+                gain.connect(context.destination);
+                oscillator.type = "sine";
+                oscillator.frequency.setValueAtTime(880, context.currentTime);
+                gain.gain.setValueAtTime(0.1, context.currentTime);
+                oscillator.start();
+                oscillator.stop(context.currentTime + 0.5);
+              }
+            } catch (e) {
+              console.error("AudioContext beep failed", e);
+            }
             return 0;
           }
           return prev - 1;

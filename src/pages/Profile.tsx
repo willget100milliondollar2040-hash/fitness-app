@@ -19,7 +19,12 @@ export default function Profile() {
     full_name: "",
     weight: "",
     height: "",
+    age: "",
     goals: [] as string[],
+    level: "",
+    frequency: "",
+    timeframe: "",
+    diet: "",
     avatar_url: ""
   });
 
@@ -30,6 +35,10 @@ export default function Profile() {
     "Khỏe hơn",
     "Giữ gìn sức khỏe"
   ];
+
+  const LEVEL_OPTIONS = ["Người mới", "Trung cấp", "Nâng cao"];
+  const FREQUENCY_OPTIONS = ["1-2 buổi/tuần", "3-4 buổi/tuần", "5+ buổi/tuần"];
+  const DIET_OPTIONS = ["Cân bằng", "Nhiều đạm", "Ăn chay", "Keto"];
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -44,7 +53,12 @@ export default function Profile() {
             full_name: data.full_name || "",
             weight: data.weight?.toString() || "",
             height: data.height?.toString() || "",
+            age: data.age?.toString() || "",
             goals: data.goals || [],
+            level: data.level || "",
+            frequency: data.frequency || "",
+            timeframe: data.timeframe || "",
+            diet: data.diet || "",
             avatar_url: data.avatar_url || ""
           });
         }
@@ -62,7 +76,12 @@ export default function Profile() {
         full_name: profile.full_name,
         weight: profile.weight ? parseFloat(profile.weight) : null,
         height: profile.height ? parseFloat(profile.height) : null,
+        age: profile.age ? parseInt(profile.age) : null,
         goals: profile.goals,
+        level: profile.level,
+        frequency: profile.frequency,
+        timeframe: profile.timeframe,
+        diet: profile.diet,
         avatar_url: profile.avatar_url
       });
       alert("Cập nhật hồ sơ thành công!");
@@ -213,6 +232,82 @@ export default function Profile() {
                 placeholder="0"
               />
             </div>
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-2", isDark ? "text-zinc-400" : "text-zinc-600")}>Tuổi</label>
+            <input
+              type="number"
+              value={profile.age}
+              onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              placeholder="0"
+            />
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-3 mt-4", isDark ? "text-zinc-400" : "text-zinc-600")}>Trình độ</label>
+            <div className="flex flex-wrap gap-2">
+              {LEVEL_OPTIONS.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setProfile({ ...profile, level: opt })}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-xs font-bold transition-all",
+                    profile.level === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-3 mt-4", isDark ? "text-zinc-400" : "text-zinc-600")}>Tần suất tập luyện</label>
+            <div className="flex flex-wrap gap-2">
+              {FREQUENCY_OPTIONS.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setProfile({ ...profile, frequency: opt })}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-xs font-bold transition-all",
+                    profile.frequency === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-3 mt-4", isDark ? "text-zinc-400" : "text-zinc-600")}>Chế độ ăn uống</label>
+            <div className="flex flex-wrap gap-2">
+              {DIET_OPTIONS.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setProfile({ ...profile, diet: opt })}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-xs font-bold transition-all",
+                    profile.diet === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-2 mt-4", isDark ? "text-zinc-400" : "text-zinc-600")}>Thời gian dự kiến (tuần)</label>
+            <input
+              type="text"
+              value={profile.timeframe}
+              onChange={(e) => setProfile({ ...profile, timeframe: e.target.value })}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              placeholder="VD: 12 tuần"
+            />
           </div>
 
           <div>

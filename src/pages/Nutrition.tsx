@@ -236,10 +236,19 @@ export default function Nutrition() {
     });
   };
 
-  const consumedCalories = meals.reduce((acc, meal) => acc + meal.cal, 0);
+  const consumedCalories = meals.reduce((acc, meal) => acc + (meal.cal || 0), 0);
+  const consumedProtein = meals.reduce((acc, meal) => acc + (meal.protein || 0), 0);
+  const consumedCarbs = meals.reduce((acc, meal) => acc + (meal.carbs || 0), 0);
+  const consumedFat = meals.reduce((acc, meal) => acc + (meal.fat || 0), 0);
+
   const remainingCalories = Math.max(0, targetCalories - consumedCalories);
   const progressPercentage = Math.min(100, (consumedCalories / targetCalories) * 100);
   const strokeDashoffset = 283 - (283 * progressPercentage) / 100;
+
+  // Simple macro targets based on calories (e.g., 30% P, 40% C, 30% F)
+  const targetProtein = Math.round((targetCalories * 0.3) / 4);
+  const targetCarbs = Math.round((targetCalories * 0.4) / 4);
+  const targetFat = Math.round((targetCalories * 0.3) / 9);
 
   return (
     <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
@@ -251,24 +260,57 @@ export default function Nutrition() {
         <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng ảnh hoặc nhập thủ công.</p>
       </motion.div>
 
-      {/* Calories Overview */}
+      {/* Calories & Macros Overview */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
-        className={cn("rounded-3xl p-6 shadow-sm border flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+        className={cn("rounded-3xl p-6 shadow-sm border flex flex-col items-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
       >
-        <div className="relative w-32 h-32 mb-4">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#2c2c2e" : "#f4f4f5"} strokeWidth="10" />
-            <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{consumedCalories}</span>
-            <span className={cn("text-xs font-medium uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>/ {targetCalories} kcal</span>
+        <div className="flex items-center justify-between w-full mb-6">
+          <div className="relative w-32 h-32">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#2c2c2e" : "#f4f4f5"} strokeWidth="10" />
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{consumedCalories}</span>
+              <span className={cn("text-xs font-medium uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>/ {targetCalories} kcal</span>
+            </div>
+          </div>
+
+          <div className="flex-1 ml-8 space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Protein</span>
+                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedProtein}/{targetProtein}g</span>
+              </div>
+              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (consumedProtein / targetProtein) * 100)}%` }} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Carbs</span>
+                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedCarbs}/{targetCarbs}g</span>
+              </div>
+              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                <div className="h-full bg-orange-500" style={{ width: `${Math.min(100, (consumedCarbs / targetCarbs) * 100)}%` }} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Fat</span>
+                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedFat}/{targetFat}g</span>
+              </div>
+              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (consumedFat / targetFat) * 100)}%` }} />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex justify-between w-full text-sm font-medium">
+
+        <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-zinc-800/50">
           <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
           <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
         </div>

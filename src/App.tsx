@@ -30,12 +30,14 @@ export default function App() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('goals, weight, height')
+        .select('onboarding_complete, goals, weight, height')
         .eq('id', userId)
         .single();
       
-      if (data && (data.goals || data.weight || data.height)) {
+      if (data && (data.onboarding_complete || data.goals || data.weight || data.height)) {
         localStorage.setItem("onboardingComplete", "true");
+      } else {
+        localStorage.removeItem("onboardingComplete");
       }
     } catch (e) {
       console.error(e);
@@ -85,11 +87,16 @@ export default function App() {
     );
   }
 
+  const onboardingComplete = localStorage.getItem("onboardingComplete") === "true";
+
   return (
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
+          {!onboardingComplete && (
+            <Route path="*" element={<Navigate to="/onboarding" replace />} />
+          )}
           <Route path="/workout/:id" element={<ActiveWorkout />} />
           <Route path="/routine/new" element={<CreateRoutine />} />
           <Route path="/profile" element={<Profile />} />

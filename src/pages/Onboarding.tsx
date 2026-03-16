@@ -49,7 +49,13 @@ export default function Onboarding() {
             email: user.email,
             weight: parseFloat(answers.weight) || null,
             height: parseFloat(answers.height) || null,
+            age: parseInt(answers.age) || null,
             goals: goals,
+            level: answers.level,
+            frequency: answers.frequency,
+            timeframe: answers.timeframe,
+            diet: answers.diet,
+            onboarding_complete: true
           });
         }
       } catch (e) {
