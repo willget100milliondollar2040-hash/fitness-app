@@ -34,7 +34,6 @@ const icons = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [routines, setRoutines] = useState<Routine[]>([]);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
@@ -120,25 +119,41 @@ export default function Dashboard() {
         // Migration from localStorage if available
         const saved = localStorage.getItem("routines");
         if (saved) {
-          const parsed = JSON.parse(saved);
-          setRoutines(parsed);
-          // Optionally save them to Supabase
-          parsed.forEach((r: any) => {
-            workoutService.saveRoutine({
-              user_id: uid,
+          try {
+            const parsed = JSON.parse(saved);
+            // Save them to Supabase and get real IDs
+            const savedRoutines = await Promise.all(parsed.map((r: any) => 
+              workoutService.saveRoutine({
+                user_id: uid,
+                title: r.title,
+                subtitle: r.subtitle,
+                duration: r.duration,
+                icon_name: r.iconName,
+                color: r.color,
+                bg: r.bg,
+                exercises: r.exercises || []
+              })
+            ));
+            
+            setRoutines(savedRoutines.map(r => ({
+              id: r.id,
               title: r.title,
-              subtitle: r.subtitle,
-              duration: r.duration,
-              icon_name: r.iconName,
-              color: r.color,
-              bg: r.bg,
-              exercises: r.exercises || []
-            });
-          });
+              subtitle: r.subtitle || "",
+              duration: r.duration || "",
+              iconName: r.icon_name as any,
+              color: r.color || "",
+              bg: r.bg || "",
+              exercises: r.exercises
+            })));
+            
+            // Clear local storage after successful migration
+            localStorage.removeItem("routines");
+          } catch (err) {
+            console.error("Migration failed", err);
+          }
         } else {
-          setRoutines(defaultRoutines);
-          // Save defaults to Supabase
-          defaultRoutines.forEach(r => {
+          // Save defaults to Supabase and update state with real IDs
+          const savedRoutines = await Promise.all(defaultRoutines.map(r => 
             workoutService.saveRoutine({
               user_id: uid,
               title: r.title,
@@ -148,8 +163,19 @@ export default function Dashboard() {
               color: r.color,
               bg: r.bg,
               exercises: []
-            });
-          });
+            })
+          ));
+          
+          setRoutines(savedRoutines.map(r => ({
+            id: r.id,
+            title: r.title,
+            subtitle: r.subtitle || "",
+            duration: r.duration || "",
+            iconName: r.icon_name as any,
+            color: r.color || "",
+            bg: r.bg || "",
+            exercises: r.exercises
+          })));
         }
       }
     } catch (e) {
@@ -157,18 +183,21 @@ export default function Dashboard() {
     }
   };
 
-  const confirmDeleteRoutine = async () => {
-    if (deleteConfirmId && userId) {
-      try {
-        // If it's a default routine that hasn't been saved to DB with a UUID, this might fail,
-        // but we'll remove it from UI anyway.
-        await workoutService.deleteRoutine(deleteConfirmId);
-      } catch (e) {
-        console.error(e);
-      }
-      setRoutines(routines.filter((r) => r.id !== deleteConfirmId));
-      localStorage.removeItem(`workout_${deleteConfirmId}`);
-      setDeleteConfirmId(null);
+  const handleDeleteRoutine = async (id: string) => {
+    if (!userId) return;
+    
+    // Optimistic update - disappear immediately
+    const previousRoutines = [...routines];
+    setRoutines(routines.filter((r) => r.id !== id));
+    localStorage.removeItem(`workout_${id}`);
+
+    try {
+      await workoutService.deleteRoutine(id);
+    } catch (e) {
+      console.error("Failed to delete routine", e);
+      // Rollback if failed
+      setRoutines(previousRoutines);
+      alert("Không thể xóa lịch tập. Vui lòng thử lại.");
     }
   };
 
@@ -295,14 +324,14 @@ export default function Dashboard() {
                     <div 
                       onClick={(e) => {
                         e.stopPropagation();
-                        setDeleteConfirmId(routine.id);
+                        handleDeleteRoutine(routine.id);
                       }}
-                      className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20"
+                      className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center transition-opacity hover:bg-red-500/20"
                     >
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="w-5 h-5 text-red-500" />
                     </div>
-                    <div className={cn("w-8 h-8 rounded-full flex items-center justify-center transition-colors shrink-0", isDark ? "bg-zinc-800 group-hover:bg-white/20" : "bg-zinc-100 group-hover:bg-zinc-200")}>
-                      <Play className={cn("w-4 h-4 ml-0.5", isDark ? "text-zinc-400 group-hover:text-white" : "text-zinc-400 group-hover:text-zinc-900 dark:text-white")} />
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0", isDark ? "bg-zinc-800 group-hover:bg-white/20" : "bg-zinc-100 group-hover:bg-zinc-200")}>
+                      <Play className={cn("w-5 h-5 ml-0.5", isDark ? "text-zinc-400 group-hover:text-white" : "text-zinc-400 group-hover:text-zinc-900 dark:text-white")} />
                     </div>
                   </div>
                 </button>
@@ -326,29 +355,7 @@ export default function Dashboard() {
         </motion.button>
       </div>
 
-      {/* Delete Routine Confirm Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className={cn("rounded-3xl p-6 w-full max-w-sm shadow-2xl", isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900")}>
-            <h3 className="text-xl font-bold mb-2">Xóa lịch tập?</h3>
-            <p className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}>Bạn có chắc chắn muốn xóa lịch tập này không? Tất cả dữ liệu bài tập trong lịch này sẽ bị mất.</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className={cn("flex-1 py-3 rounded-xl font-bold transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDeleteRoutine}
-                className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors"
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Routine Confirm Modal removed for "biến mất luôn" optimization */}
     </div>
   );
 }

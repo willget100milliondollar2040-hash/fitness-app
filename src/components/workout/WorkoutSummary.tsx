@@ -10,9 +10,10 @@ interface WorkoutSummaryProps {
   isSaving: boolean;
   onFinish: () => void;
   onRestart: () => void;
+  onSaveAsRoutine?: () => void;
 }
 
-export function WorkoutSummary({ elapsedTime, exercises, isSaving, onFinish, onRestart }: WorkoutSummaryProps) {
+export function WorkoutSummary({ elapsedTime, exercises, isSaving, onFinish, onRestart, onSaveAsRoutine }: WorkoutSummaryProps) {
   const { isDark } = useTheme();
 
   const formatTime = (seconds: number) => {
@@ -75,9 +76,17 @@ export function WorkoutSummary({ elapsedTime, exercises, isSaving, onFinish, onR
           >
             <Home className="w-5 h-5" /> {isSaving ? "Đang lưu..." : "Hoàn thành & Về trang chủ"}
           </button>
+          {onSaveAsRoutine && (
+            <button
+              onClick={onSaveAsRoutine}
+              className={cn("w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900")}
+            >
+              <Activity className="w-5 h-5" /> Lưu thành lịch tập
+            </button>
+          )}
           <button
             onClick={onRestart}
-            className={cn("w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
+            className={cn("w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-400" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
           >
             <RotateCcw className="w-5 h-5" /> Tập lại từ đầu
           </button>

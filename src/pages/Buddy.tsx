@@ -135,9 +135,9 @@ export default function Buddy() {
             </div>
             <button
               onClick={() => handleAddFriend(searchResult.id)}
-              className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+              className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
             >
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-5 h-5" />
             </button>
           </div>
         )}

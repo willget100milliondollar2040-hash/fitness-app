@@ -297,14 +297,14 @@ export default function Progress() {
             <button 
               onClick={exportToCSV}
               disabled={workouts.length === 0}
-              className={cn("text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors disabled:opacity-50", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700")}
+              className={cn("text-sm font-bold px-4 py-2.5 rounded-xl flex items-center gap-1 transition-colors disabled:opacity-50", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700")}
             >
               CSV
             </button>
             <button 
               onClick={exportToPDF}
               disabled={workouts.length === 0}
-              className={cn("text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors disabled:opacity-50", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700")}
+              className={cn("text-sm font-bold px-4 py-2.5 rounded-xl flex items-center gap-1 transition-colors disabled:opacity-50", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700")}
             >
               PDF
             </button>

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { X, Dumbbell, Clock, Plus, Search, Trash2, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
@@ -9,10 +9,17 @@ import { workoutService } from "../lib/workoutService";
 
 export default function CreateRoutine() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDark } = useTheme();
   const [title, setTitle] = useState("");
   const [exercises, setExercises] = useState<ExerciseType[]>([]);
   const [showHelpBanner, setShowHelpBanner] = useState(true);
+
+  useEffect(() => {
+    if (location.state && location.state.exercises) {
+      setExercises(location.state.exercises);
+    }
+  }, [location.state]);
   
   // Exercise Modal State
   const [showAddExercise, setShowAddExercise] = useState(false);
@@ -21,6 +28,7 @@ export default function CreateRoutine() {
   // Rest Timer Modal State
   const [activeRestTimerExerciseId, setActiveRestTimerExerciseId] = useState<string | null>(null);
   const [selectedExerciseImage, setSelectedExerciseImage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const filteredDB = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -120,12 +128,14 @@ export default function CreateRoutine() {
   };
 
   const handleSave = async () => {
-    if (!title.trim() && exercises.length === 0) return;
+    if ((!title.trim() && exercises.length === 0) || isSaving) return;
 
+    setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         alert("Bạn phải đăng nhập để tạo lịch tập.");
+        setIsSaving(false);
         return;
       }
 
@@ -145,6 +155,7 @@ export default function CreateRoutine() {
     } catch (e) {
       console.error("Error saving routine", e);
       alert("Lưu bài tập thất bại. Vui lòng thử lại.");
+      setIsSaving(false);
     }
   };
 
@@ -160,15 +171,15 @@ export default function CreateRoutine() {
         <h1 className="font-bold text-lg">Tạo bài tập</h1>
         <button 
           onClick={handleSave}
-          disabled={!title.trim() && exercises.length === 0}
+          disabled={(!title.trim() && exercises.length === 0) || isSaving}
           className={cn(
             "px-4 py-1.5 rounded-lg font-medium transition-colors",
-            (!title.trim() && exercises.length === 0) 
+            ((!title.trim() && exercises.length === 0) || isSaving)
               ? (isDark ? "bg-zinc-800 text-zinc-500" : "bg-zinc-200 text-zinc-400")
               : "bg-blue-500 text-white hover:bg-blue-600"
           )}
         >
-          Lưu
+          {isSaving ? "Đang lưu..." : "Lưu"}
         </button>
       </header>
 
@@ -258,29 +269,22 @@ export default function CreateRoutine() {
                 <div className="w-full">
                   <div className={cn("flex text-xs font-bold uppercase tracking-wider mb-2 px-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
                     <div className="w-10 text-center">Hiệp</div>
-                    <div className="w-14 text-center">kg</div>
-                    <div className="w-14 text-center">Lần</div>
+                    <div className="flex-1 text-center">kg</div>
+                    <div className="flex-1 text-center">Lần</div>
+                    <div className="w-10 text-center"></div>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {exercise.sets.map((set, index) => {
                       const setNumber = set.type === "W" ? "W" : exercise.sets.filter(s => s.type === "N").indexOf(set) + 1;
                       return (
                         <div
                           key={set.id}
                           className={cn(
-                            "flex items-center py-2 px-1 rounded-xl transition-colors group relative",
+                            "flex items-center py-2 px-1 rounded-xl transition-colors",
                             isDark ? "bg-zinc-900/50" : "bg-zinc-50"
                           )}
                         >
-                          {/* Delete Set Button (shows on hover/active) */}
-                          <button 
-                            onClick={() => removeSet(exercise.id, set.id)}
-                            className={cn("absolute -left-2 w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity", isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500")}
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-
                           <div className={cn(
                             "w-10 text-center font-bold",
                             set.type === "W" ? "text-orange-400" : (isDark ? "text-white" : "text-zinc-900")
@@ -288,29 +292,39 @@ export default function CreateRoutine() {
                             {setNumber}
                           </div>
                           
-                          <div className="w-14 px-1">
+                          <div className="flex-1 px-2">
                             <input
                               type="text"
                               inputMode="decimal"
                               value={set.kg}
                               onChange={(e) => updateSet(exercise.id, set.id, "kg", e.target.value)}
                               className={cn(
-                                "w-full text-center font-bold text-lg bg-transparent outline-none",
-                                isDark ? "text-white" : "text-zinc-900"
+                                "w-full text-center font-bold text-lg bg-transparent outline-none py-2 rounded-lg transition-colors",
+                                isDark ? "text-white focus:bg-zinc-800" : "text-zinc-900 focus:bg-zinc-200"
                               )}
                             />
                           </div>
-                          <div className="w-14 px-1">
+                          <div className="flex-1 px-2">
                             <input
                               type="text"
                               inputMode="numeric"
                               value={set.reps}
                               onChange={(e) => updateSet(exercise.id, set.id, "reps", e.target.value)}
                               className={cn(
-                                "w-full text-center font-bold text-lg bg-transparent outline-none",
-                                isDark ? "text-white" : "text-zinc-900"
+                                "w-full text-center font-bold text-lg bg-transparent outline-none py-2 rounded-lg transition-colors",
+                                isDark ? "text-white focus:bg-zinc-800" : "text-zinc-900 focus:bg-zinc-200"
                               )}
                             />
+                          </div>
+
+                          {/* Delete Set Button (Always visible on mobile) */}
+                          <div className="w-10 flex justify-center">
+                            <button 
+                              onClick={() => removeSet(exercise.id, set.id)}
+                              className={cn("w-8 h-8 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-red-50 text-red-500 hover:bg-red-100")}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       );
@@ -319,9 +333,9 @@ export default function CreateRoutine() {
 
                   <button
                     onClick={() => addSet(exercise.id)}
-                    className={cn("w-full mt-3 py-2.5 rounded-xl font-medium flex items-center justify-center gap-1 transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600")}
+                    className={cn("w-full mt-4 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900")}
                   >
-                    <Plus className="w-4 h-4" /> Thêm hiệp
+                    <Plus className="w-5 h-5" /> Thêm hiệp
                   </button>
                 </div>
               </div>

@@ -125,7 +125,7 @@ export default function Layout() {
             to={item.to}
             className={({ isActive }) =>
               cn(
-                "flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all duration-200",
+                "flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all duration-200",
                 isActive
                   ? isDark ? "text-white font-medium" : "text-black font-medium"
                   : isDark ? "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"

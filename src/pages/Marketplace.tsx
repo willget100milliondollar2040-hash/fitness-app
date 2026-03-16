@@ -146,9 +146,9 @@ export default function Marketplace() {
 
               <button
                 onClick={() => handleDownload(template)}
-                className="w-full py-2.5 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-5 h-5" />
                 {template.price === 0 ? "Thêm vào bài tập" : "Mua"}
               </button>
             </div>

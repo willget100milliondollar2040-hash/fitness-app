@@ -522,35 +522,47 @@ export default function ActiveWorkout() {
   }, [searchQuery]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      setExercises(JSON.parse(saved));
-    } else {
-      // Try to load from routine template
-      const routinesStr = localStorage.getItem("routines");
-      if (routinesStr && id) {
-        const routines = JSON.parse(routinesStr);
-        const routine = routines.find((r: any) => r.id === id);
-        if (routine && routine.exercises && routine.exercises.length > 0) {
-          // Deep clone to avoid mutating the template
-          const templateExercises = JSON.parse(JSON.stringify(routine.exercises));
-          setExercises(templateExercises);
-          return;
+    const loadWorkoutData = async () => {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setExercises(JSON.parse(saved));
+      } else if (id) {
+        try {
+          // Try to load from routine template in Supabase
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: routine, error } = await supabase
+              .from('routines')
+              .select('*')
+              .eq('id', id)
+              .single();
+              
+            if (!error && routine && routine.exercises && routine.exercises.length > 0) {
+              // Deep clone to avoid mutating the template
+              const templateExercises = JSON.parse(JSON.stringify(routine.exercises));
+              setExercises(templateExercises);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load routine from Supabase", e);
         }
-      }
 
-      // Default initial state if empty
-      const defaultState: ExerciseType[] = [
-        {
-          id: "ex_" + Date.now(),
-          name: "Hít đất",
-          sets: [
-            { id: "s1", type: "N", previous: "-", kg: "0", reps: "10", completed: false }
-          ]
-        }
-      ];
-      setExercises(defaultState);
-    }
+        // Default initial state if empty or failed to load
+        const defaultState: ExerciseType[] = [
+          {
+            id: "ex_" + Date.now(),
+            name: "Hít đất",
+            sets: [
+              { id: "s1", type: "N", previous: "-", kg: "0", reps: "10", completed: false }
+            ]
+          }
+        ];
+        setExercises(defaultState);
+      }
+    };
+    
+    loadWorkoutData();
   }, [storageKey, id]);
 
   useEffect(() => {
@@ -1021,6 +1033,13 @@ export default function ActiveWorkout() {
           isSaving={isSaving}
           onFinish={handleFinishAndGoHome}
           onRestart={handleRestartRoutine}
+          onSaveAsRoutine={() => {
+            const resetExercises = exercises.map(ex => ({
+              ...ex,
+              sets: ex.sets.map(s => ({ ...s, completed: false }))
+            }));
+            navigate("/create", { state: { exercises: resetExercises } });
+          }}
         />
       )}
       {/* Exercise Image Modal */}

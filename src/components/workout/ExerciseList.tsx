@@ -83,7 +83,7 @@ export function ExerciseList({
           {/* Sets Table */}
           <div className="w-full">
             <div className={cn("flex text-xs font-bold uppercase tracking-wider mb-2 px-2", isDark ? "text-zinc-500" : "text-zinc-400")}>
-              <div className="w-10 text-center">Hiệp</div>
+              <div className="w-14 text-center">Hiệp</div>
               <div className="flex-1 text-center">Trước</div>
               <div className="w-14 text-center">kg</div>
               <div className="w-14 text-center">Lần</div>
