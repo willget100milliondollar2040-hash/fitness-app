@@ -30,7 +30,7 @@ export default function Progress() {
         const newPhoto = {
           id: Date.now().toString(),
           url: reader.result as string,
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          date: new Date().toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' })
         };
         const updatedPhotos = [...photos, newPhoto];
         setPhotos(updatedPhotos);
@@ -68,15 +68,15 @@ export default function Progress() {
           parts: [
             { inlineData: firstImg },
             { inlineData: latestImg },
-            { text: "Analyze these two body photos (before and after). Provide a brief, encouraging summary of the visible progress, focusing on muscle definition, posture, or overall physique changes. Keep it under 3 sentences and be highly motivating." }
+            { text: "Phân tích hai bức ảnh cơ thể này (trước và sau). Cung cấp một bản tóm tắt ngắn gọn, khích lệ về sự tiến bộ rõ rệt, tập trung vào độ nét của cơ bắp, tư thế hoặc những thay đổi tổng thể về vóc dáng. Giữ dưới 3 câu và mang tính động viên cao bằng tiếng Việt." }
           ]
         }
       });
 
-      setAnalysisResult(response.text || "You're making great progress! Keep up the hard work.");
+      setAnalysisResult(response.text || "Bạn đang tiến bộ rất tốt! Hãy tiếp tục cố gắng nhé.");
     } catch (error) {
       console.error("Error analyzing progress:", error);
-      setAnalysisResult("Failed to analyze progress. Please try again later.");
+      setAnalysisResult("Không thể phân tích tiến độ. Vui lòng thử lại sau.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -109,7 +109,7 @@ export default function Progress() {
   const exportToCSV = () => {
     if (workouts.length === 0) return;
     
-    const headers = ["Date", "Workout Name", "Duration (s)", "Volume (kg)", "Sets"];
+    const headers = ["Ngày", "Tên bài tập", "Thời lượng (s)", "Khối lượng (kg)", "Số hiệp"];
     const rows = workouts.map(w => [
       new Date(w.start_time).toLocaleDateString(),
       w.name,
@@ -135,10 +135,10 @@ export default function Progress() {
     if (workouts.length === 0) return;
     
     const doc = new jsPDF();
-    doc.text("Workout History", 14, 15);
+    doc.text("Lịch sử tập luyện", 14, 15);
     
     const tableData = workouts.map(w => [
-      new Date(w.start_time).toLocaleDateString(),
+      new Date(w.start_time).toLocaleDateString('vi-VN'),
       w.name,
       formatTime(w.duration),
       `${w.volume || 0} kg`,
@@ -146,7 +146,7 @@ export default function Progress() {
     ]);
     
     autoTable(doc, {
-      head: [['Date', 'Workout', 'Duration', 'Volume', 'Sets']],
+      head: [['Ngày', 'Bài tập', 'Thời lượng', 'Khối lượng', 'Số hiệp']],
       body: tableData,
       startY: 20,
     });
@@ -323,7 +323,7 @@ export default function Progress() {
                   <div>
                     <h4 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{workout.name}</h4>
                     <div className={cn("text-xs mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                      {new Date(workout.start_time).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      {new Date(workout.start_time).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                   </div>
                   <div className="text-right">

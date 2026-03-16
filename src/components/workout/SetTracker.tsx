@@ -85,7 +85,7 @@ export function SetTracker({
         </button>
         {isNewRecord && (
           <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded-sm animate-bounce">
-            PR
+            Kỷ lục
           </div>
         )}
       </div>

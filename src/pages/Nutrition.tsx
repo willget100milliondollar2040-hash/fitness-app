@@ -56,7 +56,7 @@ export default function Nutrition() {
     protein: "",
     carbs: "",
     fat: "",
-    time: "Snack"
+    time: "Ăn vặt"
   });
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -102,15 +102,15 @@ export default function Nutrition() {
         // Adjust based on goal and diet
         let calorieAdjustment = 0;
         
-        if (diet.includes("Losing weight")) {
+        if (diet.includes("giảm cân")) {
           calorieAdjustment = -500;
-        } else if (diet.includes("Bulking")) {
+        } else if (diet.includes("tăng cân") || diet.includes("xả cơ")) {
           calorieAdjustment = 500; // Standard surplus for weight gain
         } else {
           // Fallback to mainGoal if diet is normal
-          if (mainGoal.includes("Lose fat")) {
+          if (mainGoal.includes("Giảm mỡ")) {
             calorieAdjustment = -500;
-          } else if (mainGoal.includes("Build muscle")) {
+          } else if (mainGoal.includes("Tăng cơ")) {
             calorieAdjustment = 300; // Lean bulk surplus
           }
         }
@@ -153,7 +153,7 @@ export default function Nutrition() {
                 },
               },
               {
-                text: "Analyze this food image. Estimate the calories, protein (g), carbs (g), and fat (g). Provide a short, natural name for the dish in English (e.g., 'Grilled Chicken Salad', 'Steak and Fries').",
+                text: "Phân tích hình ảnh món ăn này. Ước tính calo, protein (g), carbs (g) và chất béo (g). Cung cấp tên món ăn ngắn gọn, tự nhiên bằng tiếng Việt (ví dụ: 'Salad gà nướng', 'Bít tết và khoai tây chiên').",
               },
             ],
           },
@@ -162,11 +162,11 @@ export default function Nutrition() {
             responseSchema: {
               type: Type.OBJECT,
               properties: {
-                name: { type: Type.STRING, description: "Dish name (English)" },
-                cal: { type: Type.NUMBER, description: "Estimated calories" },
+                name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt)" },
+                cal: { type: Type.NUMBER, description: "Calo ước tính" },
                 protein: { type: Type.NUMBER, description: "Protein (g)" },
                 carbs: { type: Type.NUMBER, description: "Carbs (g)" },
-                fat: { type: Type.NUMBER, description: "Fat (g)" },
+                fat: { type: Type.NUMBER, description: "Chất béo (g)" },
               },
               required: ["name", "cal", "protein", "carbs", "fat"],
             },
@@ -176,7 +176,7 @@ export default function Nutrition() {
         if (response.text) {
           const result = JSON.parse(response.text);
           setPendingMeal({
-            time: "Snack",
+            time: "Ăn vặt",
             name: result.name,
             cal: result.cal,
             protein: result.protein,
@@ -189,7 +189,7 @@ export default function Nutrition() {
       };
     } catch (error) {
       console.error("Error analyzing image:", error);
-      alert("An error occurred while analyzing the image. Please try again.");
+      alert("Đã xảy ra lỗi khi phân tích hình ảnh. Vui lòng thử lại.");
       setIsLoading(false);
       setPreviewImage(null);
     }
@@ -210,7 +210,7 @@ export default function Nutrition() {
 
   const handleConfirmManualMeal = () => {
     if (!manualMeal.name || !manualMeal.cal) {
-      alert("Please enter the dish name and calories.");
+      alert("Vui lòng nhập tên món ăn và lượng calo.");
       return;
     }
 
@@ -232,7 +232,7 @@ export default function Nutrition() {
       protein: "",
       carbs: "",
       fat: "",
-      time: "Snack"
+      time: "Ăn vặt"
     });
   };
 
@@ -526,7 +526,7 @@ export default function Nutrition() {
               <div className={cn("flex items-center justify-between p-4 rounded-2xl border", isDark ? "bg-orange-500/10 border-orange-500/20" : "bg-orange-50 border-orange-100")}>
                 <div className={cn("flex items-center gap-2 font-bold", isDark ? "text-orange-400" : "text-orange-600")}>
                   <Flame className="w-5 h-5" />
-                  <span>Calories</span>
+                  <span>Calo</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <input 
@@ -541,7 +541,7 @@ export default function Nutrition() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
-                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Protein</div>
+                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Chất đạm</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
                       type="number" 
@@ -553,7 +553,7 @@ export default function Nutrition() {
                   </div>
                 </div>
                 <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
-                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Carbs</div>
+                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tinh bột</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
                       type="number" 
@@ -565,7 +565,7 @@ export default function Nutrition() {
                   </div>
                 </div>
                 <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
-                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Fat</div>
+                  <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Chất béo</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
                       type="number" 

@@ -125,7 +125,7 @@ export default function CreateRoutine() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        alert("You must be logged in to create a routine.");
+        alert("Bạn phải đăng nhập để tạo lịch tập.");
         return;
       }
 
@@ -391,7 +391,7 @@ export default function CreateRoutine() {
                             <div className="font-bold">{name}</div>
                             {(level || muscle || equipment) && (
                               <div className="mt-1 flex flex-wrap gap-2 text-[10px] sm:text-xs">
-                                {level && <span className={cn("px-2 py-0.5 rounded-md font-semibold", level === "Beginner" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" : level === "Intermediate" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400" : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400")}>{level}</span>}
+                                {level && <span className={cn("px-2 py-0.5 rounded-md font-semibold", level === "Người mới" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" : level === "Trung cấp" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400" : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400")}>{level}</span>}
                                 {muscle && <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">{muscle}</span>}
                                 {equipment && <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">{equipment}</span>}
                               </div>

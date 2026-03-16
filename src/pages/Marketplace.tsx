@@ -13,9 +13,9 @@ const MOCK_TEMPLATES = [
     price: 0,
     downloads: 12400,
     rating: 4.9,
-    duration: "60-90 min",
-    level: "Intermediate",
-    tags: ["Hypertrophy", "Strength"],
+    duration: "60-90 phút",
+    level: "Trung bình",
+    tags: ["Tăng cơ", "Sức mạnh"],
     image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80"
   },
   {
@@ -25,9 +25,9 @@ const MOCK_TEMPLATES = [
     price: 0,
     downloads: 8500,
     rating: 4.8,
-    duration: "45-60 min",
-    level: "Beginner",
-    tags: ["Full Body", "Classic"],
+    duration: "45-60 phút",
+    level: "Người mới",
+    tags: ["Toàn thân", "Cổ điển"],
     image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&q=80"
   },
   {
@@ -37,9 +37,9 @@ const MOCK_TEMPLATES = [
     price: 4.99,
     downloads: 3200,
     rating: 4.7,
-    duration: "90 min",
-    level: "Advanced",
-    tags: ["Powerlifting", "Hypertrophy"],
+    duration: "90 phút",
+    level: "Nâng cao",
+    tags: ["Cử tạ", "Tăng cơ"],
     image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=80"
   },
   {
@@ -49,9 +49,9 @@ const MOCK_TEMPLATES = [
     price: 0,
     downloads: 15600,
     rating: 4.9,
-    duration: "45 min",
-    level: "All Levels",
-    tags: ["Bodyweight", "Core"],
+    duration: "45 phút",
+    level: "Mọi cấp độ",
+    tags: ["Trọng lượng cơ thể", "Cơ bụng"],
     image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=500&q=80"
   }
 ];

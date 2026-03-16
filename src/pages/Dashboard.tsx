@@ -19,10 +19,10 @@ type Routine = {
 };
 
 const defaultRoutines: Routine[] = [
-  { id: "push", title: "Push Day", subtitle: "Chest, Shoulders, Triceps", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
-  { id: "pull", title: "Pull Day", subtitle: "Back, Biceps", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
-  { id: "legs", title: "Leg Day", subtitle: "Quads, Hamstrings, Calves", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
-  { id: "fullbody", title: "Full Body", subtitle: "Full Body", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
+  { id: "push", title: "Ngày Đẩy (Push)", subtitle: "Ngực, Vai, Tay sau", duration: "1h 15m", iconName: "Flame", color: "text-orange-500", bg: "bg-orange-100" },
+  { id: "pull", title: "Ngày Kéo (Pull)", subtitle: "Lưng, Tay trước", duration: "1h 10m", iconName: "Activity", color: "text-blue-500", bg: "bg-blue-100" },
+  { id: "legs", title: "Ngày Chân (Legs)", subtitle: "Đùi trước, Đùi sau, Bắp chân", duration: "1h 20m", iconName: "Dumbbell", color: "text-zinc-900 dark:text-white", bg: "bg-zinc-200 dark:bg-zinc-800" },
+  { id: "fullbody", title: "Toàn thân (Full Body)", subtitle: "Toàn bộ cơ thể", duration: "1h 30m", iconName: "Activity", color: "text-purple-500", bg: "bg-purple-100" },
 ];
 
 const icons = {
@@ -183,7 +183,7 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight">Workout</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Luyện tập</h1>
               <ChevronDown className={cn("w-6 h-6", isDark ? "text-zinc-500" : "text-zinc-400")} />
             </div>
             {userEmail && (
@@ -197,7 +197,7 @@ export default function Dashboard() {
             <button
               onClick={handleLogout}
               className={cn("p-2 rounded-full transition-colors", isDark ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300" : "bg-zinc-200 hover:bg-zinc-300 text-zinc-600")}
-              title="Log out"
+              title="Đăng xuất"
             >
               <LogOut className="w-5 h-5" />
             </button>

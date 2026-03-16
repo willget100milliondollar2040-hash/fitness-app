@@ -129,7 +129,7 @@ export default function Buddy() {
                 {searchResult.full_name ? searchResult.full_name[0] : searchResult.email[0]}
               </div>
               <div>
-                <p className="font-bold text-sm">{searchResult.full_name || "User"}</p>
+                <p className="font-bold text-sm">{searchResult.full_name || "Người dùng"}</p>
                 <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-zinc-500")}>{searchResult.email}</p>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function Buddy() {
                     <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg uppercase">
                       {buddy.name[0]}
                     </div>
-                    {buddy.status === "Finished workout" && (
+                    {buddy.status === "Đã hoàn thành bài tập" && (
                       <div className={cn("absolute -bottom-1 -right-1 rounded-full p-0.5", isDark ? "bg-[#1c1c1e]" : "bg-white")}>
                         <CheckCircle2 className="w-4 h-4 text-black dark:text-white fill-zinc-200 dark:fill-zinc-800" />
                       </div>
@@ -241,18 +241,18 @@ export default function Buddy() {
                   <div>
                     <h4 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>{buddy.name}</h4>
                     <div className="flex items-center gap-2 text-xs font-medium mt-1">
-                      <span className={buddy.status === "Finished workout" ? "text-black dark:text-white" : isDark ? "text-zinc-400" : "text-zinc-500"}>
+                      <span className={buddy.status === "Đã hoàn thành bài tập" ? "text-black dark:text-white" : isDark ? "text-zinc-400" : "text-zinc-500"}>
                         {buddy.status}
                       </span>
                       <span className={cn("text-zinc-300", isDark && "text-zinc-700")}>•</span>
                       <span className="text-orange-500 flex items-center gap-0.5">
-                        <Activity className="w-3 h-3" /> {buddy.streak} days
+                        <Activity className="w-3 h-3" /> {buddy.streak} ngày
                       </span>
                     </div>
                   </div>
                 </div>
                 
-                {buddy.status !== "Finished workout" && (
+                {buddy.status !== "Đã hoàn thành bài tập" && (
                   <button className={cn("w-10 h-10 rounded-full border flex items-center justify-center transition-colors", isDark ? "bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-white/20 hover:text-white hover:border-white/30" : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-200 hover:text-black hover:border-zinc-300")}>
                     <BellRing className="w-5 h-5" />
                   </button>
