@@ -219,10 +219,16 @@ export default function Buddy() {
         
         <div className="space-y-3">
           {buddies.length === 0 ? (
-            <div className={cn("text-center py-10 rounded-2xl border border-dashed", isDark ? "border-zinc-800 text-zinc-500" : "border-zinc-300 text-zinc-400")}>
-              <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Bạn chưa thêm bạn bè nào.</p>
-              <p className="text-xs mt-1">Tìm kiếm email của họ ở trên để thêm!</p>
+            <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+              <Users className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
+              <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có buddy nào</h3>
+              <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Mời bạn bè cùng tập để có thêm động lực!</p>
+              <button 
+                onClick={() => (document.querySelector('input[type="email"]') as HTMLInputElement)?.focus()}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+              >
+                Tìm Bạn Bè Ngay
+              </button>
             </div>
           ) : (
             buddies.map((buddy, i) => (

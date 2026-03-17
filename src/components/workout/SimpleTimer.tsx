@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useTheme } from "../ThemeProvider";
 
-interface WorkoutTimerProps {
+interface SimpleTimerProps {
   startTime: number;
+  className?: string;
 }
 
-export function WorkoutTimer({ startTime }: WorkoutTimerProps) {
-  const { isDark } = useTheme();
+export function SimpleTimer({ startTime, className }: SimpleTimerProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -26,10 +23,5 @@ export function WorkoutTimer({ startTime }: WorkoutTimerProps) {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  return (
-    <div className={cn("flex items-center gap-2 font-mono text-sm font-medium", isDark ? "text-zinc-400" : "text-zinc-500")}>
-      <Clock className="w-4 h-4" />
-      {formatTime(elapsedTime)}
-    </div>
-  );
+  return <span className={className}>{formatTime(elapsedTime)}</span>;
 }

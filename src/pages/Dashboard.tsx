@@ -14,13 +14,12 @@ import {
   ArrowRight,
   Moon,
   Sun,
-  LogOut,
   Trophy,
   Medal,
   Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 import { supabase } from "../lib/supabase";
 import { workoutService } from "../lib/workoutService";
@@ -84,6 +83,7 @@ const icons = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [routines, setRoutines] = useState<Routine[]>([]);
+  const [isLoadingRoutines, setIsLoadingRoutines] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
@@ -154,6 +154,7 @@ export default function Dashboard() {
   };
 
   const fetchRoutines = async (uid: string) => {
+    setIsLoadingRoutines(true);
     try {
       const data = await workoutService.getRoutines(uid);
       if (data && data.length > 0) {
@@ -242,6 +243,8 @@ export default function Dashboard() {
       }
     } catch (e) {
       console.error("Failed to fetch routines", e);
+    } finally {
+      setIsLoadingRoutines(false);
     }
   };
 
@@ -263,10 +266,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
-
   return (
     <div
       className={cn(
@@ -284,48 +283,15 @@ export default function Dashboard() {
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-bold tracking-tight">Luyện tập</h1>
-              <ChevronDown
-                className={cn(
-                  "w-6 h-6",
-                  isDark ? "text-zinc-500" : "text-zinc-400",
-                )}
-              />
             </div>
-            {userEmail && (
-              <p
-                className={cn(
-                  "text-xs font-medium mt-1",
-                  isDark ? "text-zinc-500" : "text-zinc-400",
-                )}
-              >
-                {userEmail}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-md">
-              PRO
-            </span>
-            <button
-              onClick={handleLogout}
+            <p
               className={cn(
-                "p-2 rounded-full transition-colors",
-                isDark
-                  ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
-                  : "bg-zinc-200 hover:bg-zinc-300 text-zinc-600",
-              )}
-              title="Đăng xuất"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-            <div
-              className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm border-2 bg-blue-500",
-                isDark ? "border-zinc-700" : "border-white",
+                "text-sm font-medium mt-1",
+                isDark ? "text-zinc-400" : "text-zinc-500",
               )}
             >
-              {userEmail ? userEmail[0].toUpperCase() : "U"}
-            </div>
+              Chào mừng trở lại!
+            </p>
           </div>
         </motion.div>
 
@@ -447,84 +413,94 @@ export default function Dashboard() {
 
           {/* Existing Routines List */}
           <div className="space-y-3">
-            {routines.map((routine) => {
-              const IconComponent = icons[routine.iconName] || Activity;
-              return (
-                <button
-                  key={routine.id}
-                  onClick={() => navigate(`/workout/${routine.id}`)}
-                  className={cn(
-                    "w-full rounded-2xl p-4 transition-all active:scale-[0.98] text-left flex items-center gap-4 group relative overflow-hidden",
-                    isDark
-                      ? "bg-[#1c1c1e] hover:bg-[#2c2c2e]"
-                      : "bg-white border border-zinc-200 hover:border-zinc-400 dark:hover:border-zinc-600 shadow-sm",
-                  )}
-                >
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${routine.bg} shrink-0`}
-                  >
-                    <IconComponent className={`w-6 h-6 ${routine.color}`} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3
-                      className={cn(
-                        "text-base font-bold truncate",
-                        isDark ? "text-white" : "text-zinc-900",
-                      )}
-                    >
-                      {routine.title}
-                    </h3>
-                    <p
-                      className={cn(
-                        "text-sm mt-0.5 truncate",
-                        isDark ? "text-zinc-400" : "text-zinc-500",
-                      )}
-                    >
-                      {routine.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteRoutine(routine.id);
-                      }}
-                      className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center transition-opacity hover:bg-red-500/20"
-                    >
-                      <Trash2 className="w-5 h-5 text-red-500" />
-                    </div>
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
-                        isDark
-                          ? "bg-zinc-800 group-hover:bg-white/20"
-                          : "bg-zinc-100 group-hover:bg-zinc-200",
-                      )}
-                    >
-                      <Play
-                        className={cn(
-                          "w-5 h-5 ml-0.5",
-                          isDark
-                            ? "text-zinc-400 group-hover:text-white"
-                            : "text-zinc-400 group-hover:text-zinc-900 dark:text-white",
-                        )}
-                      />
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-            {routines.length === 0 && (
-              <div
-                className={cn(
-                  "text-center py-10",
-                  isDark ? "text-zinc-500" : "text-zinc-400",
-                )}
-              >
-                Chưa có lịch tập nào. Hãy tạo lịch tập mới!
+            {isLoadingRoutines ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className={cn("h-[88px] rounded-2xl animate-pulse", isDark ? "bg-[#1c1c1e]" : "bg-zinc-200")} />
+                ))}
               </div>
+            ) : routines.length === 0 ? (
+              <div className="text-center py-12">
+                <Dumbbell className="w-16 h-16 mx-auto text-zinc-400 mb-4" />
+                <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có lịch tập nào</h3>
+                <p className={cn("mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Tạo lịch tập đầu tiên để bắt đầu tập luyện!</p>
+                <button 
+                  onClick={() => navigate("/routine/new")} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+                >
+                  Tạo Lịch Tập Ngay
+                </button>
+              </div>
+            ) : (
+              routines.map((routine) => {
+                const IconComponent = icons[routine.iconName] || Activity;
+                return (
+                  <button
+                    key={routine.id}
+                    onClick={() => navigate(`/workout/${routine.id}`)}
+                    className={cn(
+                      "w-full rounded-2xl p-4 transition-all active:scale-[0.98] text-left flex items-center gap-4 group relative overflow-hidden",
+                      isDark
+                        ? "bg-[#1c1c1e] hover:bg-[#2c2c2e]"
+                        : "bg-white border border-zinc-200 hover:border-zinc-400 dark:hover:border-zinc-600 shadow-sm",
+                    )}
+                  >
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${routine.bg} shrink-0`}
+                    >
+                      <IconComponent className={`w-6 h-6 ${routine.color}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3
+                        className={cn(
+                          "text-base font-bold truncate",
+                          isDark ? "text-white" : "text-zinc-900",
+                        )}
+                      >
+                        {routine.title}
+                      </h3>
+                      <p
+                        className={cn(
+                          "text-sm mt-0.5 truncate",
+                          isDark ? "text-zinc-400" : "text-zinc-500",
+                        )}
+                      >
+                        {routine.subtitle}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteRoutine(routine.id);
+                        }}
+                        className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center transition-opacity hover:bg-red-500/20"
+                      >
+                        <Trash2 className="w-5 h-5 text-red-500" />
+                      </div>
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
+                          isDark
+                            ? "bg-zinc-800 group-hover:bg-white/20"
+                            : "bg-zinc-100 group-hover:bg-zinc-200",
+                        )}
+                      >
+                        <Play
+                          className={cn(
+                            "w-5 h-5 ml-0.5",
+                            isDark
+                              ? "text-zinc-400 group-hover:text-white"
+                              : "text-zinc-400 group-hover:text-zinc-900 dark:text-white",
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </motion.div>

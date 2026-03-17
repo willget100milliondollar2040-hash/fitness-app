@@ -385,27 +385,41 @@ export default function Nutrition() {
         </div>
         
         <div className="space-y-3">
-          {meals.map((meal, i) => (
-            <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner flex items-center justify-center">
-                {meal.img ? (
-                  <img className="w-full h-full object-cover" src={meal.img} alt={meal.name} referrerPolicy="no-referrer" />
-                ) : (
-                  <Utensils className={cn("w-6 h-6", isDark ? "text-zinc-600" : "text-zinc-400")} />
-                )}
-              </div>
-              <div className="flex-1">
-                <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{meal.time}</span>
-                <h4 className={cn("font-bold text-lg leading-tight", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
-                <div className={cn("flex items-center gap-3 text-sm mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                  <span className={cn("flex items-center gap-1 font-medium", isDark ? "text-zinc-300" : "text-zinc-700")}><Flame className="w-4 h-4 text-orange-400" /> {meal.cal} kcal</span>
-                  <span className="text-xs">P: {meal.protein}g</span>
-                  <span className="text-xs">C: {meal.carbs}g</span>
-                  <span className="text-xs">F: {meal.fat}g</span>
+          {meals.length === 0 ? (
+            <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+              <Utensils className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
+              <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có bữa ăn nào</h3>
+              <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Ghi lại bữa ăn đầu tiên của bạn hôm nay!</p>
+              <button 
+                onClick={() => setIsManualModalOpen(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+              >
+                Thêm Bữa Ăn
+              </button>
+            </div>
+          ) : (
+            meals.map((meal, i) => (
+              <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
+                <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner flex items-center justify-center">
+                  {meal.img ? (
+                    <img className="w-full h-full object-cover" src={meal.img} alt={meal.name} referrerPolicy="no-referrer" />
+                  ) : (
+                    <Utensils className={cn("w-6 h-6", isDark ? "text-zinc-600" : "text-zinc-400")} />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{meal.time}</span>
+                  <h4 className={cn("font-bold text-lg leading-tight", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
+                  <div className={cn("flex items-center gap-3 text-sm mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                    <span className={cn("flex items-center gap-1 font-medium", isDark ? "text-zinc-300" : "text-zinc-700")}><Flame className="w-4 h-4 text-orange-400" /> {meal.cal} kcal</span>
+                    <span className="text-xs">P: {meal.protein}g</span>
+                    <span className="text-xs">C: {meal.carbs}g</span>
+                    <span className="text-xs">F: {meal.fat}g</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </motion.div>
 

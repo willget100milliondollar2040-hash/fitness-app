@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, Navigate, useNavigate } from "react-router-dom";
 import { Dumbbell, MessageCircle, Users, Utensils, TrendingUp, Moon, Sun, LogOut, User, ShoppingBag } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { useTheme } from "./ThemeProvider";
 import { Logo } from "./Logo";
 import { supabase } from "../lib/supabase";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 export default function Layout() {
+  useKeyboardShortcuts();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -71,7 +73,11 @@ export default function Layout() {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className={cn("w-8 h-8 rounded-full overflow-hidden border shadow-sm transition-transform active:scale-95 flex items-center justify-center font-bold text-white bg-blue-500", isDark ? "border-zinc-700" : "border-zinc-200")}
             >
-              {userEmail ? userEmail[0].toUpperCase() : "U"}
+              {userEmail ? (
+                <img src={getAvatarUrl(userEmail) || ""} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                "U"
+              )}
             </button>
 
             {showProfileMenu && (

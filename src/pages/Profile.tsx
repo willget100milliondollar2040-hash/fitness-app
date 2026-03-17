@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Camera, Save, ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
 import { supabase } from "../lib/supabase";
 import { workoutService } from "../lib/workoutService";
@@ -39,6 +39,7 @@ export default function Profile() {
   const LEVEL_OPTIONS = ["Người mới", "Trung cấp", "Nâng cao"];
   const FREQUENCY_OPTIONS = ["1-2 buổi/tuần", "3-4 buổi/tuần", "5+ buổi/tuần"];
   const DIET_OPTIONS = ["Cân bằng", "Nhiều đạm", "Ăn chay", "Keto"];
+  const TIMEFRAME_OPTIONS = ["4 tuần", "8 tuần", "12 tuần", "Dài hạn"];
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -150,8 +151,8 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className={cn("min-h-screen flex items-center justify-center transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
@@ -178,8 +179,8 @@ export default function Profile() {
         <div className="flex flex-col items-center space-y-4">
           <div className="relative">
             <div className={cn("w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl text-white shadow-lg border-4 overflow-hidden", isDark ? "border-zinc-800 bg-zinc-700" : "border-white bg-zinc-300")}>
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              {profile.avatar_url || getAvatarUrl(userEmail) ? (
+                <img src={profile.avatar_url || getAvatarUrl(userEmail) || ""} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 userEmail ? userEmail[0].toUpperCase() : "U"
               )}
@@ -291,6 +292,24 @@ export default function Profile() {
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold transition-all",
                     profile.diet === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-3 mt-4", isDark ? "text-zinc-400" : "text-zinc-600")}>Thời gian tập luyện mục tiêu</label>
+            <div className="flex flex-wrap gap-2">
+              {TIMEFRAME_OPTIONS.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => setProfile({ ...profile, timeframe: opt })}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-xs font-bold transition-all",
+                    profile.timeframe === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
                   )}
                 >
                   {opt}

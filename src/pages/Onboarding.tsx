@@ -39,6 +39,7 @@ export default function Onboarding() {
       // Complete onboarding
       localStorage.setItem("onboardingData", JSON.stringify(answers));
       localStorage.setItem("onboardingComplete", "true");
+      window.dispatchEvent(new Event("onboardingUpdated"));
       
       try {
         const { data: { user } } = await supabase.auth.getUser();

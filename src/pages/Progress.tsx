@@ -314,7 +314,11 @@ export default function Progress() {
         {loading ? (
           <div className="text-center py-8 text-zinc-500">Đang tải dữ liệu...</div>
         ) : workouts.length === 0 ? (
-          <div className="text-center py-8 text-zinc-500">Chưa có dữ liệu tập luyện.</div>
+          <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <History className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
+            <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có lịch sử tập luyện</h3>
+            <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Hoàn thành bài tập đầu tiên để xem tiến độ của bạn!</p>
+          </div>
         ) : (
           <div className="space-y-4">
             {workouts.map((workout) => (

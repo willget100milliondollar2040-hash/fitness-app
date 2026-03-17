@@ -21,6 +21,7 @@ import { supabase } from "../lib/supabase";
 import { WorkoutTimer } from "../components/workout/WorkoutTimer";
 import { ExerciseList } from "../components/workout/ExerciseList";
 import { WorkoutSummary } from "../components/workout/WorkoutSummary";
+import { SimpleTimer } from "../components/workout/SimpleTimer";
 
 export type SetType = {
   id: string;
@@ -1709,6 +1710,17 @@ export default function ActiveWorkout() {
   const [selectedExerciseImage, setSelectedExerciseImage] = useState<
     string | null
   >(null);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const handleDiscardWorkout = () => {
+    localStorage.removeItem(storageKey);
+    localStorage.removeItem(`${storageKey}_startTime`);
+    localStorage.removeItem(`${storageKey}_restTimer`);
+    localStorage.removeItem(`${storageKey}_restEndTime`);
+    localStorage.removeItem(`${storageKey}_isResting`);
+    localStorage.removeItem(`${storageKey}_activeRestId`);
+    navigate("/");
+  };
   const restTimerOptions = [
     "Tắt",
     "20s",
@@ -1723,7 +1735,6 @@ export default function ActiveWorkout() {
 
   // Timers
   const [workoutStartTime, setWorkoutStartTime] = useState<number>(Date.now());
-  const [workoutDuration, setWorkoutDuration] = useState<number>(0);
   const [restTimer, setRestTimer] = useState<number>(0);
   const [isResting, setIsResting] = useState<boolean>(false);
   const [defaultRestTime, setDefaultRestTime] = useState<number>(90);
@@ -1763,13 +1774,6 @@ export default function ActiveWorkout() {
 
     fetchRecords();
   }, [exercises]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWorkoutDuration(Math.floor((Date.now() - workoutStartTime) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [workoutStartTime]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -1882,6 +1886,7 @@ export default function ActiveWorkout() {
       if (saved) {
         setExercises(JSON.parse(saved));
       } else if (id) {
+        let loadedFromSupabase = false;
         try {
           // Try to load from routine template in Supabase
           const {
@@ -1905,31 +1910,71 @@ export default function ActiveWorkout() {
                 JSON.stringify(routine.exercises),
               );
               setExercises(templateExercises);
-              return;
+              loadedFromSupabase = true;
             }
           }
         } catch (e) {
           console.error("Failed to load routine from Supabase", e);
         }
 
-        // Default initial state if empty or failed to load
-        const defaultState: ExerciseType[] = [
-          {
-            id: "ex_" + Date.now(),
-            name: "Hít đất",
-            sets: [
-              {
-                id: "s1",
-                type: "N",
-                previous: "-",
-                kg: "0",
-                reps: "10",
-                completed: false,
-              },
-            ],
-          },
-        ];
-        setExercises(defaultState);
+        if (!loadedFromSupabase) {
+          // Default initial state if empty or failed to load
+          const defaultState: ExerciseType[] = [
+            {
+              id: "ex_" + Date.now(),
+              name: "Hít đất",
+              sets: [
+                {
+                  id: "s1",
+                  type: "N",
+                  previous: "-",
+                  kg: "0",
+                  reps: "10",
+                  completed: false,
+                },
+              ],
+            },
+          ];
+          setExercises(defaultState);
+        }
+      }
+
+      // Load timers
+      const savedStartTime = localStorage.getItem(`${storageKey}_startTime`);
+      if (savedStartTime) {
+        setWorkoutStartTime(parseInt(savedStartTime));
+      } else {
+        const now = Date.now();
+        setWorkoutStartTime(now);
+        localStorage.setItem(`${storageKey}_startTime`, now.toString());
+      }
+
+      const savedIsResting = localStorage.getItem(`${storageKey}_isResting`);
+      const savedRestEndTime = localStorage.getItem(`${storageKey}_restEndTime`);
+      
+      if (savedIsResting === "true" && savedRestEndTime) {
+        const endTime = parseInt(savedRestEndTime);
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+        if (remaining > 0) {
+          setRestTimer(remaining);
+          setIsResting(true);
+        } else {
+          setRestTimer(0);
+          setIsResting(false);
+        }
+      } else {
+        const savedRestTimer = localStorage.getItem(`${storageKey}_restTimer`);
+        if (savedRestTimer) {
+          setRestTimer(parseInt(savedRestTimer));
+        }
+        if (savedIsResting === "true") {
+          setIsResting(true);
+        }
+      }
+
+      const savedActiveRestId = localStorage.getItem(`${storageKey}_activeRestId`);
+      if (savedActiveRestId) {
+        setActiveRestTimerExerciseId(savedActiveRestId);
       }
     };
 
@@ -1941,6 +1986,28 @@ export default function ActiveWorkout() {
       localStorage.setItem(storageKey, JSON.stringify(exercises));
     }
   }, [exercises, storageKey]);
+
+  useEffect(() => {
+    if (isResting && restTimer > 0) {
+      // Only set restEndTime if it doesn't exist or if we're starting a new rest
+      // Actually, since restTimer updates every second, we shouldn't update restEndTime every second
+      // We can just update it if we don't have one, or if the difference is large (e.g. user added time)
+      const currentEndTime = localStorage.getItem(`${storageKey}_restEndTime`);
+      const expectedEndTime = Date.now() + restTimer * 1000;
+      if (!currentEndTime || Math.abs(parseInt(currentEndTime) - expectedEndTime) > 2000) {
+        localStorage.setItem(`${storageKey}_restEndTime`, expectedEndTime.toString());
+      }
+    } else {
+      localStorage.removeItem(`${storageKey}_restEndTime`);
+    }
+    localStorage.setItem(`${storageKey}_restTimer`, restTimer.toString());
+    localStorage.setItem(`${storageKey}_isResting`, isResting.toString());
+    if (activeRestTimerExerciseId) {
+      localStorage.setItem(`${storageKey}_activeRestId`, activeRestTimerExerciseId);
+    } else {
+      localStorage.removeItem(`${storageKey}_activeRestId`);
+    }
+  }, [restTimer, isResting, activeRestTimerExerciseId, storageKey]);
 
   const stats = useMemo(() => {
     let volume = 0;
@@ -2142,7 +2209,6 @@ export default function ActiveWorkout() {
     }));
     setExercises(resetExercises);
     setWorkoutStartTime(Date.now());
-    setWorkoutDuration(0);
     setShowSummary(false);
   };
 
@@ -2159,7 +2225,7 @@ export default function ActiveWorkout() {
           name: id ? `Bài tập ${id}` : "Bài tập tùy chỉnh",
           start_time: new Date(workoutStartTime).toISOString(),
           end_time: new Date().toISOString(),
-          duration: workoutDuration,
+          duration: Math.floor((Date.now() - workoutStartTime) / 1000),
           volume: stats.volume,
           sets_count: stats.setsCount,
         };
@@ -2191,11 +2257,14 @@ export default function ActiveWorkout() {
       // Fallback to local storage or show error? For now, proceed to clear and go home
     } finally {
       setIsSaving(false);
-      const resetExercises = exercises.map((ex) => ({
-        ...ex,
-        sets: ex.sets.map((s) => ({ ...s, completed: false })),
-      }));
-      localStorage.setItem(storageKey, JSON.stringify(resetExercises));
+      // Clear all workout persistence
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(`${storageKey}_startTime`);
+      localStorage.removeItem(`${storageKey}_restTimer`);
+      localStorage.removeItem(`${storageKey}_restEndTime`);
+      localStorage.removeItem(`${storageKey}_isResting`);
+      localStorage.removeItem(`${storageKey}_activeRestId`);
+      
       navigate("/");
     }
   };
@@ -2216,14 +2285,13 @@ export default function ActiveWorkout() {
           )}
         >
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => setShowDiscardConfirm(true)}
             className={cn(
-              "flex items-center gap-2 font-medium",
-              isDark ? "text-white" : "text-zinc-900",
+              "flex items-center gap-1 font-bold text-red-500 hover:text-red-600 transition-colors",
             )}
           >
-            <ChevronDown className="w-5 h-5" />
-            Ghi lại bài tập
+            <X className="w-5 h-5" />
+            Hủy
           </button>
           <div className="flex items-center gap-3">
             <div
@@ -2287,7 +2355,7 @@ export default function ActiveWorkout() {
                 Thời gian
               </div>
               <div className="text-blue-500 font-bold font-mono text-sm leading-none">
-                {formatTime(workoutDuration)}
+                <SimpleTimer startTime={workoutStartTime} />
               </div>
             </div>
           </div>
@@ -2580,6 +2648,51 @@ export default function ActiveWorkout() {
         </div>
       )}
 
+      {/* Discard Workout Confirm Modal */}
+      {showDiscardConfirm && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div
+            className={cn(
+              "rounded-3xl p-6 w-full max-w-sm shadow-2xl mx-4",
+              isDark ? "bg-[#1c1c1e]" : "bg-white",
+            )}
+          >
+            <h3
+              className={cn(
+                "text-xl font-bold mb-2",
+                isDark ? "text-white" : "text-zinc-900",
+              )}
+            >
+              Hủy buổi tập?
+            </h3>
+            <p
+              className={cn("mb-6", isDark ? "text-zinc-400" : "text-zinc-500")}
+            >
+              Bạn có chắc chắn muốn hủy buổi tập này không? Mọi dữ liệu chưa lưu sẽ bị mất.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDiscardConfirm(false)}
+                className={cn(
+                  "flex-1 py-3 rounded-xl font-bold transition-all active:scale-95",
+                  isDark
+                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                    : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600",
+                )}
+              >
+                Tiếp tục tập
+              </button>
+              <button
+                onClick={handleDiscardWorkout}
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-all active:scale-95"
+              >
+                Hủy bỏ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Exercise Confirm Modal */}
       {deleteExerciseId && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -2747,7 +2860,7 @@ export default function ActiveWorkout() {
       {/* Summary Modal */}
       {showSummary && (
         <WorkoutSummary
-          elapsedTime={workoutDuration}
+          elapsedTime={Math.floor((Date.now() - workoutStartTime) / 1000)}
           exercises={exercises}
           isSaving={isSaving}
           newRecords={newRecords}
