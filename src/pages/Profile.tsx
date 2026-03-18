@@ -123,7 +123,7 @@ export default function Profile() {
         level: profile.level,
         frequency: profile.frequency,
         timeframe: profile.timeframe,
-        diet: profile.diet,
+        // diet: profile.diet, // Removed to prevent PGRST204 schema error
         avatar_url: profile.avatar_url
       });
       alert("Cập nhật hồ sơ thành công!");

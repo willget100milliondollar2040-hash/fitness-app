@@ -58,8 +58,7 @@ export default function Onboarding() {
             goals: goals,
             level: answers.level,
             frequency: answers.frequency,
-            timeframe: answers.timeframe,
-            diet: answers.diet
+            timeframe: answers.timeframe
           });
         }
       } catch (e) {
