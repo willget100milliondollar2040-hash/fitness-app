@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { TrendingUp, Camera, Activity, Calendar, Award, Clock, Dumbbell, History, Plus, Download, Sparkles } from "lucide-react";
+import { TrendingUp, Camera, Activity, Calendar, Award, Clock, Dumbbell, History, Plus, Download, Sparkles, BarChart2 } from "lucide-react";
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { workoutService } from "../lib/workoutService";
@@ -8,6 +8,7 @@ import { supabase } from "../lib/supabase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GoogleGenAI } from "@google/genai";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Progress() {
   const { isDark } = useTheme();
@@ -22,21 +23,46 @@ export default function Progress() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+      setIsUploading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        let { error: uploadError } = await supabase.storage.from('body_photos').upload(filePath, file);
+        
+        if (uploadError) {
+          // Try to create the bucket if it doesn't exist
+          await supabase.storage.createBucket('body_photos', { public: true });
+          const retry = await supabase.storage.from('body_photos').upload(filePath, file);
+          if (retry.error) throw retry.error;
+        }
+
+        const { data } = supabase.storage.from('body_photos').getPublicUrl(filePath);
+        
         const newPhoto = {
           id: Date.now().toString(),
-          url: reader.result as string,
+          url: data.publicUrl,
           date: new Date().toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' })
         };
+        
         const updatedPhotos = [...photos, newPhoto];
         setPhotos(updatedPhotos);
         localStorage.setItem("bodyPhotos", JSON.stringify(updatedPhotos));
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        alert("Không thể tải ảnh lên. Vui lòng thử lại.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -51,19 +77,36 @@ export default function Progress() {
     try {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      const getBase64Data = (dataUrl: string) => {
-        const arr = dataUrl.split(",");
-        return {
-          mimeType: arr[0].match(/:(.*?);/)?.[1] || "image/jpeg",
-          data: arr[1]
-        };
+      const getBase64Data = async (url: string) => {
+        if (url.startsWith('data:')) {
+          const arr = url.split(",");
+          return {
+            mimeType: arr[0].match(/:(.*?);/)?.[1] || "image/jpeg",
+            data: arr[1]
+          };
+        } else {
+          const response = await fetch(url);
+          const blob = await response.blob();
+          return new Promise<any>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const result = reader.result as string;
+              const arr = result.split(",");
+              resolve({
+                mimeType: arr[0].match(/:(.*?);/)?.[1] || "image/jpeg",
+                data: arr[1]
+              });
+            };
+            reader.readAsDataURL(blob);
+          });
+        }
       };
 
-      const firstImg = getBase64Data(firstPhoto.url);
-      const latestImg = getBase64Data(latestPhoto.url);
+      const firstImg = await getBase64Data(firstPhoto.url);
+      const latestImg = await getBase64Data(latestPhoto.url);
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.1-flash-preview",
         contents: {
           parts: [
             { inlineData: firstImg },
@@ -105,6 +148,25 @@ export default function Progress() {
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
+
+  const chartData = [...workouts].reverse().map(w => ({
+    date: new Date(w.start_time).toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' }),
+    volume: w.volume,
+    duration: Math.floor(w.duration / 60)
+  }));
+
+  const personalRecords = workouts.reduce((acc: any, w) => {
+    w.workout_exercises?.forEach((ex: any) => {
+      ex.workout_sets?.forEach((s: any) => {
+        if (s.completed && s.kg > 0) {
+          if (!acc[ex.exercise_name] || s.kg > acc[ex.exercise_name].kg) {
+            acc[ex.exercise_name] = { kg: s.kg, reps: s.reps, date: new Date(w.start_time).toLocaleDateString('vi-VN') };
+          }
+        }
+      });
+    });
+    return acc;
+  }, {});
 
   const exportToCSV = () => {
     if (workouts.length === 0) return;
@@ -178,9 +240,10 @@ export default function Progress() {
           </h3>
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="text-sm text-black dark:text-white font-medium hover:underline flex items-center gap-1"
+            disabled={isUploading}
+            className="text-sm text-black dark:text-white font-medium hover:underline flex items-center gap-1 disabled:opacity-50"
           >
-            <Plus className="w-4 h-4" /> Thêm ảnh
+            {isUploading ? "Đang tải..." : <><Plus className="w-4 h-4" /> Thêm ảnh</>}
           </button>
           <input 
             type="file" 
@@ -281,11 +344,82 @@ export default function Progress() {
         </div>
       </motion.div>
 
+      {/* Personal Records */}
+      {Object.keys(personalRecords).length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+        >
+          <h3 className={cn("font-bold flex items-center gap-2 mb-4", isDark ? "text-white" : "text-zinc-900")}>
+            <Award className="w-5 h-5 text-yellow-500" />
+            Kỷ lục cá nhân (PR)
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Object.entries(personalRecords).map(([name, record]: [string, any]) => (
+              <div key={name} className={cn("p-4 rounded-2xl border flex justify-between items-center transition-colors", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+                <div>
+                  <div className={cn("text-sm font-bold", isDark ? "text-white" : "text-zinc-900")}>{name}</div>
+                  <div className={cn("text-[10px] font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>{record.date}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-black text-yellow-500">{record.kg}<span className="text-xs ml-0.5">kg</span></div>
+                  <div className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>{record.reps} reps</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Chart Section */}
+      {workouts.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
+              <BarChart2 className="w-5 h-5 text-indigo-500" />
+              Biểu đồ tăng trưởng (Volume)
+            </h3>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#3f3f46" : "#e4e4e7"} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: isDark ? "#a1a1aa" : "#71717a" }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: isDark ? "#a1a1aa" : "#71717a" }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: isDark ? '#18181b' : '#ffffff',
+                    borderColor: isDark ? '#27272a' : '#e4e4e7',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                  itemStyle={{ color: isDark ? '#e4e4e7' : '#18181b' }}
+                />
+                <Area type="monotone" dataKey="volume" name="Volume (kg)" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVolume)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      )}
+
       {/* Workout History */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.4 }}
         className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
       >
         <div className="flex items-center justify-between mb-4">

@@ -17,6 +17,7 @@ import {
   Trophy,
   Medal,
   Star,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, getAvatarUrl } from "@/lib/utils";
@@ -85,27 +86,60 @@ export default function Dashboard() {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [isLoadingRoutines, setIsLoadingRoutines] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
   const [totalWorkouts, setTotalWorkouts] = useState(0);
+  const [weeklyStats, setWeeklyStats] = useState({ count: 0, volume: 0, calories: 0 });
+  const [aiTip, setAiTip] = useState("");
   const { isDark } = useTheme();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUserEmail(user.email || null);
+        setUserName(user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || null);
         setUserId(user.id);
         fetchRoutines(user.id);
         fetchStats(user.id);
+        generateAiTip();
       }
     });
   }, []);
+
+  const generateAiTip = async () => {
+    const tips = [
+      "Uống đủ nước giúp cơ bắp phục hồi nhanh hơn.",
+      "Đừng quên khởi động kỹ trước khi tập nặng.",
+      "Giấc ngủ là chìa khóa để phát triển cơ bắp.",
+      "Tập trung vào kỹ thuật thay vì khối lượng tạ.",
+      "Hãy kiên trì, kết quả sẽ đến sau 4-8 tuần.",
+      "Thử thách bản thân với mức tạ mới mỗi tuần.",
+      "Ăn đủ đạm để hỗ trợ xây dựng cơ bắp."
+    ];
+    setAiTip(tips[Math.floor(Math.random() * tips.length)]);
+  };
 
   const fetchStats = async (uid: string) => {
     try {
       const history = await workoutService.getWorkoutHistory(uid);
       if (history && history.length > 0) {
         setTotalWorkouts(history.length);
+
+        // Weekly stats
+        const now = new Date();
+        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1)));
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const thisWeekWorkouts = history.filter(w => new Date(w.start_time) >= startOfWeek);
+        const weeklyVolume = thisWeekWorkouts.reduce((acc, w) => acc + (w.volume || 0), 0);
+        const weeklyCalories = thisWeekWorkouts.length * 300; // Simple estimation: 300 kcal per workout
+
+        setWeeklyStats({
+          count: thisWeekWorkouts.length,
+          volume: weeklyVolume,
+          calories: weeklyCalories
+        });
 
         // Calculate simple streak
         const dates = history.map((w) => new Date(w.start_time).toDateString());
@@ -251,6 +285,10 @@ export default function Dashboard() {
   const handleDeleteRoutine = async (id: string) => {
     if (!userId) return;
 
+    if (!window.confirm("Bạn có chắc chắn muốn xóa lịch tập này không? Hành động này không thể hoàn tác.")) {
+      return;
+    }
+
     // Optimistic update - disappear immediately
     const previousRoutines = [...routines];
     setRoutines(routines.filter((r) => r.id !== id));
@@ -290,8 +328,65 @@ export default function Dashboard() {
                 isDark ? "text-zinc-400" : "text-zinc-500",
               )}
             >
-              Chào mừng trở lại!
+              {userName ? `Chào mừng trở lại, ${userName}!` : "Chào mừng trở lại!"}
             </p>
+          </div>
+        </motion.div>
+
+        {/* AI Tip Banner */}
+        {aiTip && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.05 }}
+            className={cn(
+              "p-4 rounded-2xl border flex items-start gap-3 transition-colors",
+              isDark ? "bg-blue-500/10 border-blue-500/20" : "bg-blue-50 border-blue-100"
+            )}
+          >
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-blue-400" : "text-blue-600")}>Mẹo từ AI Coach</p>
+              <p className={cn("text-sm leading-relaxed", isDark ? "text-zinc-300" : "text-zinc-700")}>{aiTip}</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Weekly Summary */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className={cn(
+            "rounded-3xl p-6 shadow-sm border transition-colors",
+            isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
+          )}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
+              <Activity className="w-5 h-5 text-blue-500" />
+              Tóm tắt tuần này
+            </h3>
+            <span className={cn("text-xs font-medium px-2 py-1 rounded-full", isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-500")}>
+              Tháng {new Date().getMonth() + 1}
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.count}</p>
+              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Buổi tập</p>
+            </div>
+            <div className="text-center border-x border-zinc-800/10 dark:border-zinc-800/50">
+              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.volume.toLocaleString()}</p>
+              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume (kg)</p>
+            </div>
+            <div className="text-center">
+              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.calories}</p>
+              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Calories</p>
+            </div>
           </div>
         </motion.div>
 

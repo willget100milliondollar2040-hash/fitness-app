@@ -40,7 +40,11 @@ export default function App() {
         .eq('id', userId)
         .single();
       
-      if (data && (data.onboarding_complete || data.goals || data.weight || data.height)) {
+      if (data && data.onboarding_complete) {
+        localStorage.setItem("onboardingComplete", "true");
+        setOnboardingComplete(true);
+      } else if (data && (data.goals?.length > 0 || data.weight || data.height)) {
+        // Fallback for existing users who might have data but not the flag
         localStorage.setItem("onboardingComplete", "true");
         setOnboardingComplete(true);
       } else {

@@ -12,8 +12,66 @@ export default function Buddy() {
   const [searchResult, setSearchResult] = useState<any>(null);
   const [searchError, setSearchError] = useState("");
   const [buddies, setBuddies] = useState<any[]>([]);
+  const [isLoadingBuddies, setIsLoadingBuddies] = useState(true);
   const [challengeState, setChallengeState] = useState<"idle" | "inviting" | "pending">("idle");
   const [invitedFriend, setInvitedFriend] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchBuddies = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch accepted friendships where user is either user_id or friend_id
+        const { data: friendships, error } = await supabase
+          .from('friendships')
+          .select('*')
+          .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
+          .eq('status', 'accepted');
+
+        if (error) {
+          console.error("Error fetching buddies:", error);
+          return;
+        }
+
+        if (!friendships || friendships.length === 0) {
+          setBuddies([]);
+          return;
+        }
+
+        const buddyIds = friendships.map(f => f.user_id === user.id ? f.friend_id : f.user_id);
+
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, avatar_url')
+          .in('id', buddyIds);
+
+        if (profilesError) {
+          console.error("Error fetching buddy profiles:", profilesError);
+          return;
+        }
+
+        const formattedBuddies = profiles?.map(profile => {
+          return {
+            id: profile.id,
+            name: profile.full_name || profile.email.split('@')[0],
+            email: profile.email,
+            avatar: profile.avatar_url,
+            points: Math.floor(Math.random() * 500) + 100, // Mock points for now
+            status: Math.random() > 0.5 ? "Đang tập" : "Nghỉ ngơi"
+          };
+        }) || [];
+
+        setBuddies(formattedBuddies);
+      } catch (error) {
+        console.error("Error in fetchBuddies:", error);
+      } finally {
+        setIsLoadingBuddies(false);
+      }
+    };
+
+    fetchBuddies();
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +276,11 @@ export default function Buddy() {
         <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Đội của bạn</h3>
         
         <div className="space-y-3">
-          {buddies.length === 0 ? (
+          {isLoadingBuddies ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+            </div>
+          ) : buddies.length === 0 ? (
             <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
               <Users className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
               <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có buddy nào</h3>

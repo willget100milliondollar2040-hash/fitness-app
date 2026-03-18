@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { ShoppingBag, Search, Star, Download, Users, Dumbbell, Clock } from "lucide-react";
+import { ShoppingBag, Search, Star, Download, Users, Dumbbell, Clock, Loader2 } from "lucide-react";
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { workoutService } from "../lib/workoutService";
+import { supabase } from "../lib/supabase";
 
 const MOCK_TEMPLATES = [
   {
@@ -52,7 +53,12 @@ const MOCK_TEMPLATES = [
     duration: "45 phút",
     level: "Mọi cấp độ",
     tags: ["Trọng lượng cơ thể", "Cơ bụng"],
-    image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=500&q=80"
+    image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=500&q=80",
+    exercises: [
+      { name: "Hít đất", sets: 3, reps: 15, weight: 0 },
+      { name: "Pull up", sets: 3, reps: 8, weight: 0 },
+      { name: "Plank", sets: 3, reps: 60, weight: 0 }
+    ]
   }
 ];
 
@@ -60,6 +66,7 @@ export default function Marketplace() {
   const { isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [templates, setTemplates] = useState(MOCK_TEMPLATES);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
 
   const filteredTemplates = templates.filter(t => 
     t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -67,9 +74,38 @@ export default function Marketplace() {
     t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleDownload = (template: typeof MOCK_TEMPLATES[0]) => {
-    alert(`Đã tải xuống ${template.title}! Bài tập này sẽ được thêm vào danh sách của bạn.`);
-    // Here we would actually save it to the user's routines in Supabase
+  const handleDownload = async (template: any) => {
+    if (template.price > 0) {
+      alert("Tính năng thanh toán đang được phát triển. Vui lòng thử các bài tập miễn phí.");
+      return;
+    }
+
+    setIsDownloading(template.id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Vui lòng đăng nhập để tải bài tập.");
+        return;
+      }
+
+      await workoutService.saveRoutine({
+        user_id: user.id,
+        title: template.title,
+        subtitle: `bởi ${template.author}`,
+        duration: template.duration,
+        icon_name: "Dumbbell",
+        color: "text-blue-500",
+        bg: "bg-blue-100",
+        exercises: template.exercises || []
+      });
+
+      alert(`Đã tải xuống ${template.title}! Bài tập này đã được thêm vào danh sách của bạn.`);
+    } catch (error) {
+      console.error("Download failed", error);
+      alert("Tải xuống thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsDownloading(null);
+    }
   };
 
   return (
@@ -146,9 +182,17 @@ export default function Marketplace() {
 
               <button
                 onClick={() => handleDownload(template)}
-                className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                disabled={isDownloading === template.id}
+                className={cn(
+                  "w-full py-3.5 rounded-xl font-bold text-white transition-colors flex items-center justify-center gap-2",
+                  isDownloading === template.id ? "bg-zinc-500" : "bg-blue-500 hover:bg-blue-600"
+                )}
               >
-                <Download className="w-5 h-5" />
+                {isDownloading === template.id ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Download className="w-5 h-5" />
+                )}
                 {template.price === 0 ? "Thêm vào bài tập" : "Mua"}
               </button>
             </div>

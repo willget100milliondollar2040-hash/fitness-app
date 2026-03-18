@@ -74,7 +74,7 @@ CÁC QUY TẮC LUÔN PHẢI TUÂN THEO:
 export function createChatSession() {
   const ai = getAi();
   return ai.chats.create({
-    model: "gemini-3-flash-preview",
+    model: "gemini-3.1-flash-preview",
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
       temperature: 0.7,

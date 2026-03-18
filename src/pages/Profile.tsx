@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Camera, Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Camera, Save, ArrowLeft, Loader2, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, getAvatarUrl } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
@@ -29,17 +29,66 @@ export default function Profile() {
   });
 
   const GOAL_OPTIONS = [
-    "Giảm cân",
-    "Tăng cơ",
-    "Tăng sức bền",
+    "Tăng cơ 💪",
+    "Giảm mỡ 🔥",
+    "Tăng sức mạnh calisthenics",
+    "Giữ dáng / thể lực chung",
+    "Kéo xà (Pull up)",
+    "Lên xà (Muscle up)",
+    "Front lever",
+    "Trồng chuối (Handstand)",
     "Khỏe hơn",
-    "Giữ gìn sức khỏe"
+    "Planche"
   ];
 
-  const LEVEL_OPTIONS = ["Người mới", "Trung cấp", "Nâng cao"];
-  const FREQUENCY_OPTIONS = ["1-2 buổi/tuần", "3-4 buổi/tuần", "5+ buổi/tuần"];
-  const DIET_OPTIONS = ["Cân bằng", "Nhiều đạm", "Ăn chay", "Keto"];
-  const TIMEFRAME_OPTIONS = ["4 tuần", "8 tuần", "12 tuần", "Dài hạn"];
+  const LEVEL_OPTIONS = [
+    "Người mới (chưa kéo xà được)",
+    "Trung bình (5–10 cái kéo xà)",
+    "Nâng cao (10+ cái kéo xà / kỹ năng)"
+  ];
+  const FREQUENCY_OPTIONS = ["2–3 lần", "3–4 lần", "5–6 lần"];
+  const DIET_OPTIONS = [
+    "Chế độ ăn bình thường",
+    "Đang giảm cân",
+    "Đang tăng cân / xả cơ",
+    "Ăn chay / Thuần chay"
+  ];
+  const TIMEFRAME_OPTIONS = ["1–3 tháng", "3–6 tháng", "1 năm"];
+
+  const [remindersEnabled, setRemindersEnabled] = useState(false);
+  const [reminderTime, setReminderTime] = useState("18:00");
+
+  useEffect(() => {
+    const savedReminders = localStorage.getItem("remindersEnabled");
+    const savedTime = localStorage.getItem("reminderTime");
+    if (savedReminders === "true") setRemindersEnabled(true);
+    if (savedTime) setReminderTime(savedTime);
+  }, []);
+
+  const handleToggleReminders = async () => {
+    if (!remindersEnabled) {
+      if ("Notification" in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          setRemindersEnabled(true);
+          localStorage.setItem("remindersEnabled", "true");
+          alert("Đã bật thông báo nhắc nhở tập luyện!");
+        } else {
+          alert("Vui lòng cấp quyền thông báo trong trình duyệt để sử dụng tính năng này.");
+        }
+      } else {
+        alert("Trình duyệt của bạn không hỗ trợ thông báo.");
+      }
+    } else {
+      setRemindersEnabled(false);
+      localStorage.setItem("remindersEnabled", "false");
+    }
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReminderTime(e.target.value);
+    localStorage.setItem("reminderTime", e.target.value);
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -327,6 +376,49 @@ export default function Profile() {
               className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
               placeholder="VD: 12 tuần"
             />
+          </div>
+
+          <div>
+            <label className={cn("block text-sm font-bold mb-3 mt-6", isDark ? "text-zinc-400" : "text-zinc-600")}>Thông báo nhắc nhở</label>
+            <div className={cn("p-4 rounded-2xl flex items-center justify-between", isDark ? "bg-[#1c1c1e]" : "bg-white border")}>
+              <div className="flex items-center gap-3">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", remindersEnabled ? "bg-blue-100 text-blue-600" : isDark ? "bg-zinc-800 text-zinc-500" : "bg-zinc-100 text-zinc-400")}>
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={cn("font-bold text-sm", isDark ? "text-white" : "text-zinc-900")}>Nhắc nhở tập luyện</p>
+                  <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                    {remindersEnabled ? "Sẽ nhắc bạn vào lúc" : "Bật để nhận thông báo"}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                {remindersEnabled && (
+                  <input 
+                    type="time" 
+                    value={reminderTime}
+                    onChange={handleTimeChange}
+                    className={cn(
+                      "px-2 py-1 rounded-lg text-sm font-bold outline-none",
+                      isDark ? "bg-zinc-800 text-white" : "bg-zinc-100 text-zinc-900"
+                    )}
+                  />
+                )}
+                <button 
+                  onClick={handleToggleReminders}
+                  className={cn(
+                    "w-12 h-6 rounded-full transition-colors relative",
+                    remindersEnabled ? "bg-blue-500" : isDark ? "bg-zinc-700" : "bg-zinc-300"
+                  )}
+                >
+                  <div className={cn(
+                    "w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform",
+                    remindersEnabled ? "translate-x-6" : "translate-x-0.5"
+                  )} />
+                </button>
+              </div>
+            </div>
           </div>
 
           <div>

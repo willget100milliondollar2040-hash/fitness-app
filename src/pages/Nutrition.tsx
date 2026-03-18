@@ -1,51 +1,87 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Camera, Search, Plus, Utensils, Flame, Upload, X, Check, Edit2, ScanLine } from "lucide-react";
+import { Camera, Search, Plus, Utensils, Flame, Upload, X, Check, Edit2, ScanLine, ChevronLeft, ChevronRight, Droplets } from "lucide-react";
 import { GoogleGenAI, Type } from "@google/genai";
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 export default function Nutrition() {
   const [targetCalories, setTargetCalories] = useState(2000);
-  const [meals, setMeals] = useState<any[]>(() => {
-    const savedNutrition = localStorage.getItem("nutritionData");
-    const today = new Date().toDateString();
-    if (savedNutrition) {
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toDateString());
+  const [nutritionHistory, setNutritionHistory] = useState<Record<string, any[]>>(() => {
+    const saved = localStorage.getItem("nutritionHistory");
+    if (saved) {
       try {
-        const { date, savedMeals } = JSON.parse(savedNutrition);
-        if (date === today) {
-          return savedMeals || [];
-        }
+        return JSON.parse(saved);
       } catch (e) {
-        return [];
+        return {};
       }
     }
-    return [];
+    // Migration from old format
+    const oldSaved = localStorage.getItem("nutritionData");
+    if (oldSaved) {
+      try {
+        const { date, savedMeals } = JSON.parse(oldSaved);
+        if (date && savedMeals) {
+          return { [date]: savedMeals };
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return {};
   });
 
-  useEffect(() => {
-    const today = new Date().toDateString();
-    localStorage.setItem("nutritionData", JSON.stringify({ date: today, savedMeals: meals }));
-  }, [meals]);
-
-  // Check for new day while app is open
-  useEffect(() => {
-    const checkNewDay = setInterval(() => {
-      const today = new Date().toDateString();
-      const savedNutrition = localStorage.getItem("nutritionData");
-      if (savedNutrition) {
-        try {
-          const { date } = JSON.parse(savedNutrition);
-          if (date !== today) {
-            setMeals([]);
-          }
-        } catch (e) {
-          // ignore
+  const [waterIntake, setWaterIntake] = useState(() => {
+    const saved = localStorage.getItem("waterIntake");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === new Date().toDateString()) {
+          return parsed.amount;
         }
-      }
-    }, 60000); // Check every minute
-    return () => clearInterval(checkNewDay);
-  }, []);
+      } catch (e) {}
+    }
+    return 0;
+  });
+
+  const targetWater = 2500; // 2.5L
+
+  useEffect(() => {
+    localStorage.setItem("waterIntake", JSON.stringify({
+      date: new Date().toDateString(),
+      amount: waterIntake
+    }));
+  }, [waterIntake]);
+
+  const addWater = (amount: number) => {
+    setWaterIntake(prev => prev + amount);
+  };
+
+  const meals = nutritionHistory[selectedDate] || [];
+
+  const updateMeals = (newMeals: any[]) => {
+    const newHistory = { ...nutritionHistory, [selectedDate]: newMeals };
+    setNutritionHistory(newHistory);
+    localStorage.setItem("nutritionHistory", JSON.stringify(newHistory));
+  };
+
+  const changeDate = (days: number) => {
+    const date = new Date(selectedDate);
+    date.setDate(date.getDate() + days);
+    setSelectedDate(date.toDateString());
+  };
+
+  const isToday = selectedDate === new Date().toDateString();
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (date.toDateString() === new Date().toDateString()) return "Hôm nay";
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === yesterday.toDateString()) return "Hôm qua";
+    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -143,7 +179,7 @@ export default function Nutrition() {
         }
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
-          model: "gemini-3-flash-preview",
+          model: "gemini-3.1-flash-preview",
           contents: {
             parts: [
               {
@@ -197,7 +233,7 @@ export default function Nutrition() {
 
   const handleConfirmMeal = () => {
     if (pendingMeal) {
-      setMeals((prev) => [pendingMeal, ...prev]);
+      updateMeals([pendingMeal, ...meals]);
       setPendingMeal(null);
       setPreviewImage(null);
     }
@@ -224,7 +260,7 @@ export default function Nutrition() {
       img: ""
     };
 
-    setMeals((prev) => [newMeal, ...prev]);
+    updateMeals([newMeal, ...meals]);
     setIsManualModalOpen(false);
     setManualMeal({
       name: "",
@@ -252,12 +288,23 @@ export default function Nutrition() {
 
   return (
     <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-          <Utensils className="w-6 h-6 text-black dark:text-white" />
-          Dinh dưỡng
-        </h2>
-        <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng ảnh hoặc nhập thủ công.</p>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
+            <Utensils className="w-6 h-6 text-black dark:text-white" />
+            Dinh dưỡng
+          </h2>
+          <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng ảnh hoặc nhập thủ công.</p>
+        </div>
+        <div className={cn("flex items-center gap-2 p-1 rounded-xl shadow-sm border", isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200")}>
+          <button onClick={() => changeDate(-1)} className={cn("p-2 rounded-lg transition-colors", isDark ? "hover:bg-zinc-800" : "hover:bg-zinc-100")}>
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-sm font-bold w-24 text-center">{formatDate(selectedDate)}</span>
+          <button onClick={() => changeDate(1)} disabled={isToday} className={cn("p-2 rounded-lg transition-colors disabled:opacity-30", isDark ? "hover:bg-zinc-800" : "hover:bg-zinc-100")}>
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </motion.div>
 
       {/* Calories & Macros Overview */}
@@ -313,6 +360,45 @@ export default function Nutrition() {
         <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-zinc-800/50">
           <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
           <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
+        </div>
+      </motion.div>
+
+      {/* Water Tracker */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.15 }}
+        className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Droplets className="w-5 h-5 text-blue-500" />
+            <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
+          </div>
+          <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
+        </div>
+
+        <div className="relative h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-6">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
+            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          {[250, 500, 750].map(amount => (
+            <button
+              key={amount}
+              onClick={() => addWater(amount)}
+              className={cn(
+                "py-3 rounded-xl font-bold text-sm transition-all active:scale-95",
+                isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900"
+              )}
+            >
+              +{amount}ml
+            </button>
+          ))}
         </div>
       </motion.div>
 
