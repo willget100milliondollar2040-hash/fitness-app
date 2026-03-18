@@ -29,31 +29,17 @@ export default function Profile() {
   });
 
   const GOAL_OPTIONS = [
-    "Tăng cơ 💪",
-    "Giảm mỡ 🔥",
-    "Tăng sức mạnh calisthenics",
-    "Giữ dáng / thể lực chung",
-    "Kéo xà (Pull up)",
-    "Lên xà (Muscle up)",
-    "Front lever",
-    "Trồng chuối (Handstand)",
+    "Giảm cân",
+    "Tăng cơ",
+    "Tăng sức bền",
     "Khỏe hơn",
-    "Planche"
+    "Giữ gìn sức khỏe"
   ];
 
-  const LEVEL_OPTIONS = [
-    "Người mới (chưa kéo xà được)",
-    "Trung bình (5–10 cái kéo xà)",
-    "Nâng cao (10+ cái kéo xà / kỹ năng)"
-  ];
-  const FREQUENCY_OPTIONS = ["2–3 lần", "3–4 lần", "5–6 lần"];
-  const DIET_OPTIONS = [
-    "Chế độ ăn bình thường",
-    "Đang giảm cân",
-    "Đang tăng cân / xả cơ",
-    "Ăn chay / Thuần chay"
-  ];
-  const TIMEFRAME_OPTIONS = ["1–3 tháng", "3–6 tháng", "1 năm"];
+  const LEVEL_OPTIONS = ["Người mới", "Trung cấp", "Nâng cao"];
+  const FREQUENCY_OPTIONS = ["1-2 buổi/tuần", "3-4 buổi/tuần", "5+ buổi/tuần"];
+  const DIET_OPTIONS = ["Cân bằng", "Nhiều đạm", "Ăn chay", "Keto"];
+  const TIMEFRAME_OPTIONS = ["4 tuần", "8 tuần", "12 tuần", "Dài hạn"];
 
   const [remindersEnabled, setRemindersEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState("18:00");
@@ -98,12 +84,14 @@ export default function Profile() {
         setUserId(user.id);
         
         const data = await workoutService.getProfile(user.id);
+        const localAge = localStorage.getItem('user_age') || "";
+        
         if (data) {
           setProfile({
             full_name: data.full_name || "",
             weight: data.weight?.toString() || "",
             height: data.height?.toString() || "",
-            age: data.age?.toString() || "",
+            age: data.age?.toString() || localAge,
             goals: data.goals || [],
             level: data.level || "",
             frequency: data.frequency || "",
@@ -122,11 +110,15 @@ export default function Profile() {
     if (!userId) return;
     setSaving(true);
     try {
+      if (profile.age) {
+        localStorage.setItem('user_age', profile.age);
+      }
+      
       await workoutService.updateProfile(userId, {
         full_name: profile.full_name,
         weight: profile.weight ? parseFloat(profile.weight) : null,
         height: profile.height ? parseFloat(profile.height) : null,
-        age: profile.age ? parseInt(profile.age) : null,
+        // age: profile.age ? parseInt(profile.age) : null, // Removed to prevent PGRST204 schema error
         goals: profile.goals,
         level: profile.level,
         frequency: profile.frequency,

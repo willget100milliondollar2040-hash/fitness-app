@@ -105,7 +105,8 @@ export default function Nutrition() {
         const parsed = JSON.parse(data);
         const weight = parseFloat(parsed.weight) || 65;
         const height = parseFloat(parsed.height) || 170;
-        const age = parseInt(parsed.age) || 25;
+        const localAge = localStorage.getItem('user_age');
+        const age = localAge ? parseInt(localAge) : (parseInt(parsed.age) || 25);
         const gender = parsed.gender || "Male";
         const mainGoal = parsed.mainGoal || "";
         const diet = parsed.diet || "";

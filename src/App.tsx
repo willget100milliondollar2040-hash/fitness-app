@@ -36,15 +36,11 @@ export default function App() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('onboarding_complete, goals, weight, height')
+        .select('goals, weight, height')
         .eq('id', userId)
         .single();
       
-      if (data && data.onboarding_complete) {
-        localStorage.setItem("onboardingComplete", "true");
-        setOnboardingComplete(true);
-      } else if (data && (data.goals?.length > 0 || data.weight || data.height)) {
-        // Fallback for existing users who might have data but not the flag
+      if (data && (data.goals || data.weight || data.height)) {
         localStorage.setItem("onboardingComplete", "true");
         setOnboardingComplete(true);
       } else {

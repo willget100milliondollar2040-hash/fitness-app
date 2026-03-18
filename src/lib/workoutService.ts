@@ -235,8 +235,7 @@ export const workoutService = {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .update(profileData)
-        .eq('id', userId)
+        .upsert({ id: userId, ...profileData })
         .select()
         .single();
 

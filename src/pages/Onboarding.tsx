@@ -45,18 +45,21 @@ export default function Onboarding() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const goals = [answers.mainGoal, ...answers.calisthenicsGoals].filter(Boolean);
+          
+          // Save age to localStorage since it might not be in the profiles table schema
+          if (answers.age) {
+            localStorage.setItem('user_age', answers.age);
+          }
+          
           await supabase.from('profiles').upsert({
             id: user.id,
-            email: user.email,
             weight: parseFloat(answers.weight) || null,
             height: parseFloat(answers.height) || null,
-            age: parseInt(answers.age) || null,
             goals: goals,
             level: answers.level,
             frequency: answers.frequency,
             timeframe: answers.timeframe,
-            diet: answers.diet,
-            onboarding_complete: true
+            diet: answers.diet
           });
         }
       } catch (e) {
