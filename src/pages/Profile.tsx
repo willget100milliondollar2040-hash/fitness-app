@@ -118,12 +118,12 @@ export default function Profile() {
         full_name: profile.full_name,
         weight: profile.weight ? parseFloat(profile.weight) : null,
         height: profile.height ? parseFloat(profile.height) : null,
-        // age: profile.age ? parseInt(profile.age) : null, // Removed to prevent PGRST204 schema error
+        age: profile.age ? parseInt(profile.age) : null,
         goals: profile.goals,
         level: profile.level,
         frequency: profile.frequency,
         timeframe: profile.timeframe,
-        // diet: profile.diet, // Removed to prevent PGRST204 schema error
+        diet: profile.diet,
         avatar_url: profile.avatar_url
       });
       alert("Cập nhật hồ sơ thành công!");

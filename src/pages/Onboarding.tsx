@@ -36,35 +36,39 @@ export default function Onboarding() {
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Complete onboarding
-      localStorage.setItem("onboardingData", JSON.stringify(answers));
-      localStorage.setItem("onboardingComplete", "true");
-      window.dispatchEvent(new Event("onboardingUpdated"));
-      
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const goals = [answers.mainGoal, ...answers.calisthenicsGoals].filter(Boolean);
           
-          // Save age to localStorage since it might not be in the profiles table schema
-          if (answers.age) {
-            localStorage.setItem('user_age', answers.age);
-          }
-          
-          await supabase.from('profiles').upsert({
+          const { error } = await supabase.from('profiles').upsert({
             id: user.id,
             weight: parseFloat(answers.weight) || null,
             height: parseFloat(answers.height) || null,
+            age: parseInt(answers.age) || null,
             goals: goals,
             level: answers.level,
             frequency: answers.frequency,
-            timeframe: answers.timeframe
+            timeframe: answers.timeframe,
+            diet: answers.diet
           });
+
+          if (error) {
+            console.error("Supabase upsert error:", error);
+            alert("Lỗi lưu hồ sơ: " + error.message + "\n\nVui lòng chạy mã SQL để cập nhật database.");
+            return; // Stop here if there's an error
+          }
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Failed to save profile", e);
+        alert("Lỗi hệ thống: " + e.message);
+        return;
       }
       
+      // Complete onboarding only if successful
+      localStorage.setItem("onboardingData", JSON.stringify(answers));
+      localStorage.setItem("onboardingComplete", "true");
+      window.dispatchEvent(new Event("onboardingUpdated"));
       navigate("/");
     }
   };
