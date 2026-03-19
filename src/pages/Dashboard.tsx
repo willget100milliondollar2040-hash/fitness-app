@@ -92,7 +92,13 @@ export default function Dashboard() {
   const [totalWorkouts, setTotalWorkouts] = useState(0);
   const [weeklyStats, setWeeklyStats] = useState({ count: 0, volume: 0, calories: 0 });
   const [aiTip, setAiTip] = useState("");
+  const [routineSearchQuery, setRoutineSearchQuery] = useState("");
   const { isDark } = useTheme();
+
+  const filteredRoutines = routines.filter(r => 
+    r.title.toLowerCase().includes(routineSearchQuery.toLowerCase()) ||
+    r.subtitle.toLowerCase().includes(routineSearchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -508,6 +514,22 @@ export default function Dashboard() {
 
           {/* Existing Routines List */}
           <div className="space-y-3">
+            {routines.length > 0 && (
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm lịch tập..."
+                  value={routineSearchQuery}
+                  onChange={(e) => setRoutineSearchQuery(e.target.value)}
+                  className={cn(
+                    "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all text-sm",
+                    isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
+                  )}
+                />
+              </div>
+            )}
+
             {isLoadingRoutines ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
@@ -526,8 +548,12 @@ export default function Dashboard() {
                   Tạo Lịch Tập Ngay
                 </button>
               </div>
+            ) : filteredRoutines.length === 0 ? (
+              <div className={cn("text-center py-8 rounded-2xl border", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+                <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy lịch tập nào phù hợp.</p>
+              </div>
             ) : (
-              routines.map((routine) => {
+              filteredRoutines.map((routine) => {
                 const IconComponent = icons[routine.iconName] || Activity;
                 return (
                   <button

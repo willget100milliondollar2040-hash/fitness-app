@@ -58,7 +58,13 @@ export default function Nutrition() {
     setWaterIntake(prev => prev + amount);
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const meals = nutritionHistory[selectedDate] || [];
+  const filteredMeals = meals.filter(meal => 
+    meal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    meal.time.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const updateMeals = (newMeals: any[]) => {
     const newHistory = { ...nutritionHistory, [selectedDate]: newMeals };
@@ -518,6 +524,22 @@ export default function Nutrition() {
             <Plus className="w-5 h-5" />
           </button>
         </div>
+
+        {meals.length > 0 && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm món ăn..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={cn(
+                "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all text-sm",
+                isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
+              )}
+            />
+          </div>
+        )}
         
         <div className="space-y-3">
           {meals.length === 0 ? (
@@ -532,8 +554,12 @@ export default function Nutrition() {
                 Thêm Bữa Ăn
               </button>
             </div>
+          ) : filteredMeals.length === 0 ? (
+            <div className={cn("text-center py-8 rounded-2xl border", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+              <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy món ăn nào phù hợp.</p>
+            </div>
           ) : (
-            meals.map((meal, i) => (
+            filteredMeals.map((meal, i) => (
               <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
                 <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner flex items-center justify-center">
                   {meal.img ? (
