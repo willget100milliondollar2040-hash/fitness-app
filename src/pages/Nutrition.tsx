@@ -159,6 +159,43 @@ export default function Nutrition() {
     }
   }, []);
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality JPEG
+        };
+        img.onerror = (error) => reject(error);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -166,77 +203,75 @@ export default function Nutrition() {
     setIsLoading(true);
 
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        const base64Data = reader.result as string;
-        setPreviewImage(base64Data);
-        const base64String = base64Data.split(",")[1];
-        const mimeType = file.type;
+      // Compress image before sending to AI to significantly reduce latency
+      const compressedBase64 = await compressImage(file);
+      setPreviewImage(compressedBase64);
+      
+      const base64String = compressedBase64.split(",")[1];
+      const mimeType = "image/jpeg";
 
-        const apiKey = (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) || (process.env && process.env.GEMINI_API_KEY) || "";
-        if (!apiKey) {
-          throw new Error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
-        }
-        const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: "gemini-3.1-flash-preview",
-          contents: {
-            parts: [
-              {
-                inlineData: {
-                  mimeType,
-                  data: base64String,
-                },
+      const apiKey = (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) || (process.env && process.env.GEMINI_API_KEY) || "";
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
+      }
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-flash-preview",
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                mimeType,
+                data: base64String,
               },
-              {
-                text: "Phân tích hình ảnh này. Đầu tiên xác định xem đây có phải là đồ ăn/thức uống hay không. Nếu ĐÚNG là đồ ăn: Hãy ước tính khẩu phần thực tế có trong ảnh (ví dụ: 1 bát cơm, 200g thịt gà). Sau đó ước tính tổng lượng calo, protein (g), carbs (g) và chất béo (g) cho TOÀN BỘ khẩu phần đó. Cung cấp tên món ăn ngắn gọn, tự nhiên bằng tiếng Việt. Đánh giá độ tự tin của ước tính. Nếu KHÔNG PHẢI đồ ăn: Đặt isFood = false và các chỉ số = 0.",
-              },
-            ],
-          },
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                isFood: { type: Type.BOOLEAN, description: "Hình ảnh này có phải là đồ ăn/thức uống không?" },
-                name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt). Nếu không phải đồ ăn, trả về 'Không phải đồ ăn'" },
-                cal: { type: Type.NUMBER, description: "Calo ước tính cho toàn bộ khẩu phần trong ảnh. Nếu không phải đồ ăn, trả về 0." },
-                protein: { type: Type.NUMBER, description: "Protein (g). Nếu không phải đồ ăn, trả về 0." },
-                carbs: { type: Type.NUMBER, description: "Carbs (g). Nếu không phải đồ ăn, trả về 0." },
-                fat: { type: Type.NUMBER, description: "Chất béo (g). Nếu không phải đồ ăn, trả về 0." },
-                confidence: { type: Type.STRING, description: "Độ tự tin của ước tính (Cao, Trung bình, Thấp)" },
-                portion: { type: Type.STRING, description: "Ước tính khẩu phần (ví dụ: 1 bát, 200g, 1 đĩa vừa)" }
-              },
-              required: ["isFood", "name", "cal", "protein", "carbs", "fat", "confidence", "portion"],
             },
+            {
+              text: "Phân tích hình ảnh này. Đầu tiên xác định xem đây có phải là đồ ăn/thức uống hay không. Nếu ĐÚNG là đồ ăn: Hãy ước tính khẩu phần thực tế có trong ảnh (ví dụ: 1 bát cơm, 200g thịt gà). Sau đó ước tính tổng lượng calo, protein (g), carbs (g) và chất béo (g) cho TOÀN BỘ khẩu phần đó. Cung cấp tên món ăn ngắn gọn, tự nhiên bằng tiếng Việt. Đánh giá độ tự tin của ước tính. Nếu KHÔNG PHẢI đồ ăn: Đặt isFood = false và các chỉ số = 0.",
+            },
+          ],
+        },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              isFood: { type: Type.BOOLEAN, description: "Hình ảnh này có phải là đồ ăn/thức uống không?" },
+              name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt). Nếu không phải đồ ăn, trả về 'Không phải đồ ăn'" },
+              cal: { type: Type.NUMBER, description: "Calo ước tính cho toàn bộ khẩu phần trong ảnh. Nếu không phải đồ ăn, trả về 0." },
+              protein: { type: Type.NUMBER, description: "Protein (g). Nếu không phải đồ ăn, trả về 0." },
+              carbs: { type: Type.NUMBER, description: "Carbs (g). Nếu không phải đồ ăn, trả về 0." },
+              fat: { type: Type.NUMBER, description: "Chất béo (g). Nếu không phải đồ ăn, trả về 0." },
+              confidence: { type: Type.STRING, description: "Độ tự tin của ước tính (Cao, Trung bình, Thấp)" },
+              portion: { type: Type.STRING, description: "Ước tính khẩu phần (ví dụ: 1 bát, 200g, 1 đĩa vừa)" }
+            },
+            required: ["isFood", "name", "cal", "protein", "carbs", "fat", "confidence", "portion"],
           },
-        });
+        },
+      });
 
-        if (response.text) {
-          const result = JSON.parse(response.text);
-          
-          if (!result.isFood) {
-            alert("Hình ảnh không có vẻ là đồ ăn. Vui lòng thử lại với ảnh khác.");
-            setIsLoading(false);
-            setPreviewImage(null);
-            return;
-          }
-
-          setPendingMeal({
-            time: "Ăn vặt",
-            name: result.name,
-            cal: result.cal,
-            protein: result.protein,
-            carbs: result.carbs,
-            fat: result.fat,
-            portion: result.portion,
-            confidence: result.confidence,
-            img: base64Data,
-          });
+      if (response.text) {
+        const result = JSON.parse(response.text);
+        
+        if (!result.isFood) {
+          alert("Hình ảnh không có vẻ là đồ ăn. Vui lòng thử lại với ảnh khác.");
+          setIsLoading(false);
+          setPreviewImage(null);
+          return;
         }
-        setIsLoading(false);
-      };
+
+        setPendingMeal({
+          time: "Ăn vặt",
+          name: result.name,
+          cal: result.cal,
+          protein: result.protein,
+          carbs: result.carbs,
+          fat: result.fat,
+          portion: result.portion,
+          confidence: result.confidence,
+          img: compressedBase64,
+        });
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error analyzing image:", error);
       alert("Đã xảy ra lỗi khi phân tích hình ảnh. Vui lòng thử lại.");
