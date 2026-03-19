@@ -190,7 +190,7 @@ export default function Nutrition() {
                 },
               },
               {
-                text: "Phân tích hình ảnh món ăn này. Ước tính calo, protein (g), carbs (g) và chất béo (g). Cung cấp tên món ăn ngắn gọn, tự nhiên bằng tiếng Việt (ví dụ: 'Salad gà nướng', 'Bít tết và khoai tây chiên').",
+                text: "Phân tích hình ảnh này. Đầu tiên xác định xem đây có phải là đồ ăn/thức uống hay không. Nếu ĐÚNG là đồ ăn: Hãy ước tính khẩu phần thực tế có trong ảnh (ví dụ: 1 bát cơm, 200g thịt gà). Sau đó ước tính tổng lượng calo, protein (g), carbs (g) và chất béo (g) cho TOÀN BỘ khẩu phần đó. Cung cấp tên món ăn ngắn gọn, tự nhiên bằng tiếng Việt. Đánh giá độ tự tin của ước tính. Nếu KHÔNG PHẢI đồ ăn: Đặt isFood = false và các chỉ số = 0.",
               },
             ],
           },
@@ -199,19 +199,30 @@ export default function Nutrition() {
             responseSchema: {
               type: Type.OBJECT,
               properties: {
-                name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt)" },
-                cal: { type: Type.NUMBER, description: "Calo ước tính" },
-                protein: { type: Type.NUMBER, description: "Protein (g)" },
-                carbs: { type: Type.NUMBER, description: "Carbs (g)" },
-                fat: { type: Type.NUMBER, description: "Chất béo (g)" },
+                isFood: { type: Type.BOOLEAN, description: "Hình ảnh này có phải là đồ ăn/thức uống không?" },
+                name: { type: Type.STRING, description: "Tên món ăn (Tiếng Việt). Nếu không phải đồ ăn, trả về 'Không phải đồ ăn'" },
+                cal: { type: Type.NUMBER, description: "Calo ước tính cho toàn bộ khẩu phần trong ảnh. Nếu không phải đồ ăn, trả về 0." },
+                protein: { type: Type.NUMBER, description: "Protein (g). Nếu không phải đồ ăn, trả về 0." },
+                carbs: { type: Type.NUMBER, description: "Carbs (g). Nếu không phải đồ ăn, trả về 0." },
+                fat: { type: Type.NUMBER, description: "Chất béo (g). Nếu không phải đồ ăn, trả về 0." },
+                confidence: { type: Type.STRING, description: "Độ tự tin của ước tính (Cao, Trung bình, Thấp)" },
+                portion: { type: Type.STRING, description: "Ước tính khẩu phần (ví dụ: 1 bát, 200g, 1 đĩa vừa)" }
               },
-              required: ["name", "cal", "protein", "carbs", "fat"],
+              required: ["isFood", "name", "cal", "protein", "carbs", "fat", "confidence", "portion"],
             },
           },
         });
 
         if (response.text) {
           const result = JSON.parse(response.text);
+          
+          if (!result.isFood) {
+            alert("Hình ảnh không có vẻ là đồ ăn. Vui lòng thử lại với ảnh khác.");
+            setIsLoading(false);
+            setPreviewImage(null);
+            return;
+          }
+
           setPendingMeal({
             time: "Ăn vặt",
             name: result.name,
@@ -219,6 +230,8 @@ export default function Nutrition() {
             protein: result.protein,
             carbs: result.carbs,
             fat: result.fat,
+            portion: result.portion,
+            confidence: result.confidence,
             img: base64Data,
           });
         }
@@ -497,6 +510,9 @@ export default function Nutrition() {
                 <div className="flex-1">
                   <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{meal.time}</span>
                   <h4 className={cn("font-bold text-lg leading-tight", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
+                  {meal.portion && (
+                    <p className={cn("text-xs mt-0.5", isDark ? "text-zinc-500" : "text-zinc-500")}>Khẩu phần: {meal.portion}</p>
+                  )}
                   <div className={cn("flex items-center gap-3 text-sm mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
                     <span className={cn("flex items-center gap-1 font-medium", isDark ? "text-zinc-300" : "text-zinc-700")}><Flame className="w-4 h-4 text-orange-400" /> {meal.cal} kcal</span>
                     <span className="text-xs">P: {meal.protein}g</span>
@@ -662,6 +678,18 @@ export default function Nutrition() {
                   onChange={(e) => setPendingMeal({...pendingMeal, name: e.target.value})}
                   className="bg-transparent text-white font-bold text-2xl w-full outline-none border-b border-white/30 focus:border-white transition-colors pb-1"
                 />
+                <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-white/90">
+                  {pendingMeal.portion && (
+                    <span className="bg-black/40 px-2 py-1 rounded-md backdrop-blur-md border border-white/10">
+                      Khẩu phần: {pendingMeal.portion}
+                    </span>
+                  )}
+                  {pendingMeal.confidence && (
+                    <span className="bg-black/40 px-2 py-1 rounded-md backdrop-blur-md border border-white/10">
+                      Độ chính xác: {pendingMeal.confidence}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             
