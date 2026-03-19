@@ -1,11 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 const getApiKey = () => {
-  return (
-    (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) ||
-    (process.env && process.env.GEMINI_API_KEY) ||
-    ""
-  );
+  return process.env.GEMINI_API_KEY || "";
 };
 
 let aiInstance: GoogleGenAI | null = null;
@@ -74,7 +70,7 @@ CÁC QUY TẮC LUÔN PHẢI TUÂN THEO:
 export function createChatSession() {
   const ai = getAi();
   return ai.chats.create({
-    model: "gemini-3.1-flash-preview",
+    model: "gemini-3-flash-preview",
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
       temperature: 0.7,

@@ -75,7 +75,8 @@ export default function Progress() {
     setIsAnalyzing(true);
     setAnalysisResult(null);
     try {
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY || "";
+      const ai = new GoogleGenAI({ apiKey });
       
       const getBase64Data = async (url: string) => {
         if (url.startsWith('data:')) {
@@ -106,7 +107,7 @@ export default function Progress() {
       const latestImg = await getBase64Data(latestPhoto.url);
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-preview",
+        model: "gemini-3-flash-preview",
         contents: {
           parts: [
             { inlineData: firstImg },

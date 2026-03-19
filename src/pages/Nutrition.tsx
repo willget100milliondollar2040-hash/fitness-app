@@ -216,13 +216,13 @@ export default function Nutrition() {
       const base64String = compressedBase64.split(",")[1];
       const mimeType = "image/jpeg";
 
-      const apiKey = (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) || (process.env && process.env.GEMINI_API_KEY) || "";
+      const apiKey = process.env.GEMINI_API_KEY || "";
       if (!apiKey) {
         throw new Error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
       }
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-preview",
+        model: "gemini-3-flash-preview",
         contents: {
           parts: [
             {
@@ -256,7 +256,14 @@ export default function Nutrition() {
       });
 
       if (response.text) {
-        const result = JSON.parse(response.text);
+        let jsonStr = response.text.trim();
+        if (jsonStr.startsWith("```json")) {
+          jsonStr = jsonStr.replace(/^```json/, "").replace(/```$/, "").trim();
+        } else if (jsonStr.startsWith("```")) {
+          jsonStr = jsonStr.replace(/^```/, "").replace(/```$/, "").trim();
+        }
+        
+        const result = JSON.parse(jsonStr);
         
         if (!result.isFood) {
           alert("Hình ảnh không có vẻ là đồ ăn. Vui lòng thử lại với ảnh khác.");
