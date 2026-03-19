@@ -18,6 +18,7 @@ import {
   Medal,
   Star,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, getAvatarUrl } from "@/lib/utils";
@@ -360,49 +361,50 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Weekly Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className={cn(
-            "rounded-3xl p-6 shadow-sm border transition-colors",
-            isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
-          )}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-              <Activity className="w-5 h-5 text-blue-500" />
-              Tóm tắt tuần này
-            </h3>
-            <span className={cn("text-xs font-medium px-2 py-1 rounded-full", isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-500")}>
-              Tháng {new Date().getMonth() + 1}
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.count}</p>
-              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Buổi tập</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Weekly Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className={cn(
+              "rounded-3xl p-6 shadow-sm border transition-colors h-full flex flex-col justify-center",
+              isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
+            )}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
+                <Activity className="w-5 h-5 text-blue-500" />
+                Tóm tắt tuần này
+              </h3>
+              <span className={cn("text-xs font-medium px-2 py-1 rounded-full", isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-500")}>
+                Tháng {new Date().getMonth() + 1}
+              </span>
             </div>
-            <div className="text-center border-x border-zinc-800/10 dark:border-zinc-800/50">
-              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.volume.toLocaleString()}</p>
-              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume (kg)</p>
+            
+            <div className="grid grid-cols-3 gap-4 mt-auto">
+              <div className="text-center">
+                <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.count}</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Buổi tập</p>
+              </div>
+              <div className="text-center border-x border-zinc-800/10 dark:border-zinc-800/50">
+                <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.volume.toLocaleString()}</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume (kg)</p>
+              </div>
+              <div className="text-center">
+                <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.calories}</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Calories</p>
+              </div>
             </div>
-            <div className="text-center">
-              <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.calories}</p>
-              <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Calories</p>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Gamification Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 gap-4"
-        >
+          {/* Gamification Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="grid grid-cols-2 gap-4 h-full"
+          >
           <div
             className={cn(
               "rounded-3xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center",
@@ -461,6 +463,7 @@ export default function Dashboard() {
             </p>
           </div>
         </motion.div>
+        </div>
 
         {/* Start Empty Workout */}
         <motion.button
@@ -513,9 +516,9 @@ export default function Dashboard() {
           </div>
 
           {/* Existing Routines List */}
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {routines.length > 0 && (
-              <div className="relative mb-4">
+              <div className="relative md:col-span-2 mb-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
                 <input
                   type="text"
@@ -531,13 +534,13 @@ export default function Dashboard() {
             )}
 
             {isLoadingRoutines ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
+              <>
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className={cn("h-[88px] rounded-2xl animate-pulse", isDark ? "bg-[#1c1c1e]" : "bg-zinc-200")} />
                 ))}
-              </div>
+              </>
             ) : routines.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 md:col-span-2">
                 <Dumbbell className="w-16 h-16 mx-auto text-zinc-400 mb-4" />
                 <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có lịch tập nào</h3>
                 <p className={cn("mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Tạo lịch tập đầu tiên để bắt đầu tập luyện!</p>
@@ -549,7 +552,7 @@ export default function Dashboard() {
                 </button>
               </div>
             ) : filteredRoutines.length === 0 ? (
-              <div className={cn("text-center py-8 rounded-2xl border", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+              <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
                 <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy lịch tập nào phù hợp.</p>
               </div>
             ) : (

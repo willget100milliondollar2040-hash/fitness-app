@@ -215,9 +215,10 @@ export default function Profile() {
         </button>
       </header>
 
-      <div className="p-5 space-y-8 max-w-md mx-auto">
-        {/* Avatar Section */}
-        <div className="flex flex-col items-center space-y-4">
+      <div className="p-5 space-y-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center space-y-4 md:sticky md:top-24 h-fit">
           <div className="relative">
             <div className={cn("w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl text-white shadow-lg border-4 overflow-hidden", isDark ? "border-zinc-800 bg-zinc-700" : "border-white bg-zinc-300")}>
               {profile.avatar_url || getAvatarUrl(userEmail) ? (
@@ -437,6 +438,7 @@ export default function Profile() {
               })}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -369,151 +369,155 @@ export default function Nutrition() {
         </div>
       </motion.div>
 
-      {/* Calories & Macros Overview */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        className={cn("rounded-3xl p-6 shadow-sm border flex flex-col items-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
-      >
-        <div className="flex items-center justify-between w-full mb-6">
-          <div className="relative w-32 h-32">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#2c2c2e" : "#f4f4f5"} strokeWidth="10" />
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{consumedCalories}</span>
-              <span className={cn("text-xs font-medium uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>/ {targetCalories} kcal</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Calories & Macros Overview */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className={cn("rounded-3xl p-6 shadow-sm border flex flex-col items-center transition-colors h-full", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+        >
+          <div className="flex items-center justify-between w-full mb-6 flex-1">
+            <div className="relative w-32 h-32 shrink-0">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#2c2c2e" : "#f4f4f5"} strokeWidth="10" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{consumedCalories}</span>
+                <span className={cn("text-xs font-medium uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>/ {targetCalories} kcal</span>
+              </div>
+            </div>
+
+            <div className="flex-1 ml-8 space-y-4">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Protein</span>
+                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedProtein}/{targetProtein}g</span>
+                </div>
+                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                  <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (consumedProtein / targetProtein) * 100)}%` }} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Carbs</span>
+                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedCarbs}/{targetCarbs}g</span>
+                </div>
+                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                  <div className="h-full bg-orange-500" style={{ width: `${Math.min(100, (consumedCarbs / targetCarbs) * 100)}%` }} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Fat</span>
+                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedFat}/{targetFat}g</span>
+                </div>
+                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+                  <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (consumedFat / targetFat) * 100)}%` }} />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 ml-8 space-y-4">
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Protein</span>
-                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedProtein}/{targetProtein}g</span>
-              </div>
-              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (consumedProtein / targetProtein) * 100)}%` }} />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Carbs</span>
-                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedCarbs}/{targetCarbs}g</span>
-              </div>
-              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                <div className="h-full bg-orange-500" style={{ width: `${Math.min(100, (consumedCarbs / targetCarbs) * 100)}%` }} />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Fat</span>
-                <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedFat}/{targetFat}g</span>
-              </div>
-              <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (consumedFat / targetFat) * 100)}%` }} />
-              </div>
-            </div>
+          <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-zinc-800/50 mt-auto">
+            <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
+            <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-zinc-800/50">
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
-          <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
-        </div>
-      </motion.div>
+        <div className="space-y-6 flex flex-col">
+          {/* Water Tracker */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.15 }}
+            className={cn("rounded-3xl p-6 shadow-sm border transition-colors flex-1", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Droplets className="w-5 h-5 text-blue-500" />
+                <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
+              </div>
+              <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
+            </div>
 
-      {/* Water Tracker */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.15 }}
-        className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Droplets className="w-5 h-5 text-blue-500" />
-            <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
-          </div>
-          <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
-        </div>
+            <div className="relative h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-6">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
+                className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+              />
+            </div>
 
-        <div className="relative h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-6">
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
-            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
-          />
-        </div>
+            <div className="grid grid-cols-3 gap-3">
+              {[250, 500, 750].map(amount => (
+                <button
+                  key={amount}
+                  onClick={() => addWater(amount)}
+                  className={cn(
+                    "py-3 rounded-xl font-bold text-sm transition-all active:scale-95",
+                    isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900"
+                  )}
+                >
+                  +{amount}ml
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-        <div className="grid grid-cols-3 gap-3">
-          {[250, 500, 750].map(amount => (
-            <button
-              key={amount}
-              onClick={() => addWater(amount)}
-              className={cn(
-                "py-3 rounded-xl font-bold text-sm transition-all active:scale-95",
-                isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900"
-              )}
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-3 gap-3"
+          >
+            <button 
+              onClick={() => cameraInputRef.current?.click()}
+              disabled={isLoading}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-white/10 hover:bg-white/20 text-white border-white/20" : "bg-zinc-100 hover:bg-zinc-200 text-black border-zinc-300")}
             >
-              +{amount}ml
+              {isLoading ? (
+                <div className="w-6 h-6 border-2 border-black dark:border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-6 h-6" />
+              )}
+              <span className="text-[10px] uppercase tracking-wider">Chụp ảnh</span>
             </button>
-          ))}
+            <button 
+              onClick={() => galleryInputRef.current?.click()}
+              disabled={isLoading}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
+            >
+              <Upload className="w-6 h-6" />
+              <span className="text-[10px] uppercase tracking-wider">Tải lên</span>
+            </button>
+            <button 
+              onClick={() => setIsManualModalOpen(true)}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
+            >
+              <Edit2 className="w-6 h-6" />
+              <span className="text-[10px] uppercase tracking-wider">Thủ công</span>
+            </button>
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment"
+              ref={cameraInputRef} 
+              onChange={handleImageUpload} 
+              className="hidden" 
+            />
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={galleryInputRef} 
+              onChange={handleImageUpload} 
+              className="hidden" 
+            />
+          </motion.div>
         </div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-3 gap-3"
-      >
-        <button 
-          onClick={() => cameraInputRef.current?.click()}
-          disabled={isLoading}
-          className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-white/10 hover:bg-white/20 text-white border-white/20" : "bg-zinc-100 hover:bg-zinc-200 text-black border-zinc-300")}
-        >
-          {isLoading ? (
-            <div className="w-6 h-6 border-2 border-black dark:border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Camera className="w-6 h-6" />
-          )}
-          <span className="text-[10px] uppercase tracking-wider">Chụp ảnh</span>
-        </button>
-        <button 
-          onClick={() => galleryInputRef.current?.click()}
-          disabled={isLoading}
-          className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
-        >
-          <Upload className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Tải lên</span>
-        </button>
-        <button 
-          onClick={() => setIsManualModalOpen(true)}
-          className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
-        >
-          <Edit2 className="w-6 h-6" />
-          <span className="text-[10px] uppercase tracking-wider">Thủ công</span>
-        </button>
-        <input 
-          type="file" 
-          accept="image/*" 
-          capture="environment"
-          ref={cameraInputRef} 
-          onChange={handleImageUpload} 
-          className="hidden" 
-        />
-        <input 
-          type="file" 
-          accept="image/*" 
-          ref={galleryInputRef} 
-          onChange={handleImageUpload} 
-          className="hidden" 
-        />
-      </motion.div>
+      </div>
 
       {/* Today's Meals */}
       <motion.div
@@ -548,9 +552,9 @@ export default function Nutrition() {
           </div>
         )}
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {meals.length === 0 ? (
-            <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <div className={cn("text-center py-12 rounded-2xl border border-dashed md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
               <Utensils className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
               <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có bữa ăn nào</h3>
               <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Ghi lại bữa ăn đầu tiên của bạn hôm nay!</p>
@@ -562,7 +566,7 @@ export default function Nutrition() {
               </button>
             </div>
           ) : filteredMeals.length === 0 ? (
-            <div className={cn("text-center py-8 rounded-2xl border", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
               <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy món ăn nào phù hợp.</p>
             </div>
           ) : (

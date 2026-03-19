@@ -227,13 +227,16 @@ export default function Progress() {
         <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi sự thay đổi hàng ngày của bạn.</p>
       </motion.div>
 
-      {/* Body Photos */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column: Photos */}
+        <div className="space-y-6">
+          {/* Body Photos */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className={cn("rounded-3xl p-6 shadow-sm border transition-colors h-full", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+          >
         <div className="flex justify-between items-center mb-4">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
             <Camera className="w-5 h-5 text-black dark:text-white" />
@@ -317,15 +320,18 @@ export default function Progress() {
             )}
           </div>
         )}
-      </motion.div>
+          </motion.div>
+        </div>
 
-      {/* Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 gap-4"
-      >
+        {/* Right Column: Stats & PRs */}
+        <div className="space-y-6">
+          {/* Stats Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-2 gap-4"
+          >
         <div className={cn("p-5 rounded-3xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
             <Activity className={cn("w-6 h-6", isDark ? "text-blue-400" : "text-blue-500")} />
@@ -345,14 +351,14 @@ export default function Progress() {
         </div>
       </motion.div>
 
-      {/* Personal Records */}
-      {Object.keys(personalRecords).length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
-        >
+          {/* Personal Records */}
+          {Object.keys(personalRecords).length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+            >
           <h3 className={cn("font-bold flex items-center gap-2 mb-4", isDark ? "text-white" : "text-zinc-900")}>
             <Award className="w-5 h-5 text-yellow-500" />
             Kỷ lục cá nhân (PR)
@@ -371,8 +377,10 @@ export default function Progress() {
               </div>
             ))}
           </div>
-        </motion.div>
-      )}
+            </motion.div>
+          )}
+        </div>
+      </div>
 
       {/* Chart Section */}
       {workouts.length > 0 && (

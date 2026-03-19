@@ -275,13 +275,13 @@ export default function Buddy() {
       >
         <h3 className={cn("text-lg font-bold", isDark ? "text-white" : "text-zinc-900")}>Đội của bạn</h3>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isLoadingBuddies ? (
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-8 md:col-span-2">
               <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
             </div>
           ) : buddies.length === 0 ? (
-            <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <div className={cn("text-center py-12 rounded-2xl border border-dashed md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
               <Users className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
               <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có buddy nào</h3>
               <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Mời bạn bè cùng tập để có thêm động lực!</p>

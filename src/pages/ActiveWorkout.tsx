@@ -2272,7 +2272,7 @@ export default function ActiveWorkout() {
   return (
     <div
       className={cn(
-        "flex flex-col h-[100dvh] max-w-md mx-auto shadow-xl overflow-hidden relative transition-colors duration-300",
+        "flex flex-col h-[100dvh] max-w-2xl mx-auto shadow-xl overflow-hidden relative transition-colors duration-300",
         isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900",
       )}
     >
