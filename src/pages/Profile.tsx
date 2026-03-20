@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Camera, Save, ArrowLeft, Loader2, Bell } from "lucide-react";
+import { Camera, Save, ArrowLeft, Loader2, Bell, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, getAvatarUrl } from "@/lib/utils";
 import { useTheme } from "../components/ThemeProvider";
@@ -14,6 +14,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   
   const [profile, setProfile] = useState({
     full_name: "",
@@ -49,7 +50,28 @@ export default function Profile() {
     const savedTime = localStorage.getItem("reminderTime");
     if (savedReminders === "true") setRemindersEnabled(true);
     if (savedTime) setReminderTime(savedTime);
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   const handleToggleReminders = async () => {
     if (!remindersEnabled) {
@@ -438,6 +460,18 @@ export default function Profile() {
               })}
             </div>
           </div>
+
+          {deferredPrompt && (
+            <div className="mt-8">
+              <button
+                onClick={handleInstallClick}
+                className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl font-bold transition-colors"
+              >
+                <Download className="w-5 h-5" />
+                Cài đặt ứng dụng (PWA)
+              </button>
+            </div>
+          )}
         </div>
         </div>
       </div>
