@@ -119,6 +119,66 @@ const MOCK_TEMPLATES = [
         ]
       }
     ]
+  },
+  {
+    id: "t6",
+    title: "Lộ Trình Calisthenics Trung Cấp (Intermediate Hypertrophy)",
+    author: "BuddyFit VN",
+    price: 0,
+    downloads: 850,
+    rating: 4.9,
+    duration: "60-90 phút/buổi",
+    level: "Trung cấp",
+    tags: ["Trọng lượng cơ thể", "Tăng cơ", "Calisthenics"],
+    image: "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=500&q=80",
+    routines: [
+      {
+        title: "Buổi 1: PUSH (Đẩy)",
+        subtitle: "Ngực, Vai, Tay sau",
+        duration: "60-90 phút",
+        icon_name: "Flame",
+        color: "text-orange-500",
+        bg: "bg-orange-100",
+        exercises: [
+          { name: "Parallel Bar Dips (Chống đẩy trên xà kép)", sets: 4, reps: 12, weight: 0 },
+          { name: "Decline Push-ups (Chống đẩy dốc xuống)", sets: 3, reps: 15, weight: 0 },
+          { name: "Elevated Pike Push-ups (Pike Push-ups chân trên bục)", sets: 3, reps: 12, weight: 0 },
+          { name: "Diamond Push-ups (Chống đẩy kim cương)", sets: 3, reps: 12, weight: 0 },
+          { name: "Bodyweight Triceps Extensions (Duỗi tay sau)", sets: 3, reps: 12, weight: 0 }
+        ]
+      },
+      {
+        title: "Buổi 2: PULL (Kéo)",
+        subtitle: "Lưng, Xô, Tay trước, Lực bám",
+        duration: "60-90 phút",
+        icon_name: "Activity",
+        color: "text-blue-500",
+        bg: "bg-blue-100",
+        exercises: [
+          { name: "Standard Pull-ups (Kéo xà đơn cơ bản)", sets: 4, reps: 10, weight: 0 },
+          { name: "Chin-ups (Kéo xà đơn hẹp tay)", sets: 3, reps: 10, weight: 0 },
+          { name: "Elevated Australian Pull-ups (Kéo xà nghiêng chân trên bục)", sets: 3, reps: 12, weight: 0 },
+          { name: "Scapula Pull-ups (Nhấc bả vai)", sets: 3, reps: 15, weight: 0 },
+          { name: "Hanging Knee Raises (Treo xà nhấc gối)", sets: 3, reps: 15, weight: 0 }
+        ]
+      },
+      {
+        title: "Buổi 3: LEGS & CORE (Chân & Bụng)",
+        subtitle: "Đùi, Mông, Bụng",
+        duration: "60-90 phút",
+        icon_name: "Dumbbell",
+        color: "text-purple-500",
+        bg: "bg-purple-100",
+        exercises: [
+          { name: "Bulgarian Split Squats", sets: 4, reps: 12, weight: 0 },
+          { name: "Jump Squats (Squat bật nhảy)", sets: 3, reps: 15, weight: 0 },
+          { name: "Single-leg Glute Bridges (Nâng hông 1 chân)", sets: 3, reps: 12, weight: 0 },
+          { name: "Hollow Body Hold (Giữ tư thế con thuyền)", sets: 3, reps: 60, weight: 0 },
+          { name: "L-Sit Tucks", sets: 3, reps: 20, weight: 0 },
+          { name: "Single-leg Calf Raises (Kiễng gót 1 chân)", sets: 3, reps: 15, weight: 0 }
+        ]
+      }
+    ]
   }
 ];
 
