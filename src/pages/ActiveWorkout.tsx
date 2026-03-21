@@ -1884,7 +1884,32 @@ export default function ActiveWorkout() {
     const loadWorkoutData = async () => {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
-        setExercises(JSON.parse(saved));
+        try {
+          const parsed = JSON.parse(saved);
+          const normalized = parsed.map((ex: any, index: number) => {
+            if (Array.isArray(ex.sets)) return ex;
+            
+            const numSets = typeof ex.sets === 'number' ? ex.sets : 3;
+            const reps = ex.reps ? ex.reps.toString() : "10";
+            const kg = ex.weight ? ex.weight.toString() : "0";
+            
+            return {
+              id: ex.id || `ex_${Date.now()}_${index}`,
+              name: ex.name,
+              sets: Array.from({ length: numSets }).map((_, sIndex) => ({
+                id: `s_${Date.now()}_${index}_${sIndex}`,
+                type: "N",
+                previous: "-",
+                kg: kg,
+                reps: reps,
+                completed: false,
+              }))
+            };
+          });
+          setExercises(normalized);
+        } catch (e) {
+          console.error("Failed to parse saved workout", e);
+        }
       } else if (id) {
         let loadedFromSupabase = false;
         try {
@@ -1906,9 +1931,37 @@ export default function ActiveWorkout() {
               routine.exercises.length > 0
             ) {
               // Deep clone to avoid mutating the template
-              const templateExercises = JSON.parse(
-                JSON.stringify(routine.exercises),
-              );
+              const rawExercises = JSON.parse(JSON.stringify(routine.exercises));
+              
+              const templateExercises = rawExercises.map((ex: any, index: number) => {
+                // If it's already in the correct format (from CreateRoutine), keep it
+                if (Array.isArray(ex.sets)) {
+                  // Ensure all sets have completed = false
+                  return {
+                    ...ex,
+                    sets: ex.sets.map((set: any) => ({ ...set, completed: false }))
+                  };
+                }
+                
+                // Otherwise, map it from the Marketplace format
+                const numSets = typeof ex.sets === 'number' ? ex.sets : 3;
+                const reps = ex.reps ? ex.reps.toString() : "10";
+                const kg = ex.weight ? ex.weight.toString() : "0";
+                
+                return {
+                  id: `ex_${Date.now()}_${index}`,
+                  name: ex.name,
+                  sets: Array.from({ length: numSets }).map((_, sIndex) => ({
+                    id: `s_${Date.now()}_${index}_${sIndex}`,
+                    type: "N",
+                    previous: "-",
+                    kg: kg,
+                    reps: reps,
+                    completed: false,
+                  }))
+                };
+              });
+              
               setExercises(templateExercises);
               loadedFromSupabase = true;
             }
@@ -2027,18 +2080,20 @@ export default function ActiveWorkout() {
         }
       }
 
-      ex.sets.forEach((set) => {
-        if (set.completed) {
-          setsCount++;
-          const kg = parseFloat(set.kg) || 0;
-          const reps = parseInt(set.reps) || 0;
-          volume += kg * reps;
+      if (Array.isArray(ex.sets)) {
+        ex.sets.forEach((set) => {
+          if (set.completed) {
+            setsCount++;
+            const kg = parseFloat(set.kg) || 0;
+            const reps = parseInt(set.reps) || 0;
+            volume += kg * reps;
 
-          // Add to muscle stats
-          if (!muscleStats[muscle]) muscleStats[muscle] = 0;
-          muscleStats[muscle] += 1;
-        }
-      });
+            // Add to muscle stats
+            if (!muscleStats[muscle]) muscleStats[muscle] = 0;
+            muscleStats[muscle] += 1;
+          }
+        });
+      }
     });
     return { volume, setsCount, muscleStats };
   }, [exercises]);

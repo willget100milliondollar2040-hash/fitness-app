@@ -59,6 +59,66 @@ const MOCK_TEMPLATES = [
       { name: "Pull up", sets: 3, reps: 8, weight: 0 },
       { name: "Plank", sets: 3, reps: 60, weight: 0 }
     ]
+  },
+  {
+    id: "t5",
+    title: "Lộ Trình Calisthenics Nền Tảng (Beginner Foundation)",
+    author: "BuddyFit VN",
+    price: 0,
+    downloads: 1200,
+    rating: 5.0,
+    duration: "60-90 phút/buổi",
+    level: "Người mới",
+    tags: ["Trọng lượng cơ thể", "Sức mạnh cơ bản", "Calisthenics"],
+    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=80",
+    routines: [
+      {
+        title: "Buổi 1: PUSH (Đẩy)",
+        subtitle: "Ngực, Vai, Tay sau",
+        duration: "60-90 phút",
+        icon_name: "Flame",
+        color: "text-orange-500",
+        bg: "bg-orange-100",
+        exercises: [
+          { name: "Incline Push-ups (Chống đẩy trên bục cao)", sets: 3, reps: 12, weight: 0 },
+          { name: "Knee Push-ups (Chống đẩy quỳ gối)", sets: 3, reps: 12, weight: 0 },
+          { name: "Pike Push-ups (Chống đẩy gập góc chữ V)", sets: 3, reps: 8, weight: 0 },
+          { name: "Bench Dips (Nhún tay sau trên ghế)", sets: 3, reps: 15, weight: 0 },
+          { name: "Plank to Push-up", sets: 3, reps: 8, weight: 0 }
+        ]
+      },
+      {
+        title: "Buổi 2: PULL (Kéo)",
+        subtitle: "Lưng, Xô, Tay trước, Lực bám",
+        duration: "60-90 phút",
+        icon_name: "Activity",
+        color: "text-blue-500",
+        bg: "bg-blue-100",
+        exercises: [
+          { name: "Australian Pull-ups / Bodyweight Rows", sets: 4, reps: 12, weight: 0 },
+          { name: "Negative Pull-ups (Hạ người từ từ 3-5s)", sets: 3, reps: 5, weight: 0 },
+          { name: "Superman (Nằm sấp nâng tay chân)", sets: 3, reps: 15, weight: 0 },
+          { name: "Dead Hang (Treo người tự do)", sets: 3, reps: 30, weight: 0 },
+          { name: "Bicep Bodyweight Curls", sets: 3, reps: 10, weight: 0 }
+        ]
+      },
+      {
+        title: "Buổi 3: LEGS & CORE (Chân & Bụng)",
+        subtitle: "Chân, Mông, Bụng",
+        duration: "60-90 phút",
+        icon_name: "Dumbbell",
+        color: "text-purple-500",
+        bg: "bg-purple-100",
+        exercises: [
+          { name: "Bodyweight Squats (Ngồi xổm cơ bản)", sets: 4, reps: 20, weight: 0 },
+          { name: "Alternating Lunges (Chùng chân luân phiên)", sets: 3, reps: 12, weight: 0 },
+          { name: "Glute Bridges (Nằm nâng hông)", sets: 3, reps: 15, weight: 0 },
+          { name: "Calf Raises (Kiễng gót chân)", sets: 3, reps: 20, weight: 0 },
+          { name: "Plank (Đoán ván)", sets: 3, reps: 60, weight: 0 },
+          { name: "Lying Leg Raises (Nằm ngửa nâng hai chân)", sets: 3, reps: 15, weight: 0 }
+        ]
+      }
+    ]
   }
 ];
 
@@ -88,16 +148,31 @@ export default function Marketplace() {
         return;
       }
 
-      await workoutService.saveRoutine({
-        user_id: user.id,
-        title: template.title,
-        subtitle: `bởi ${template.author}`,
-        duration: template.duration,
-        icon_name: "Dumbbell",
-        color: "text-blue-500",
-        bg: "bg-blue-100",
-        exercises: template.exercises || []
-      });
+      if (template.routines && template.routines.length > 0) {
+        await Promise.all(template.routines.map((routine: any) => 
+          workoutService.saveRoutine({
+            user_id: user.id,
+            title: routine.title,
+            subtitle: routine.subtitle || `bởi ${template.author}`,
+            duration: routine.duration || template.duration,
+            icon_name: routine.icon_name || "Dumbbell",
+            color: routine.color || "text-blue-500",
+            bg: routine.bg || "bg-blue-100",
+            exercises: routine.exercises || []
+          })
+        ));
+      } else {
+        await workoutService.saveRoutine({
+          user_id: user.id,
+          title: template.title,
+          subtitle: `bởi ${template.author}`,
+          duration: template.duration,
+          icon_name: "Dumbbell",
+          color: "text-blue-500",
+          bg: "bg-blue-100",
+          exercises: template.exercises || []
+        });
+      }
 
       alert(`Đã tải xuống ${template.title}! Bài tập này đã được thêm vào danh sách của bạn.`);
     } catch (error) {
