@@ -20,18 +20,43 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         });
         if (error) throw error;
+        
+        // Ensure profile exists
+        if (data.user) {
+          try {
+            await supabase.from('profiles').upsert({
+              id: data.user.id,
+              email: data.user.email,
+            }, { onConflict: 'id' });
+          } catch (e) {
+            console.error("Could not upsert profile:", e);
+          }
+        }
+        
         setMessage({ type: 'success', text: 'Kiểm tra email của bạn để xác nhận đăng ký!' });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        
+        // Ensure profile exists
+        if (data.user) {
+          try {
+            await supabase.from('profiles').upsert({
+              id: data.user.id,
+              email: data.user.email,
+            }, { onConflict: 'id' });
+          } catch (e) {
+            console.error("Could not upsert profile:", e);
+          }
+        }
       }
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Đã xảy ra lỗi' });

@@ -4,6 +4,7 @@ import { Users, BellRing, Trophy, Activity, CheckCircle2, Search, UserPlus, Load
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { SetupInstructions } from "@/components/SetupInstructions";
 
 export default function Buddy() {
   const { isDark } = useTheme();
@@ -17,6 +18,7 @@ export default function Buddy() {
   const [invitedFriend, setInvitedFriend] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [incomingInvite, setIncomingInvite] = useState<any>(null);
+  const [setupRequired, setSetupRequired] = useState(false);
 
   useEffect(() => {
     const fetchBuddies = async () => {
@@ -34,6 +36,9 @@ export default function Buddy() {
 
         if (error) {
           console.error("Error fetching buddies:", error);
+          if (error.code === '42P01' || error.code === '42703' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+            setSetupRequired(true);
+          }
           return;
         }
 
@@ -51,6 +56,9 @@ export default function Buddy() {
 
         if (profilesError) {
           console.error("Error fetching buddy profiles:", profilesError);
+          if (profilesError.code === '42P01' || profilesError.code === '42703' || profilesError.message?.includes('relation') || profilesError.message?.includes('does not exist')) {
+            setSetupRequired(true);
+          }
           return;
         }
 
@@ -112,20 +120,30 @@ export default function Buddy() {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, email, full_name, avatar_url')
-        .eq('email', searchEmail.trim())
+        .eq('email', searchEmail.trim().toLowerCase())
         .single();
 
       if (error) {
+        console.error("Supabase search error:", error);
         if (error.code === 'PGRST116') {
           setSearchError("Không tìm thấy người dùng với email này.");
+        } else if (
+          error.code === '42P01' || 
+          error.code === '42703' ||
+          error.message?.includes('relation') || 
+          error.message?.includes('does not exist')
+        ) {
+          setSearchError("Bạn cần thiết lập Database trong Supabase. Vui lòng xem hướng dẫn bên dưới.");
+          setSetupRequired(true);
         } else {
-          setSearchError("Đã xảy ra lỗi khi tìm kiếm.");
+          setSearchError(`Lỗi: ${error.message || "Đã xảy ra lỗi khi tìm kiếm."}`);
         }
       } else if (data) {
         setSearchResult(data);
       }
-    } catch (err) {
-      setSearchError("Đã xảy ra lỗi khi tìm kiếm.");
+    } catch (err: any) {
+      console.error("Search exception:", err);
+      setSearchError(`Lỗi hệ thống: ${err.message || "Đã xảy ra lỗi khi tìm kiếm."}`);
     } finally {
       setIsSearching(false);
     }
@@ -150,6 +168,9 @@ export default function Buddy() {
       if (error) {
         if (error.code === '23505') {
           alert("Lời mời kết bạn đã được gửi hoặc các bạn đã là bạn bè.");
+        } else if (error.code === '42P01' || error.message?.includes('relation')) {
+          setSetupRequired(true);
+          alert("Bạn cần thiết lập Database. Vui lòng xem hướng dẫn ở trên.");
         } else {
           alert("Không thể gửi lời mời kết bạn.");
         }
@@ -235,6 +256,8 @@ export default function Buddy() {
         <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Cùng tập luyện, cùng tiến bộ.</p>
       </motion.div>
 
+      {setupRequired && <SetupInstructions />}
+
       {/* Find Friends */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -266,7 +289,9 @@ export default function Buddy() {
         </form>
 
         {searchError && (
-          <p className="text-red-500 text-sm mt-3">{searchError}</p>
+          <div className="mt-3">
+            <p className="text-red-500 text-sm font-medium">{searchError}</p>
+          </div>
         )}
 
         {searchResult && (
