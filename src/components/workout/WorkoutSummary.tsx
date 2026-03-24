@@ -68,7 +68,7 @@ export function WorkoutSummary({
         "absolute inset-0 z-50 flex flex-col items-center justify-center p-6",
         isDark
           ? "bg-black/80 backdrop-blur-sm"
-          : "bg-zinc-50/80 backdrop-blur-sm",
+          : "bg-white/80 backdrop-blur-sm",
       )}
     >
       <motion.div
@@ -76,7 +76,7 @@ export function WorkoutSummary({
         animate={{ opacity: 1, scale: 1 }}
         className={cn(
           "w-full max-w-sm rounded-3xl p-8 shadow-2xl border text-center relative overflow-hidden",
-          isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100",
+          isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100",
         )}
       >
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-400 to-zinc-400 dark:to-zinc-600 opacity-20" />

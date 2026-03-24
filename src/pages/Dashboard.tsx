@@ -260,7 +260,7 @@ export default function Dashboard() {
     <div
       className={cn(
         "min-h-full pb-24 transition-colors duration-300",
-        isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900",
+        isDark ? "bg-[#0A0A0A] text-white" : "bg-white text-zinc-900",
       )}
     >
       <div className="p-5 space-y-6">
@@ -270,23 +270,71 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "p-6 rounded-3xl text-white relative overflow-hidden",
-            isDark ? "bg-gradient-to-br from-blue-600 to-indigo-700" : "bg-gradient-to-br from-blue-500 to-indigo-600"
+            isDark ? "bg-[#141414] border border-[#1F1F1F]" : "bg-white border border-zinc-100"
           )}
         >
+          {/* Animated Gradient Mesh Background */}
+          <div className="absolute inset-0 opacity-20 dark:opacity-40">
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-pink-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
+          </div>
+
           <div className="relative z-10">
-            <h1 className="text-2xl font-bold mb-2">
+            <h1 className={cn("text-2xl font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>
               {userName ? `Chào ${userName},` : "Chào bạn,"}
             </h1>
-            <p className="text-blue-100 mb-6">Sẵn sàng cho buổi tập hôm nay chưa?</p>
+            <p className={cn("mb-6 italic text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>
+              "{["Không có gì là không thể với một người luôn biết cố gắng.", "Mồ hôi của hôm nay là nụ cười của ngày mai.", "Đừng dừng lại khi mệt mỏi, hãy dừng lại khi đã xong.", "Kỷ luật là cầu nối giữa mục tiêu và thành tựu.", "Mỗi bước đi nhỏ đều dẫn đến một hành trình lớn."][new Date().getDay() % 5]}"
+            </p>
             <button
               onClick={() => navigate("/workout/empty")}
-              className="bg-white text-blue-600 font-bold px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-blue-50 transition-colors shadow-sm"
+              className="bg-gradient-primary text-white font-bold px-6 py-3 rounded-xl flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg glow-primary"
             >
               <Play className="w-5 h-5 fill-current" />
               Bắt đầu tập ngay
             </button>
           </div>
-          <Dumbbell className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10 rotate-12" />
+          <Dumbbell className={cn("absolute -right-4 -bottom-4 w-32 h-32 rotate-12", isDark ? "text-white/5" : "text-black/5")} />
+        </motion.div>
+
+        {/* Today's Plan (Horizontal Scroll) */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-3"
+        >
+          <h2 className={cn("font-bold text-lg px-1", isDark ? "text-white" : "text-zinc-900")}>Kế hoạch hôm nay</h2>
+          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x">
+            {/* Example Plan Cards */}
+            <div className={cn("min-w-[280px] snap-center p-5 rounded-2xl border flex flex-col gap-3", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md">Sắp tới</span>
+                <span className={cn("text-xs font-medium", isDark ? "text-zinc-500" : "text-zinc-400")}>17:00</span>
+              </div>
+              <div>
+                <h3 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Ngày Đẩy (Push)</h3>
+                <p className={cn("text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>Ngực, Vai, Tay sau</p>
+              </div>
+              <button className="mt-auto w-full py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                Bắt đầu
+              </button>
+            </div>
+            <div className={cn("min-w-[280px] snap-center p-5 rounded-2xl border flex flex-col gap-3", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded-md">Dinh dưỡng</span>
+                <span className={cn("text-xs font-medium", isDark ? "text-zinc-500" : "text-zinc-400")}>19:30</span>
+              </div>
+              <div>
+                <h3 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>Bữa tối phục hồi</h3>
+                <p className={cn("text-sm", isDark ? "text-zinc-400" : "text-zinc-500")}>Ức gà, khoai lang, rau xanh</p>
+              </div>
+              <button className="mt-auto w-full py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                Xem chi tiết
+              </button>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -296,11 +344,11 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className={cn(
-              "rounded-3xl p-6 shadow-sm border transition-colors h-full flex flex-col justify-center",
-              isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
+              "rounded-2xl p-6 shadow-sm border transition-colors h-full flex flex-col justify-center relative overflow-hidden",
+              isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100"
             )}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
                 <Activity className="w-5 h-5 text-blue-500" />
                 Tóm tắt tuần này
@@ -310,20 +358,22 @@ export default function Dashboard() {
               </span>
             </div>
             
-            <div className="grid grid-cols-3 gap-4 mt-auto">
+            <div className="grid grid-cols-3 gap-4 mt-auto relative z-10">
               <div className="text-center">
                 <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.count}</p>
                 <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Buổi tập</p>
               </div>
-              <div className="text-center border-x border-zinc-800/10 dark:border-zinc-800/50">
+              <div className="text-center border-x border-zinc-800/10 dark:border-[#1F1F1F]">
                 <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.volume.toLocaleString()}</p>
                 <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Volume (kg)</p>
               </div>
               <div className="text-center">
-                <p className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{weeklyStats.calories}</p>
+                <p className={cn("text-2xl font-bold text-green-500")}>{weeklyStats.calories}</p>
                 <p className={cn("text-[10px] font-bold uppercase tracking-tighter mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>Calories</p>
               </div>
             </div>
+            {/* Subtle glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
           </motion.div>
 
           {/* Gamification Stats */}
@@ -335,60 +385,60 @@ export default function Dashboard() {
           >
           <div
             className={cn(
-              "rounded-3xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center",
+              "rounded-2xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center relative overflow-hidden",
               isDark
-                ? "bg-[#1c1c1e] border-zinc-800"
+                ? "bg-[#141414] border-[#1F1F1F]"
                 : "bg-white border-zinc-100",
             )}
           >
-            <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center mb-3">
-              <Flame className="w-6 h-6 text-orange-500" />
+            <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center mb-3 relative z-10">
+              <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
             </div>
             <h3
               className={cn(
-                "text-3xl font-bold",
-                isDark ? "text-white" : "text-zinc-900",
+                "text-4xl font-bold text-orange-500 relative z-10",
               )}
             >
               {streak}
             </h3>
             <p
               className={cn(
-                "text-xs font-medium uppercase tracking-wider mt-1",
+                "text-xs font-medium uppercase tracking-wider mt-1 relative z-10",
                 isDark ? "text-zinc-500" : "text-zinc-400",
               )}
             >
               Ngày liên tiếp
             </p>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
           </div>
 
           <div
             className={cn(
-              "rounded-3xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center",
+              "rounded-2xl p-5 shadow-sm border transition-colors flex flex-col items-center justify-center text-center relative overflow-hidden",
               isDark
-                ? "bg-[#1c1c1e] border-zinc-800"
+                ? "bg-[#141414] border-[#1F1F1F]"
                 : "bg-white border-zinc-100",
             )}
           >
-            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-3 relative z-10">
               <Trophy className="w-6 h-6 text-blue-500" />
             </div>
             <h3
               className={cn(
-                "text-3xl font-bold",
-                isDark ? "text-white" : "text-zinc-900",
+                "text-4xl font-bold text-blue-500 relative z-10",
               )}
             >
               {totalWorkouts}
             </h3>
             <p
               className={cn(
-                "text-xs font-medium uppercase tracking-wider mt-1",
+                "text-xs font-medium uppercase tracking-wider mt-1 relative z-10",
                 isDark ? "text-zinc-500" : "text-zinc-400",
               )}
             >
               Buổi tập
             </p>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
           </div>
         </motion.div>
         </div>
@@ -421,7 +471,7 @@ export default function Dashboard() {
                   onChange={(e) => setRoutineSearchQuery(e.target.value)}
                   className={cn(
                     "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all text-sm",
-                    isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
+                    isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
                   )}
                 />
               </div>
@@ -430,7 +480,7 @@ export default function Dashboard() {
             {isLoadingRoutines ? (
               <>
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className={cn("h-[88px] rounded-2xl animate-pulse", isDark ? "bg-[#1c1c1e]" : "bg-zinc-200")} />
+                  <div key={i} className={cn("h-[88px] rounded-2xl animate-pulse", isDark ? "bg-[#141414]" : "bg-zinc-200")} />
                 ))}
               </>
             ) : routines.length === 0 ? (
@@ -440,18 +490,23 @@ export default function Dashboard() {
                 <p className={cn("mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Tạo lịch tập đầu tiên để bắt đầu tập luyện!</p>
                 <button 
                   onClick={() => navigate("/routine/new")} 
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+                  className="bg-gradient-primary text-white font-bold px-6 py-3 rounded-xl transition-colors glow-primary"
                 >
                   Tạo Lịch Tập Ngay
                 </button>
               </div>
             ) : filteredRoutines.length === 0 ? (
-              <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+              <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-[#1F1F1F] bg-[#141414]" : "border-zinc-200 bg-white")}>
                 <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy lịch tập nào phù hợp.</p>
               </div>
             ) : (
               filteredRoutines.map((routine) => {
                 const IconComponent = icons[routine.iconName] || Activity;
+                // Extract color name from text-color-500
+                const colorMatch = routine.color.match(/text-([a-z]+)-/);
+                const colorName = colorMatch ? colorMatch[1] : 'blue';
+                const borderColorClass = `bg-${colorName}-500`;
+
                 return (
                   <button
                     key={routine.id}
@@ -459,12 +514,15 @@ export default function Dashboard() {
                     className={cn(
                       "w-full rounded-2xl p-4 transition-all active:scale-[0.98] text-left flex items-center gap-4 group relative overflow-hidden",
                       isDark
-                        ? "bg-[#1c1c1e] hover:bg-[#2c2c2e]"
-                        : "bg-white border border-zinc-200 hover:border-zinc-400 dark:hover:border-zinc-600 shadow-sm",
+                        ? "bg-[#141414] hover:bg-[#1F1F1F] border border-[#1F1F1F]"
+                        : "bg-white border border-zinc-200 hover:border-zinc-400 shadow-sm",
                     )}
                   >
+                    {/* Color-coded left border */}
+                    <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", borderColorClass)} />
+
                     <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${routine.bg} shrink-0`}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${routine.bg} shrink-0 ml-1`}
                     >
                       <IconComponent className={`w-6 h-6 ${routine.color}`} />
                     </div>
@@ -535,7 +593,7 @@ export default function Dashboard() {
             className={cn(
               "py-6 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all active:scale-95",
               isDark
-                ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white"
+                ? "bg-[#141414] hover:bg-[#1F1F1F] text-white border border-[#1F1F1F]"
                 : "bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-900 shadow-sm",
             )}
           >
@@ -549,11 +607,11 @@ export default function Dashboard() {
             className={cn(
               "py-6 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all active:scale-95",
               isDark
-                ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white"
+                ? "bg-[#141414] hover:bg-[#1F1F1F] text-white border border-[#1F1F1F]"
                 : "bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-900 shadow-sm",
             )}
           >
-            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-1", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
+            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-1", isDark ? "bg-[#1F1F1F]" : "bg-zinc-100")}>
               <Search className="w-6 h-6 text-purple-500" />
             </div>
             <span className="font-bold">Khám phá</span>
@@ -569,7 +627,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
               "w-full max-w-sm rounded-3xl p-6 shadow-xl",
-              isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900"
+              isDark ? "bg-[#141414] border border-[#1F1F1F] text-white" : "bg-white text-zinc-900"
             )}
           >
             <h3 className="text-xl font-bold mb-2">Xóa lịch tập?</h3>

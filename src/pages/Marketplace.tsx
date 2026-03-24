@@ -244,7 +244,7 @@ export default function Marketplace() {
   };
 
   return (
-    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300 pb-24", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300 pb-24", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
           <ShoppingBag className="w-6 h-6 text-blue-500" />
@@ -254,13 +254,13 @@ export default function Marketplace() {
       </motion.div>
 
       <div className="relative">
-        <Search className={cn("w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2", isDark ? "text-zinc-500" : "text-zinc-400")} />
+        <Search className={cn("w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2", isDark ? "text-zinc-500" : "text-zinc-400")} />
         <input 
           type="text"
           placeholder="Tìm kiếm bài tập, tác giả, thẻ..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={cn("w-full pl-10 pr-4 py-3 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-2xl transition-all outline-none shadow-sm", isDark ? "bg-[#1c1c1e] text-white placeholder:text-zinc-500 focus:bg-zinc-900" : "bg-white text-zinc-900 placeholder:text-zinc-400 focus:bg-zinc-50")}
+          className={cn("w-full pl-12 pr-4 py-4 border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-2xl transition-all outline-none shadow-sm", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-500 focus:bg-[#1A1A1A]" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:bg-zinc-50")}
         />
       </div>
 
@@ -271,45 +271,45 @@ export default function Marketplace() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={cn("rounded-3xl overflow-hidden shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+            className={cn("rounded-2xl overflow-hidden shadow-sm border transition-colors group", isDark ? "bg-[#141414] border-[#1F1F1F] hover:border-zinc-700" : "bg-white border-zinc-100 hover:border-zinc-300")}
           >
-            <div className="h-32 w-full relative">
-              <img src={template.image} alt={template.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
+            <div className="h-40 w-full relative overflow-hidden">
+              <img src={template.image} alt={template.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-transparent dark:from-[#141414] dark:via-black/60 dark:to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                 <div>
                   <h3 className="text-white font-bold text-lg leading-tight">{template.title}</h3>
-                  <p className="text-zinc-300 text-xs">bởi {template.author}</p>
+                  <p className="text-zinc-300 text-xs mt-1">bởi {template.author}</p>
                 </div>
-                <div className="bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg text-white font-bold text-sm">
+                <div className="bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg text-white font-bold text-sm border border-white/10 shadow-sm">
                   {template.price === 0 ? "MIỄN PHÍ" : `$${template.price}`}
                 </div>
               </div>
             </div>
             
-            <div className="p-4 space-y-4">
+            <div className="p-5 space-y-5">
               <div className="flex items-center justify-between text-xs font-medium">
-                <div className={cn("flex items-center gap-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                  <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                <div className={cn("flex items-center gap-1.5", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                   {template.rating}
                 </div>
-                <div className={cn("flex items-center gap-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                  <Users className="w-3.5 h-3.5" />
+                <div className={cn("flex items-center gap-1.5", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                  <Users className="w-4 h-4" />
                   {(template.downloads / 1000).toFixed(1)}k
                 </div>
-                <div className={cn("flex items-center gap-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                  <Clock className="w-3.5 h-3.5" />
+                <div className={cn("flex items-center gap-1.5", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                  <Clock className="w-4 h-4" />
                   {template.duration}
                 </div>
-                <div className={cn("flex items-center gap-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                  <Dumbbell className="w-3.5 h-3.5" />
+                <div className={cn("flex items-center gap-1.5", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                  <Dumbbell className="w-4 h-4" />
                   {template.level}
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {template.tags.map(tag => (
-                  <span key={tag} className={cn("text-[10px] px-2 py-1 rounded-md font-medium uppercase tracking-wider", isDark ? "bg-zinc-800 text-zinc-300" : "bg-zinc-100 text-zinc-600")}>
+                  <span key={tag} className={cn("text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider", isDark ? "bg-zinc-800/50 text-zinc-300 border border-zinc-700/50" : "bg-zinc-100 text-zinc-600 border border-zinc-200")}>
                     {tag}
                   </span>
                 ))}
@@ -319,8 +319,10 @@ export default function Marketplace() {
                 onClick={() => handleDownload(template)}
                 disabled={isDownloading === template.id}
                 className={cn(
-                  "w-full py-3.5 rounded-xl font-bold text-white transition-colors flex items-center justify-center gap-2",
-                  isDownloading === template.id ? "bg-zinc-500" : "bg-blue-500 hover:bg-blue-600"
+                  "w-full py-3.5 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 shadow-sm",
+                  isDownloading === template.id 
+                    ? "bg-zinc-500 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:shadow-blue-500/25 hover:shadow-lg"
                 )}
               >
                 {isDownloading === template.id ? (

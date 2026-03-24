@@ -123,7 +123,7 @@ export default function Onboarding() {
                   "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium",
                   answers.mainGoal === goal
                     ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                    : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                    : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                 )}
               >
                 {goal}
@@ -148,7 +148,7 @@ export default function Onboarding() {
                   "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium",
                   answers.level === level
                     ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                    : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                    : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                 )}
               >
                 {level}
@@ -173,7 +173,7 @@ export default function Onboarding() {
                   "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium",
                   answers.frequency === freq
                     ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                    : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                    : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                 )}
               >
                 {freq}
@@ -203,7 +203,7 @@ export default function Onboarding() {
                     "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium flex items-center justify-between",
                     isSelected
                       ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                      : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                      : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                   )}
                 >
                   <span>{goal}</span>
@@ -225,7 +225,7 @@ export default function Onboarding() {
                   placeholder="170"
                   value={answers.height}
                   onChange={(e) => setAnswers({ ...answers, height: e.target.value })}
-                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
+                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
                 />
               </div>
               <div>
@@ -235,7 +235,7 @@ export default function Onboarding() {
                   placeholder="65"
                   value={answers.weight}
                   onChange={(e) => setAnswers({ ...answers, weight: e.target.value })}
-                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
+                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
                 />
               </div>
               <div>
@@ -245,7 +245,7 @@ export default function Onboarding() {
                   placeholder="25"
                   value={answers.age}
                   onChange={(e) => setAnswers({ ...answers, age: e.target.value })}
-                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
+                  className={cn("w-full p-4 rounded-2xl border-2 focus:border-black dark:border-white focus:ring-0 outline-none transition-all text-lg", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-600" : "bg-white border-zinc-200 text-zinc-900")}
                 />
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function Onboarding() {
                   "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium",
                   answers.timeframe === timeframe
                     ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                    : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                    : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                 )}
               >
                 {timeframe}
@@ -293,7 +293,7 @@ export default function Onboarding() {
                   "w-full p-4 rounded-2xl border-2 text-left transition-all font-medium",
                   answers.diet === diet
                     ? (isDark ? "border-black dark:border-white bg-white/10 text-white" : "border-black dark:border-white bg-zinc-100 text-black")
-                    : (isDark ? "border-zinc-800 bg-[#1c1c1e] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
+                    : (isDark ? "border-[#1F1F1F] bg-[#141414] text-zinc-300 hover:border-black dark:border-white/50" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300")
                 )}
               >
                 {diet}
@@ -307,9 +307,9 @@ export default function Onboarding() {
   };
 
   return (
-    <div className={cn("flex flex-col h-[100dvh] max-w-md mx-auto shadow-xl overflow-hidden relative transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("flex flex-col h-[100dvh] w-full max-w-md mx-auto overflow-hidden relative transition-colors duration-300", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
       {/* Header & Progress */}
-      <div className={cn("pt-12 px-6 pb-4 border-b transition-colors duration-300", isDark ? "bg-black border-zinc-800" : "bg-white border-zinc-100")}>
+      <div className={cn("pt-12 px-6 pb-4 border-b transition-colors duration-300", isDark ? "bg-black border-[#1F1F1F]" : "bg-white border-zinc-100")}>
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={handleBack}
@@ -351,7 +351,7 @@ export default function Onboarding() {
       </div>
 
       {/* Footer */}
-      <div className={cn("absolute bottom-0 w-full border-t p-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.03)] transition-colors duration-300", isDark ? "bg-black border-zinc-800" : "bg-white border-zinc-100")}>
+      <div className={cn("absolute bottom-0 w-full border-t p-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.03)] transition-colors duration-300", isDark ? "bg-black border-[#1F1F1F]" : "bg-white border-zinc-100")}>
         <button
           onClick={handleNext}
           disabled={!isStepValid()}

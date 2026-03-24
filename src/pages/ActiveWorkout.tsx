@@ -1743,8 +1743,8 @@ export default function ActiveWorkout() {
   const [exerciseRecords, setExerciseRecords] = useState<
     Record<string, { maxKg: number; reps: number } | null>
   >({});
+  const [previousSets, setPreviousSets] = useState<Record<string, any[]>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [showMuscleDistribution, setShowMuscleDistribution] = useState(false);
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -1754,7 +1754,9 @@ export default function ActiveWorkout() {
       if (!user) return;
 
       const updatedRecords = { ...exerciseRecords };
+      const updatedPreviousSets = { ...previousSets };
       let hasChanges = false;
+      let hasPreviousChanges = false;
 
       for (const ex of exercises) {
         if (updatedRecords[ex.name] === undefined) {
@@ -1765,10 +1767,46 @@ export default function ActiveWorkout() {
           updatedRecords[ex.name] = record;
           hasChanges = true;
         }
+
+        if (updatedPreviousSets[ex.name] === undefined) {
+          const prevSets = await workoutService.getPreviousExerciseSets(
+            user.id,
+            ex.name,
+          );
+          updatedPreviousSets[ex.name] = prevSets;
+          hasPreviousChanges = true;
+        }
       }
 
       if (hasChanges) {
         setExerciseRecords(updatedRecords);
+      }
+      if (hasPreviousChanges) {
+        setPreviousSets(updatedPreviousSets);
+        
+        // Update exercises with previous data
+        setExercises(prevExercises => 
+          prevExercises.map(ex => {
+            const prevData = updatedPreviousSets[ex.name];
+            if (!prevData || prevData.length === 0) return ex;
+            
+            return {
+              ...ex,
+              sets: ex.sets.map((set, index) => {
+                if (set.previous !== "-") return set; // Already updated or user changed it
+                
+                const prevSet = prevData[index];
+                if (prevSet) {
+                  const prevString = prevSet.kg > 0 
+                    ? `${prevSet.kg}kg x ${prevSet.reps}` 
+                    : `${prevSet.reps}`;
+                  return { ...set, previous: prevString };
+                }
+                return set;
+              })
+            };
+          })
+        );
       }
     };
 
@@ -2184,10 +2222,21 @@ export default function ActiveWorkout() {
       prev.map((ex) => {
         if (ex.id === exerciseId) {
           const lastSet = ex.sets[ex.sets.length - 1];
+          const newIndex = ex.sets.length;
+          
+          let prevString = "-";
+          const prevData = previousSets[ex.name];
+          if (prevData && prevData[newIndex]) {
+            const prevSet = prevData[newIndex];
+            prevString = prevSet.kg > 0 
+              ? `${prevSet.kg}kg x ${prevSet.reps}` 
+              : `${prevSet.reps}`;
+          }
+          
           const newSet: SetType = {
             id: "set_" + Date.now(),
             type: "N",
-            previous: "-",
+            previous: prevString,
             kg: lastSet ? lastSet.kg : "0",
             reps: lastSet ? lastSet.reps : "0",
             completed: false,
@@ -2327,18 +2376,16 @@ export default function ActiveWorkout() {
   return (
     <div
       className={cn(
-        "flex flex-col h-[100dvh] max-w-2xl mx-auto shadow-xl overflow-hidden relative transition-colors duration-300",
-        isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900",
+        "flex flex-col h-[100dvh] w-full overflow-hidden relative transition-colors duration-300",
+        isDark ? "bg-[#0A0A0A] text-white" : "bg-white text-zinc-900",
       )}
     >
-      <div className="sticky top-0 z-20 flex flex-col">
+      <div className={cn(
+        "sticky top-0 z-20 flex flex-col border-b backdrop-blur-md transition-colors",
+        isDark ? "bg-[#141414]/90 border-[#1F1F1F]" : "bg-white/90 border-zinc-100"
+      )}>
         {/* Header */}
-        <header
-          className={cn(
-            "px-4 py-3 border-b flex items-center justify-between transition-colors duration-300",
-            isDark ? "bg-black border-zinc-800" : "bg-white border-zinc-100",
-          )}
-        >
+        <header className="w-full px-4 py-3 md:px-8 md:py-4 flex items-center justify-between">
           <button
             onClick={() => setShowDiscardConfirm(true)}
             className={cn(
@@ -2382,22 +2429,15 @@ export default function ActiveWorkout() {
             </div>
             <button
               onClick={() => setShowSummary(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-4 py-1.5 rounded-lg font-bold transition-all active:scale-95 shadow-md shadow-blue-500/20"
+              className="lg:hidden bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-4 py-1.5 rounded-lg font-bold transition-all active:scale-95 shadow-md shadow-blue-500/20"
             >
               Hoàn thành
             </button>
           </div>
         </header>
 
-        {/* Summary Stats Bar */}
-        <div
-          className={cn(
-            "px-4 py-3 flex justify-between items-center border-b backdrop-blur-md transition-colors",
-            isDark
-              ? "bg-[#1c1c1e]/90 border-zinc-800"
-              : "bg-white/90 border-zinc-100",
-          )}
-        >
+        {/* Summary Stats Bar (Mobile Only) */}
+        <div className="lg:hidden w-full px-4 py-3 md:px-8 md:py-4 flex justify-between items-center border-t border-inherit">
           <div className="flex-1 flex justify-center items-center gap-2">
             <span className="text-lg">⏱️</span>
             <div>
@@ -2463,75 +2503,118 @@ export default function ActiveWorkout() {
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowMuscleDistribution(true)}
-            className={cn(
-              "p-1.5 ml-2 rounded-lg transition-all active:scale-95",
-              isDark
-                ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-400"
-                : "bg-zinc-100 hover:bg-zinc-200 text-zinc-500",
-            )}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-              <path d="M12 4v7" />
-              <path d="M12 11v10" />
-              <path d="M12 11l4 10" />
-              <path d="M12 11l-4 10" />
-              <path d="M12 4l4 5" />
-              <path d="M12 4l-4 5" />
-            </svg>
-          </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-24">
-        {/* Exercises */}
-        <div className="p-4 space-y-6">
-          <ExerciseList
-            exercises={exercises}
-            newRecords={newRecords}
-            exerciseRecords={exerciseRecords}
-            onRemoveExercise={(id) => setDeleteExerciseId(id)}
-            onUpdateNote={updateExerciseNote}
-            onSetActiveRestTimer={setActiveRestTimerExerciseId}
-            onAddSet={addSet}
-            onRemoveSet={removeSet}
-            onUpdateSet={updateSet}
-            onToggleComplete={toggleSet}
-            onImageClick={(name) =>
-              setSelectedExerciseImage(getExerciseImage(name))
-            }
-          />
+      <main className="flex-1 overflow-y-auto pb-24 w-full">
+        <div className="w-full px-4 md:px-8 lg:px-12 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 max-w-[1600px] mx-auto">
+            
+            {/* Left Column: Exercises */}
+            <div className="lg:col-span-8 xl:col-span-9 space-y-6 md:space-y-8">
+              <ExerciseList
+                exercises={exercises}
+                newRecords={newRecords}
+                exerciseRecords={exerciseRecords}
+                onRemoveExercise={(id) => setDeleteExerciseId(id)}
+                onUpdateNote={updateExerciseNote}
+                onSetActiveRestTimer={setActiveRestTimerExerciseId}
+                onAddSet={addSet}
+                onRemoveSet={removeSet}
+                onUpdateSet={updateSet}
+                onToggleComplete={toggleSet}
+                onImageClick={(name) =>
+                  setSelectedExerciseImage(getExerciseImage(name))
+                }
+              />
 
-          <button
-            onClick={() => setShowAddExercise(true)}
-            className={cn(
-              "w-full py-4 rounded-3xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
-              isDark
-                ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
-                : "border-blue-200 text-blue-500 hover:bg-blue-50",
-            )}
-          >
-            <Plus className="w-5 h-5" /> Thêm bài tập
-          </button>
+              <button
+                onClick={() => setShowAddExercise(true)}
+                className={cn(
+                  "w-full py-4 rounded-2xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
+                  isDark
+                    ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                    : "border-blue-200 text-blue-500 hover:bg-blue-50",
+                )}
+              >
+                <Plus className="w-5 h-5" /> Thêm bài tập
+              </button>
 
-          <button
-            onClick={() => setShowSummary(true)}
-            className="w-full py-4 mt-4 rounded-3xl font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
-          >
-            <Check className="w-6 h-6" /> Hoàn thành bài tập
-          </button>
+              <button
+                onClick={() => setShowSummary(true)}
+                className="lg:hidden w-full py-4 mt-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+              >
+                <Check className="w-6 h-6" /> Hoàn thành bài tập
+              </button>
+            </div>
+
+            {/* Right Column: Stats & Actions (Desktop) */}
+            <div className="hidden lg:block lg:col-span-4 xl:col-span-3">
+              <div className="sticky top-8 space-y-6">
+                <div className={cn(
+                  "rounded-2xl p-6 border shadow-sm",
+                  isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-200"
+                )}>
+                  <h3 className={cn("font-bold text-lg mb-6", isDark ? "text-white" : "text-zinc-900")}>
+                    Thống kê buổi tập
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-2xl">
+                        ⏱️
+                      </div>
+                      <div>
+                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-blue-400" : "text-blue-600")}>
+                          Thời gian
+                        </div>
+                        <div className="text-blue-500 font-bold font-mono text-xl leading-none">
+                          <SimpleTimer startTime={workoutStartTime} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-2xl">
+                        ⚖️
+                      </div>
+                      <div>
+                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-emerald-400" : "text-emerald-600")}>
+                          Khối lượng
+                        </div>
+                        <div className={cn("font-bold text-xl leading-none", isDark ? "text-emerald-500" : "text-emerald-600")}>
+                          {stats.volume} <span className="text-sm font-normal">kg</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-2xl">
+                        🔢
+                      </div>
+                      <div>
+                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-purple-400" : "text-purple-600")}>
+                          Số hiệp
+                        </div>
+                        <div className={cn("font-bold text-xl leading-none", isDark ? "text-purple-500" : "text-purple-600")}>
+                          {stats.setsCount}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowSummary(true)}
+                  className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+                >
+                  <Check className="w-6 h-6" /> Hoàn thành bài tập
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
       </main>
 
@@ -2540,14 +2623,14 @@ export default function ActiveWorkout() {
         <div
           className={cn(
             "absolute inset-0 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200",
-            isDark ? "bg-black" : "bg-zinc-50",
+            isDark ? "bg-black" : "bg-white",
           )}
         >
           <header
             className={cn(
               "px-4 py-4 border-b flex flex-col gap-3 shadow-sm z-10",
               isDark
-                ? "bg-[#1c1c1e] border-zinc-800"
+                ? "bg-[#141414] border-[#1F1F1F]"
                 : "bg-white border-zinc-100",
             )}
           >
@@ -2651,7 +2734,7 @@ export default function ActiveWorkout() {
                           className={cn(
                             "w-full text-left p-4 rounded-2xl font-medium shadow-sm border transition-colors",
                             isDark
-                              ? "bg-[#1c1c1e] text-zinc-200 border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/10"
+                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-blue-500/50 hover:bg-blue-500/10"
                               : "bg-white text-zinc-900 border-zinc-100 hover:border-blue-300 hover:bg-blue-50",
                           )}
                         >
@@ -2709,7 +2792,7 @@ export default function ActiveWorkout() {
           <div
             className={cn(
               "rounded-3xl p-6 w-full max-w-sm shadow-2xl mx-4",
-              isDark ? "bg-[#1c1c1e]" : "bg-white",
+              isDark ? "bg-[#141414] border border-[#1F1F1F]" : "bg-white",
             )}
           >
             <h3
@@ -2754,7 +2837,7 @@ export default function ActiveWorkout() {
           <div
             className={cn(
               "rounded-3xl p-6 w-full max-w-sm shadow-2xl mx-4",
-              isDark ? "bg-[#1c1c1e]" : "bg-white",
+              isDark ? "bg-[#141414] border border-[#1F1F1F]" : "bg-white",
             )}
           >
             <h3
@@ -2836,7 +2919,7 @@ export default function ActiveWorkout() {
           <div
             className={cn(
               "w-full max-w-md rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom-full duration-300",
-              isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900",
+              isDark ? "bg-[#141414] text-white" : "bg-white text-zinc-900",
             )}
           >
             <div className="flex justify-between items-center mb-6">
@@ -2952,98 +3035,6 @@ export default function ActiveWorkout() {
               referrerPolicy="no-referrer"
               className="w-full h-auto object-contain"
             />
-          </div>
-        </div>
-      )}
-
-      {/* Muscle Distribution Modal */}
-      {showMuscleDistribution && (
-        <div
-          className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-sm"
-          onClick={() => setShowMuscleDistribution(false)}
-        >
-          <div
-            className={cn(
-              "w-full rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-full",
-              isDark ? "bg-[#1c1c1e]" : "bg-white",
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-12 h-1.5 bg-zinc-400/30 rounded-full mx-auto mb-6" />
-            <h2
-              className={cn(
-                "text-xl font-bold mb-6 text-center",
-                isDark ? "text-white" : "text-zinc-900",
-              )}
-            >
-              Muscle Distribution
-            </h2>
-
-            <div className="flex justify-center gap-4 mb-8">
-              <img
-                src="https://storage.googleapis.com/aistudio-user-content/0b217a6d-20d0-4740-9a29-06385d01323a/c6166416-0929-4592-8818-80f488663806.jpg"
-                alt="Front Muscles"
-                className="w-32 h-auto object-contain opacity-80 mix-blend-screen"
-                referrerPolicy="no-referrer"
-              />
-              <img
-                src="https://storage.googleapis.com/aistudio-user-content/0b217a6d-20d0-4740-9a29-06385d01323a/29e2467d-92a2-4a00-9833-28c035310b10.jpg"
-                alt="Back Muscles"
-                className="w-32 h-auto object-contain opacity-80 mix-blend-screen"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div
-                className={cn(
-                  "flex justify-between text-sm font-medium mb-2",
-                  isDark ? "text-zinc-500" : "text-zinc-400",
-                )}
-              >
-                <span>Muscle</span>
-                <span>Completed Sets</span>
-              </div>
-
-              {Object.entries(stats.muscleStats).map(([muscle, count]) => {
-                const maxSets = Math.max(
-                  ...Object.values(stats.muscleStats),
-                  1,
-                );
-                const percentage = (count / maxSets) * 100;
-                return (
-                  <div key={muscle} className="flex items-center gap-4">
-                    <span
-                      className={cn(
-                        "w-24 text-sm font-medium truncate",
-                        isDark ? "text-zinc-300" : "text-zinc-700",
-                      )}
-                    >
-                      {muscle}
-                    </span>
-                    <div className="flex-1 h-4 bg-zinc-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-blue-500 rounded-full"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <span
-                      className={cn(
-                        "w-8 text-right text-sm font-medium",
-                        isDark ? "text-white" : "text-zinc-900",
-                      )}
-                    >
-                      {count}
-                    </span>
-                  </div>
-                );
-              })}
-              {Object.keys(stats.muscleStats).length === 0 && (
-                <div className="text-center text-zinc-500 text-sm py-4">
-                  Chưa có bài tập nào hoàn thành
-                </div>
-              )}
-            </div>
           </div>
         </div>
       )}

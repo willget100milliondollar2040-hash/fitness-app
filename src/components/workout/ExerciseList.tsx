@@ -66,9 +66,9 @@ export function ExerciseList({
           <div
             key={exercise.id}
             className={cn(
-              "rounded-3xl p-4 shadow-sm border transition-all duration-300",
+              "rounded-2xl p-4 md:p-6 shadow-sm border transition-all duration-300",
               isDark
-                ? "bg-[#1c1c1e] border-zinc-800"
+                ? "bg-[#141414] border-[#1F1F1F]"
                 : "bg-white border-zinc-100",
               isAllCompleted && "border-green-500 ring-1 ring-green-500",
             )}
@@ -177,11 +177,11 @@ export function ExerciseList({
                   isDark ? "text-zinc-500" : "text-zinc-400",
                 )}
               >
-                <div className="w-14 text-center">SET</div>
+                <div className="w-16 text-center">SET</div>
                 <div className="flex-1 text-center">PREVIOUS</div>
-                <div className="w-16 text-center">+KG</div>
-                <div className="w-16 text-center">REPS</div>
-                <div className="w-10 text-center">
+                <div className="w-20 text-center">+KG</div>
+                <div className="w-20 text-center">REPS</div>
+                <div className="w-12 text-center">
                   <Check className="w-4 h-4 mx-auto" />
                 </div>
               </div>

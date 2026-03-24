@@ -43,14 +43,14 @@ export default function Auth() {
   return (
     <div className={cn(
       "min-h-screen flex items-center justify-center p-6 transition-colors duration-300",
-      isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900"
+      isDark ? "bg-black text-white" : "bg-white text-zinc-900"
     )}>
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
           "w-full max-w-md p-8 rounded-3xl border shadow-2xl space-y-8",
-          isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100"
+          isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100"
         )}
       >
         <div className="text-center space-y-2">
@@ -78,7 +78,7 @@ export default function Auth() {
                 required
                 className={cn(
                   "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all",
-                  isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"
+                  isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"
                 )}
               />
             </div>
@@ -96,7 +96,7 @@ export default function Auth() {
                 required
                 className={cn(
                   "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all",
-                  isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"
+                  isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"
                 )}
               />
             </div>

@@ -147,6 +147,42 @@ export const workoutService = {
     }
   },
 
+  async getPreviousExerciseSets(userId: string, exerciseName: string) {
+    try {
+      // First find the most recent workout where this exercise was performed
+      const { data: latestWorkout, error: workoutError } = await supabase
+        .from('workout_sets')
+        .select('workout_id')
+        .eq('user_id', userId)
+        .eq('exercise_name', exerciseName)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (workoutError) throw workoutError;
+
+      if (latestWorkout && latestWorkout.length > 0) {
+        const workoutId = latestWorkout[0].workout_id;
+        
+        // Then fetch all sets for this exercise from that specific workout
+        const { data: sets, error: setsError } = await supabase
+          .from('workout_sets')
+          .select('kg, reps, set_type')
+          .eq('user_id', userId)
+          .eq('workout_id', workoutId)
+          .eq('exercise_name', exerciseName)
+          .order('created_at', { ascending: true });
+
+        if (setsError) throw setsError;
+        
+        return sets || [];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching previous exercise sets:', error);
+      return [];
+    }
+  },
+
   async getWorkoutHistory(userId: string) {
     try {
       const { data, error } = await supabase

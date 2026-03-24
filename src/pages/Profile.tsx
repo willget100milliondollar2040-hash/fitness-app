@@ -214,16 +214,16 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className={cn("min-h-screen flex items-center justify-center transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+      <div className={cn("min-h-screen flex items-center justify-center transition-colors duration-300", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className={cn("min-h-screen pb-24 transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("min-h-screen pb-24 transition-colors duration-300", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
       {/* Header */}
-      <header className={cn("px-4 py-4 flex items-center justify-between sticky top-0 z-30", isDark ? "bg-[#1c1c1e]/80 backdrop-blur-md" : "bg-white/80 backdrop-blur-md")}>
+      <header className={cn("px-4 py-4 flex items-center justify-between sticky top-0 z-30", isDark ? "bg-[#141414]/80 backdrop-blur-md" : "bg-white/80 backdrop-blur-md")}>
         <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-zinc-800/10 dark:hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-6 h-6" />
         </button>
@@ -242,7 +242,7 @@ export default function Profile() {
           {/* Avatar Section */}
           <div className="flex flex-col items-center space-y-4 md:sticky md:top-24 h-fit">
           <div className="relative">
-            <div className={cn("w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl text-white shadow-lg border-4 overflow-hidden", isDark ? "border-zinc-800 bg-zinc-700" : "border-white bg-zinc-300")}>
+            <div className={cn("w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl text-white shadow-lg border-4 overflow-hidden", isDark ? "border-[#1F1F1F] bg-zinc-700" : "border-white bg-zinc-300")}>
               {profile.avatar_url || getAvatarUrl(userEmail) ? (
                 <img src={profile.avatar_url || getAvatarUrl(userEmail) || ""} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -271,7 +271,7 @@ export default function Profile() {
               type="text"
               value={profile.full_name}
               onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
               placeholder="Nhập tên của bạn"
             />
           </div>
@@ -283,7 +283,7 @@ export default function Profile() {
                 type="number"
                 value={profile.weight}
                 onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
-                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
                 placeholder="0.0"
               />
             </div>
@@ -293,7 +293,7 @@ export default function Profile() {
                 type="number"
                 value={profile.height}
                 onChange={(e) => setProfile({ ...profile, height: e.target.value })}
-                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
                 placeholder="0"
               />
             </div>
@@ -305,7 +305,7 @@ export default function Profile() {
               type="number"
               value={profile.age}
               onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
               placeholder="0"
             />
           </div>
@@ -388,14 +388,14 @@ export default function Profile() {
               type="text"
               value={profile.timeframe}
               onChange={(e) => setProfile({ ...profile, timeframe: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#1c1c1e] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
               placeholder="VD: 12 tuần"
             />
           </div>
 
           <div>
             <label className={cn("block text-sm font-bold mb-3 mt-6", isDark ? "text-zinc-400" : "text-zinc-600")}>Thông báo nhắc nhở</label>
-            <div className={cn("p-4 rounded-2xl flex items-center justify-between", isDark ? "bg-[#1c1c1e]" : "bg-white border")}>
+            <div className={cn("p-4 rounded-2xl flex items-center justify-between border", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
               <div className="flex items-center gap-3">
                 <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", remindersEnabled ? "bg-blue-100 text-blue-600" : isDark ? "bg-zinc-800 text-zinc-500" : "bg-zinc-100 text-zinc-400")}>
                   <Bell className="w-5 h-5" />
@@ -450,7 +450,7 @@ export default function Profile() {
                       isSelected 
                         ? "bg-blue-500 text-white shadow-md" 
                         : isDark 
-                          ? "bg-[#1c1c1e] text-zinc-400 hover:bg-zinc-800" 
+                          ? "bg-[#141414] border border-[#1F1F1F] text-zinc-400 hover:bg-zinc-800" 
                           : "bg-white border text-zinc-600 hover:bg-zinc-50"
                     )}
                   >

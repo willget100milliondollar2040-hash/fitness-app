@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { TrendingUp, Camera, Activity, Calendar, Award, Clock, Dumbbell, History, Plus, Download, Sparkles, BarChart2 } from "lucide-react";
+import { TrendingUp, Camera, Activity, Calendar, Award, Clock, Dumbbell, History, Plus, Download, Sparkles, BarChart2, Flame, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "../components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { workoutService } from "../lib/workoutService";
@@ -8,7 +8,85 @@ import { supabase } from "../lib/supabase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GoogleGenAI } from "@google/genai";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const PhotoComparison = ({ before, after, beforeDate, afterDate }: { before: string, after: string, beforeDate: string, afterDate: string }) => {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setWidth(containerRef.current.offsetWidth);
+      const observer = new ResizeObserver(entries => {
+        if (entries[0]) {
+          setWidth(entries[0].contentRect.width);
+        }
+      });
+      observer.observe(containerRef.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative w-full h-64 rounded-2xl overflow-hidden select-none group border border-[#1F1F1F]">
+      <img src={before} alt="Before" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+      <div 
+        className="absolute inset-0 overflow-hidden"
+        style={{ width: `${sliderPosition}%` }}
+      >
+        <img 
+          src={after} 
+          alt="After" 
+          className="absolute inset-0 h-full object-cover max-w-none" 
+          style={{ width: `${width}px` }} 
+          referrerPolicy="no-referrer" 
+        />
+      </div>
+      
+      <div 
+        className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize shadow-[0_0_10px_rgba(0,0,0,0.5)] z-20"
+        style={{ left: `calc(${sliderPosition}% - 2px)` }}
+      >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+          <div className="flex gap-0.5">
+            <ChevronLeft className="w-4 h-4 text-black -mr-1" />
+            <ChevronRight className="w-4 h-4 text-black -ml-1" />
+          </div>
+        </div>
+      </div>
+      
+      <input 
+        type="range" 
+        min="0" 
+        max="100" 
+        value={sliderPosition} 
+        onChange={(e) => setSliderPosition(Number(e.target.value))}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
+      />
+      
+      <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10 z-10 pointer-events-none">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Trước</div>
+        <div className="text-xs font-medium">{beforeDate}</div>
+      </div>
+      
+      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10 z-10 pointer-events-none text-right">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">Sau</div>
+        <div className="text-xs font-medium">{afterDate}</div>
+      </div>
+    </div>
+  );
+};
+
+const CustomBar = (props: any) => {
+  const { fill, x, y, width, height } = props;
+  return (
+    <g>
+      <rect x={x} y={y} width={width} height={height} fill={fill} rx={6} />
+      <rect x={x} y={y} width={width} height={height} fill="url(#barHighlight)" rx={6} />
+    </g>
+  );
+};
 
 export default function Progress() {
   const { isDark } = useTheme();
@@ -218,7 +296,7 @@ export default function Progress() {
   };
 
   return (
-    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
           <TrendingUp className="w-6 h-6 text-black dark:text-white" />
@@ -235,17 +313,17 @@ export default function Progress() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className={cn("rounded-3xl p-6 shadow-sm border transition-colors h-full", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+            className={cn("rounded-2xl p-6 shadow-sm border transition-colors h-full", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
           >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-6">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-            <Camera className="w-5 h-5 text-black dark:text-white" />
+            <Camera className="w-5 h-5 text-blue-500" />
             Ảnh cơ thể hàng tuần
           </h3>
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="text-sm text-black dark:text-white font-medium hover:underline flex items-center gap-1 disabled:opacity-50"
+            className="text-sm text-blue-500 font-bold hover:underline flex items-center gap-1 disabled:opacity-50"
           >
             {isUploading ? "Đang tải..." : <><Plus className="w-4 h-4" /> Thêm ảnh</>}
           </button>
@@ -259,44 +337,41 @@ export default function Progress() {
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          {firstPhoto ? (
-            <div className={cn("relative rounded-2xl overflow-hidden border shadow-inner", isDark ? "border-zinc-800 bg-zinc-900" : "border-zinc-100 bg-zinc-50")}>
-              <img src={firstPhoto.url} alt="Before" className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                <span className="text-white text-xs font-bold uppercase tracking-wider">{firstPhoto.date}</span>
+        {firstPhoto && latestPhoto && firstPhoto.id !== latestPhoto.id ? (
+          <PhotoComparison 
+            before={firstPhoto.url} 
+            after={latestPhoto.url} 
+            beforeDate={firstPhoto.date} 
+            afterDate={latestPhoto.date} 
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {firstPhoto ? (
+              <div className={cn("relative rounded-2xl overflow-hidden border shadow-inner", isDark ? "border-[#1F1F1F] bg-[#141414]" : "border-zinc-100 bg-zinc-50")}>
+                <img src={firstPhoto.url} alt="Before" className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                  <span className="text-white text-xs font-bold uppercase tracking-wider">{firstPhoto.date}</span>
+                </div>
               </div>
-            </div>
-          ) : (
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className={cn("relative rounded-2xl overflow-hidden border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-[#1F1F1F]/50 transition-colors h-48", isDark ? "border-zinc-700" : "border-zinc-300")}
+              >
+                <Camera className={cn("w-8 h-8 mb-2", isDark ? "text-zinc-600" : "text-zinc-400")} />
+                <span className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>Thêm ảnh đầu tiên</span>
+              </div>
+            )}
+            
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className={cn("relative rounded-2xl overflow-hidden border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors h-48", isDark ? "border-zinc-700" : "border-zinc-300")}
-            >
-              <Camera className={cn("w-8 h-8 mb-2", isDark ? "text-zinc-600" : "text-zinc-400")} />
-              <span className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>Thêm ảnh đầu tiên</span>
-            </div>
-          )}
-          
-          {latestPhoto ? (
-            <div className="relative rounded-2xl overflow-hidden border-2 border-black dark:border-white shadow-lg">
-              <img src={latestPhoto.url} alt="After" className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
-              <div className="absolute top-2 right-2 bg-black dark:bg-white dark:text-black text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-                Mới nhất
-              </div>
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                <span className="text-white text-xs font-bold uppercase tracking-wider">{latestPhoto.date}</span>
-              </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className={cn("relative rounded-2xl overflow-hidden border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors h-48", isDark ? "border-zinc-700" : "border-zinc-300")}
+              className={cn("relative rounded-2xl overflow-hidden border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-[#1F1F1F]/50 transition-colors h-48", isDark ? "border-zinc-700" : "border-zinc-300")}
             >
               <Camera className={cn("w-8 h-8 mb-2", isDark ? "text-zinc-600" : "text-zinc-400")} />
               <span className={cn("text-xs font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-500")}>Thêm ảnh mới nhất</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {firstPhoto && latestPhoto && (
           <div className="mt-6">
@@ -332,24 +407,62 @@ export default function Progress() {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-2 gap-4"
           >
-        <div className={cn("p-5 rounded-3xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
-            <Activity className={cn("w-6 h-6", isDark ? "text-blue-400" : "text-blue-500")} />
-          </div>
-          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{workouts.length}</span>
-          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Bài tập</span>
-        </div>
-        
-        <div className={cn("p-5 rounded-3xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3", isDark ? "bg-orange-500/20" : "bg-orange-100")}>
-            <Dumbbell className={cn("w-6 h-6", isDark ? "text-orange-400" : "text-orange-500")} />
-          </div>
-          <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>
-            {workouts.reduce((acc, w) => acc + (w.volume || 0), 0).toLocaleString()}
-          </span>
-          <span className={cn("text-xs font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tổng khối lượng (kg)</span>
-        </div>
-      </motion.div>
+            <div className={cn("p-5 rounded-2xl border shadow-sm flex flex-col items-center justify-center text-center transition-colors col-span-2 sm:col-span-1", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
+              <div className="relative flex flex-col items-center justify-center mb-2">
+                <svg className="w-24 h-24 transform -rotate-90">
+                  <circle
+                    className={isDark ? "text-[#1F1F1F]" : "text-zinc-100"}
+                    strokeWidth="8"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="36"
+                    cx="48"
+                    cy="48"
+                  />
+                  <circle
+                    className="text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)] transition-all duration-1000 ease-out"
+                    strokeWidth="8"
+                    strokeDasharray={2 * Math.PI * 36}
+                    strokeDashoffset={(2 * Math.PI * 36) - (85 / 100) * (2 * Math.PI * 36)}
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="36"
+                    cx="48"
+                    cy="48"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className={cn("text-2xl font-black", isDark ? "text-white" : "text-zinc-900")}>85%</span>
+                </div>
+              </div>
+              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Độ kiên trì</span>
+            </div>
+
+            <div className="grid grid-rows-2 gap-4 col-span-2 sm:col-span-1">
+              <div className={cn("p-4 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
+                  <Activity className={cn("w-5 h-5", isDark ? "text-blue-400" : "text-blue-500")} />
+                </div>
+                <div>
+                  <div className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{workouts.length}</div>
+                  <div className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Bài tập</div>
+                </div>
+              </div>
+              
+              <div className={cn("p-4 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", isDark ? "bg-orange-500/20" : "bg-orange-100")}>
+                  <Dumbbell className={cn("w-5 h-5", isDark ? "text-orange-400" : "text-orange-500")} />
+                </div>
+                <div>
+                  <div className={cn("text-xl font-bold truncate", isDark ? "text-white" : "text-zinc-900")}>
+                    {workouts.reduce((acc, w) => acc + (w.volume || 0), 0).toLocaleString()}
+                  </div>
+                  <div className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Tổng Volume</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Personal Records */}
           {Object.keys(personalRecords).length > 0 && (
@@ -357,7 +470,7 @@ export default function Progress() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+              className={cn("rounded-2xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
             >
           <h3 className={cn("font-bold flex items-center gap-2 mb-4", isDark ? "text-white" : "text-zinc-900")}>
             <Award className="w-5 h-5 text-yellow-500" />
@@ -365,7 +478,7 @@ export default function Progress() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {Object.entries(personalRecords).map(([name, record]: [string, any]) => (
-              <div key={name} className={cn("p-4 rounded-2xl border flex justify-between items-center transition-colors", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+              <div key={name} className={cn("p-4 rounded-xl border flex justify-between items-center transition-colors", isDark ? "bg-[#1A1A1A] border-[#1F1F1F]" : "bg-zinc-50 border-zinc-100")}>
                 <div>
                   <div className={cn("text-sm font-bold", isDark ? "text-white" : "text-zinc-900")}>{name}</div>
                   <div className={cn("text-[10px] font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>{record.date}</div>
@@ -388,37 +501,44 @@ export default function Progress() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+          className={cn("rounded-2xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
         >
           <div className="flex items-center justify-between mb-6">
             <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-              <BarChart2 className="w-5 h-5 text-indigo-500" />
+              <BarChart2 className="w-5 h-5 text-blue-500" />
               Biểu đồ tăng trưởng (Volume)
             </h3>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8B5CF6" />
+                    <stop offset="100%" stopColor="#3B82F6" />
+                  </linearGradient>
+                  <linearGradient id="barHighlight" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity={0.3} />
+                    <stop offset="20%" stopColor="#ffffff" stopOpacity={0} />
+                    <stop offset="80%" stopColor="#000000" stopOpacity={0} />
+                    <stop offset="100%" stopColor="#000000" stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#3f3f46" : "#e4e4e7"} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#1F1F1F" : "#e4e4e7"} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: isDark ? "#a1a1aa" : "#71717a" }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: isDark ? "#a1a1aa" : "#71717a" }} />
                 <Tooltip 
+                  cursor={{ fill: isDark ? '#1F1F1F' : '#f4f4f5', opacity: 0.4 }}
                   contentStyle={{ 
-                    backgroundColor: isDark ? '#18181b' : '#ffffff',
-                    borderColor: isDark ? '#27272a' : '#e4e4e7',
+                    backgroundColor: isDark ? '#141414' : '#ffffff',
+                    borderColor: isDark ? '#1F1F1F' : '#e4e4e7',
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                   }}
-                  itemStyle={{ color: isDark ? '#e4e4e7' : '#18181b' }}
+                  itemStyle={{ color: isDark ? '#e4e4e7' : '#18181b', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="volume" name="Volume (kg)" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVolume)" />
-              </AreaChart>
+                <Bar dataKey="volume" name="Volume (kg)" fill="url(#barGradient)" shape={<CustomBar />} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
@@ -429,7 +549,7 @@ export default function Progress() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className={cn("rounded-3xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+        className={cn("rounded-2xl p-6 shadow-sm border transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
@@ -457,7 +577,7 @@ export default function Progress() {
         {loading ? (
           <div className="text-center py-8 text-zinc-500">Đang tải dữ liệu...</div>
         ) : workouts.length === 0 ? (
-          <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+          <div className={cn("text-center py-12 rounded-2xl border border-dashed", isDark ? "border-[#1F1F1F] bg-[#141414]" : "border-zinc-200 bg-white")}>
             <History className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
             <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có lịch sử tập luyện</h3>
             <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Hoàn thành bài tập đầu tiên để xem tiến độ của bạn!</p>
@@ -465,17 +585,17 @@ export default function Progress() {
         ) : (
           <div className="space-y-4">
             {workouts.map((workout) => (
-              <div key={workout.id} className={cn("p-4 rounded-2xl border", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+              <div key={workout.id} className={cn("p-4 rounded-2xl border transition-colors", isDark ? "bg-[#1A1A1A] border-[#1F1F1F] hover:bg-[#222222]" : "bg-zinc-50 border-zinc-100 hover:bg-zinc-100")}>
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className={cn("font-bold text-lg", isDark ? "text-white" : "text-zinc-900")}>{workout.name}</h4>
-                    <div className={cn("text-xs mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                    <div className={cn("text-[10px] font-medium uppercase tracking-wider mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>
                       {new Date(workout.start_time).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-blue-500 font-bold">{formatTime(workout.duration)}</div>
-                    <div className={cn("text-xs", isDark ? "text-zinc-500" : "text-zinc-400")}>{workout.sets_count} hiệp</div>
+                    <div className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>{workout.sets_count} hiệp</div>
                   </div>
                 </div>
                 
@@ -484,7 +604,7 @@ export default function Progress() {
                   const records = ex.workout_sets?.filter((s: any) => s.is_record);
                   if (records && records.length > 0) {
                     return (
-                      <div key={ex.id} className="mt-3 pt-3 border-t border-dashed border-zinc-200 dark:border-zinc-800">
+                      <div key={ex.id} className="mt-3 pt-3 border-t border-dashed border-zinc-200 dark:border-[#1F1F1F]">
                         <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{ex.exercise_name}</div>
                         <div className="flex flex-wrap gap-2">
                           {records.map((record: any) => (

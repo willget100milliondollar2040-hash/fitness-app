@@ -210,15 +210,15 @@ export default function CreateRoutine() {
   return (
     <div
       className={cn(
-        "flex flex-col h-[100dvh] max-w-2xl mx-auto relative transition-colors duration-300",
-        isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900",
+        "flex flex-col h-[100dvh] w-full max-w-3xl mx-auto relative transition-colors duration-300",
+        isDark ? "bg-black text-white" : "bg-white text-zinc-900",
       )}
     >
       {/* Header */}
       <header
         className={cn(
           "px-4 py-3 flex items-center justify-between sticky top-0 z-20 transition-colors duration-300",
-          isDark ? "bg-[#1c1c1e]" : "bg-white border-b border-zinc-100",
+          isDark ? "bg-[#141414]" : "bg-white border-b border-zinc-100",
         )}
       >
         <button
@@ -264,7 +264,7 @@ export default function CreateRoutine() {
           className={cn(
             "w-full text-2xl font-bold bg-transparent border-b pb-2 mb-8 outline-none placeholder:font-bold",
             isDark
-              ? "border-zinc-800 placeholder:text-zinc-700"
+              ? "border-[#1F1F1F] placeholder:text-zinc-700"
               : "border-zinc-200 placeholder:text-zinc-300",
           )}
         />
@@ -300,7 +300,7 @@ export default function CreateRoutine() {
                 className={cn(
                   "rounded-3xl p-5 shadow-[0_2px_10px_rgb(0,0,0,0.02)] border transition-colors",
                   isDark
-                    ? "bg-[#1c1c1e] border-zinc-800"
+                    ? "bg-[#141414] border-[#1F1F1F]"
                     : "bg-white border-zinc-100",
                 )}
               >
@@ -514,14 +514,14 @@ export default function CreateRoutine() {
         <div
           className={cn(
             "absolute inset-0 z-50 flex flex-col",
-            isDark ? "bg-black" : "bg-zinc-50",
+            isDark ? "bg-black" : "bg-white",
           )}
         >
           <header
             className={cn(
               "px-4 py-4 border-b flex flex-col gap-3 shadow-sm z-10",
               isDark
-                ? "bg-[#1c1c1e] border-zinc-800"
+                ? "bg-[#141414] border-[#1F1F1F]"
                 : "bg-white border-zinc-100",
             )}
           >
@@ -620,7 +620,7 @@ export default function CreateRoutine() {
                           className={cn(
                             "w-full text-left p-4 rounded-2xl font-medium shadow-sm border transition-colors",
                             isDark
-                              ? "bg-[#1c1c1e] text-zinc-200 border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/10"
+                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-blue-500/50 hover:bg-blue-500/10"
                               : "bg-white text-zinc-900 border-zinc-100 hover:border-blue-300 hover:bg-blue-50",
                           )}
                         >
@@ -678,7 +678,7 @@ export default function CreateRoutine() {
           <div
             className={cn(
               "w-full max-w-md rounded-t-3xl p-6 pb-10 animate-in slide-in-from-bottom-full duration-300",
-              isDark ? "bg-[#1c1c1e] text-white" : "bg-white text-zinc-900",
+              isDark ? "bg-[#141414] text-white" : "bg-white text-zinc-900",
             )}
           >
             <div className="flex justify-between items-center mb-6">

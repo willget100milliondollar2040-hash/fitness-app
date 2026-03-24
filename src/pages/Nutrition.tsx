@@ -349,7 +349,7 @@ export default function Nutrition() {
   const targetFat = Math.round((targetCalories * 0.3) / 9);
 
   return (
-    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-black text-white" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300", isDark ? "bg-[#0A0A0A] text-white" : "bg-white text-zinc-900")}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
@@ -358,7 +358,7 @@ export default function Nutrition() {
           </h2>
           <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Theo dõi bữa ăn dễ dàng bằng ảnh hoặc nhập thủ công.</p>
         </div>
-        <div className={cn("flex items-center gap-2 p-1 rounded-xl shadow-sm border", isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200")}>
+        <div className={cn("flex items-center gap-2 p-1 rounded-xl shadow-sm border", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-200")}>
           <button onClick={() => changeDate(-1)} className={cn("p-2 rounded-lg transition-colors", isDark ? "hover:bg-zinc-800" : "hover:bg-zinc-100")}>
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -375,13 +375,22 @@ export default function Nutrition() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className={cn("rounded-3xl p-6 shadow-sm border flex flex-col items-center transition-colors h-full", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+          className={cn("rounded-2xl p-6 shadow-sm border flex flex-col items-center transition-colors h-full relative overflow-hidden", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
         >
-          <div className="flex items-center justify-between w-full mb-6 flex-1">
+          {/* Subtle glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between w-full mb-6 flex-1 gap-6">
             <div className="relative w-32 h-32 shrink-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#2c2c2e" : "#f4f4f5"} strokeWidth="10" />
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke={isDark ? "#1F1F1F" : "#f4f4f5"} strokeWidth="10" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#calGradient)" strokeWidth="10" strokeDasharray="283" strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                <defs>
+                  <linearGradient id="calGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3B82F6" />
+                    <stop offset="100%" stopColor="#8B5CF6" />
+                  </linearGradient>
+                </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className={cn("text-2xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{consumedCalories}</span>
@@ -389,38 +398,52 @@ export default function Nutrition() {
               </div>
             </div>
 
-            <div className="flex-1 ml-8 space-y-4">
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Protein</span>
-                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedProtein}/{targetProtein}g</span>
+            <div className="flex-1 w-full grid grid-cols-3 md:flex md:flex-col gap-4">
+              {/* Protein Ring */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-12 h-12">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke={isDark ? "#1F1F1F" : "#f4f4f5"} strokeWidth="12" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" strokeWidth="12" strokeDasharray="251" strokeDashoffset={251 - (251 * Math.min(100, (consumedProtein / targetProtein) * 100)) / 100} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[10px] font-bold">{consumedProtein}g</span>
+                  </div>
                 </div>
-                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                  <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (consumedProtein / targetProtein) * 100)}%` }} />
-                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Protein</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Carbs</span>
-                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedCarbs}/{targetCarbs}g</span>
+
+              {/* Carbs Ring */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-12 h-12">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke={isDark ? "#1F1F1F" : "#f4f4f5"} strokeWidth="12" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#F59E0B" strokeWidth="12" strokeDasharray="251" strokeDashoffset={251 - (251 * Math.min(100, (consumedCarbs / targetCarbs) * 100)) / 100} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[10px] font-bold">{consumedCarbs}g</span>
+                  </div>
                 </div>
-                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                  <div className="h-full bg-orange-500" style={{ width: `${Math.min(100, (consumedCarbs / targetCarbs) * 100)}%` }} />
-                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Carbs</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                  <span className={isDark ? "text-zinc-400" : "text-zinc-500"}>Fat</span>
-                  <span className={isDark ? "text-white" : "text-zinc-900"}>{consumedFat}/{targetFat}g</span>
+
+              {/* Fat Ring */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-12 h-12">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke={isDark ? "#1F1F1F" : "#f4f4f5"} strokeWidth="12" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#8B5CF6" strokeWidth="12" strokeDasharray="251" strokeDashoffset={251 - (251 * Math.min(100, (consumedFat / targetFat) * 100)) / 100} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[10px] font-bold">{consumedFat}g</span>
+                  </div>
                 </div>
-                <div className={cn("h-1.5 rounded-full overflow-hidden", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-                  <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (consumedFat / targetFat) * 100)}%` }} />
-                </div>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-400" : "text-zinc-500")}>Fat</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-zinc-800/50 mt-auto">
+          <div className="flex justify-between w-full text-sm font-medium pt-4 border-t border-[#1F1F1F] mt-auto">
             <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Đã nạp: <span className="text-black dark:text-white font-bold">{consumedCalories}</span></div>
             <div className={isDark ? "text-zinc-400" : "text-zinc-500"}>Còn lại: <span className="text-orange-500 font-bold">{remainingCalories}</span></div>
           </div>
@@ -432,37 +455,40 @@ export default function Nutrition() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            className={cn("rounded-3xl p-6 shadow-sm border transition-colors flex-1", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}
+            className={cn("rounded-2xl p-6 shadow-sm border transition-colors flex-1 relative overflow-hidden", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Droplets className="w-5 h-5 text-blue-500" />
-                <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
+            {/* Water Fill Background */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 bg-blue-500/10 dark:bg-blue-500/20 transition-all duration-1000 ease-out z-0"
+              style={{ height: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
+            >
+              {/* Wave effect */}
+              <div className="absolute top-0 left-0 right-0 h-2 bg-blue-500/30 dark:bg-blue-500/40 animate-pulse"></div>
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Droplets className="w-5 h-5 text-blue-500" />
+                  <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
+                </div>
+                <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
               </div>
-              <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
-            </div>
 
-            <div className="relative h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-6">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
-                className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              {[250, 500, 750].map(amount => (
-                <button
-                  key={amount}
-                  onClick={() => addWater(amount)}
-                  className={cn(
-                    "py-3 rounded-xl font-bold text-sm transition-all active:scale-95",
-                    isDark ? "bg-zinc-800 hover:bg-zinc-700 text-white" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-900"
-                  )}
-                >
-                  +{amount}ml
-                </button>
-              ))}
+              <div className="grid grid-cols-3 gap-3">
+                {[250, 500, 750].map(amount => (
+                  <button
+                    key={amount}
+                    onClick={() => addWater(amount)}
+                    className={cn(
+                      "py-3 rounded-xl font-bold text-sm transition-all active:scale-95 border",
+                      isDark ? "bg-[#0A0A0A] border-[#1F1F1F] hover:bg-zinc-800 text-white" : "bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-900"
+                    )}
+                  >
+                    +{amount}ml
+                  </button>
+                ))}
+              </div>
             </div>
           </motion.div>
 
@@ -476,10 +502,10 @@ export default function Nutrition() {
             <button 
               onClick={() => cameraInputRef.current?.click()}
               disabled={isLoading}
-              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-white/10 hover:bg-white/20 text-white border-white/20" : "bg-zinc-100 hover:bg-zinc-200 text-black border-zinc-300")}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-gradient-primary text-white border-transparent glow-primary" : "bg-gradient-primary text-white border-transparent shadow-md")}
             >
               {isLoading ? (
-                <div className="w-6 h-6 border-2 border-black dark:border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Camera className="w-6 h-6" />
               )}
@@ -488,14 +514,14 @@ export default function Nutrition() {
             <button 
               onClick={() => galleryInputRef.current?.click()}
               disabled={isLoading}
-              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm disabled:opacity-50", isDark ? "bg-[#141414] hover:bg-[#1F1F1F] text-zinc-300 border-[#1F1F1F]" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
             >
               <Upload className="w-6 h-6" />
               <span className="text-[10px] uppercase tracking-wider">Tải lên</span>
             </button>
             <button 
               onClick={() => setIsManualModalOpen(true)}
-              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e] text-zinc-300 border-zinc-800" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
+              className={cn("font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors border shadow-sm", isDark ? "bg-[#141414] hover:bg-[#1F1F1F] text-zinc-300 border-[#1F1F1F]" : "bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200")}
             >
               <Edit2 className="w-6 h-6" />
               <span className="text-[10px] uppercase tracking-wider">Thủ công</span>
@@ -546,7 +572,7 @@ export default function Nutrition() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
                 "w-full pl-10 pr-4 py-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all text-sm",
-                isDark ? "bg-[#1c1c1e] border-zinc-800 text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
+                isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-500" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400"
               )}
             />
           </div>
@@ -554,43 +580,59 @@ export default function Nutrition() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {meals.length === 0 ? (
-            <div className={cn("text-center py-12 rounded-2xl border border-dashed md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <div className={cn("text-center py-12 rounded-2xl border border-dashed md:col-span-2", isDark ? "border-[#1F1F1F] bg-[#141414]" : "border-zinc-200 bg-white")}>
               <Utensils className={cn("w-16 h-16 mx-auto mb-4", isDark ? "text-zinc-700" : "text-zinc-300")} />
               <h3 className={cn("text-lg font-bold mb-2", isDark ? "text-white" : "text-zinc-900")}>Chưa có bữa ăn nào</h3>
               <p className={cn("text-sm mb-6", isDark ? "text-zinc-500" : "text-zinc-500")}>Ghi lại bữa ăn đầu tiên của bạn hôm nay!</p>
               <button 
                 onClick={() => setIsManualModalOpen(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+                className="bg-gradient-primary text-white font-bold px-6 py-3 rounded-xl transition-colors glow-primary"
               >
                 Thêm Bữa Ăn
               </button>
             </div>
           ) : filteredMeals.length === 0 ? (
-            <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-zinc-800 bg-[#1c1c1e]" : "border-zinc-200 bg-white")}>
+            <div className={cn("text-center py-8 rounded-2xl border md:col-span-2", isDark ? "border-[#1F1F1F] bg-[#141414]" : "border-zinc-200 bg-white")}>
               <p className={cn("text-sm", isDark ? "text-zinc-500" : "text-zinc-500")}>Không tìm thấy món ăn nào phù hợp.</p>
             </div>
           ) : (
             filteredMeals.map((meal, i) => (
-              <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#1c1c1e] border-zinc-800" : "bg-white border-zinc-100")}>
-                <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-inner flex items-center justify-center">
+              <div key={i} className={cn("p-3 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors group relative overflow-hidden", isDark ? "bg-[#141414] border-[#1F1F1F] hover:border-zinc-700" : "bg-white border-zinc-100 hover:border-zinc-300")}>
+                <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-[#0A0A0A] border border-zinc-200 dark:border-[#1F1F1F] shadow-inner flex items-center justify-center">
                   {meal.img ? (
                     <img className="w-full h-full object-cover" src={meal.img} alt={meal.name} referrerPolicy="no-referrer" />
                   ) : (
                     <Utensils className={cn("w-6 h-6", isDark ? "text-zinc-600" : "text-zinc-400")} />
                   )}
                 </div>
-                <div className="flex-1">
-                  <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{meal.time}</span>
-                  <h4 className={cn("font-bold text-lg leading-tight", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">{meal.time}</span>
+                  <h4 className={cn("font-bold text-base leading-tight truncate", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
                   {meal.portion && (
-                    <p className={cn("text-xs mt-0.5", isDark ? "text-zinc-500" : "text-zinc-500")}>Khẩu phần: {meal.portion}</p>
+                    <p className={cn("text-xs mt-0.5 truncate", isDark ? "text-zinc-500" : "text-zinc-500")}>Khẩu phần: {meal.portion}</p>
                   )}
-                  <div className={cn("flex items-center gap-3 text-sm mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
-                    <span className={cn("flex items-center gap-1 font-medium", isDark ? "text-zinc-300" : "text-zinc-700")}><Flame className="w-4 h-4 text-orange-400" /> {meal.cal} kcal</span>
-                    <span className="text-xs">P: {meal.protein}g</span>
-                    <span className="text-xs">C: {meal.carbs}g</span>
-                    <span className="text-xs">F: {meal.fat}g</span>
+                  <div className={cn("flex items-center gap-3 text-xs mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>
+                    <span className={cn("flex items-center gap-1 font-bold", isDark ? "text-zinc-300" : "text-zinc-700")}><Flame className="w-3 h-3 text-orange-500" /> {meal.cal} kcal</span>
+                    <span>P: {meal.protein}g</span>
+                    <span>C: {meal.carbs}g</span>
+                    <span>F: {meal.fat}g</span>
                   </div>
+                </div>
+                
+                {/* Hover Action */}
+                <div className={cn(
+                  "absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity",
+                  isDark ? "bg-gradient-to-l from-[#141414] to-transparent" : "bg-gradient-to-l from-white to-transparent"
+                )}>
+                  <button 
+                    onClick={() => {
+                      setManualMeal({ ...meal, name: meal.name + " (Copy)" });
+                      setIsManualModalOpen(true);
+                    }}
+                    className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md hover:bg-blue-600 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))
@@ -625,7 +667,7 @@ export default function Nutrition() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className={cn("rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl", isDark ? "bg-[#1c1c1e]" : "bg-white")}
+            className={cn("rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl", isDark ? "bg-[#141414] border border-[#1F1F1F]" : "bg-white")}
           >
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
@@ -643,7 +685,7 @@ export default function Nutrition() {
                     placeholder="VD: Cơm gà"
                     value={manualMeal.name}
                     onChange={(e) => setManualMeal({...manualMeal, name: e.target.value})}
-                    className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                    className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                   />
                 </div>
 
@@ -655,7 +697,7 @@ export default function Nutrition() {
                       placeholder="0"
                       value={manualMeal.cal}
                       onChange={(e) => setManualMeal({...manualMeal, cal: e.target.value})}
-                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -663,7 +705,7 @@ export default function Nutrition() {
                     <select 
                       value={manualMeal.time}
                       onChange={(e) => setManualMeal({...manualMeal, time: e.target.value})}
-                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all appearance-none", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all appearance-none", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     >
                       <option>Bữa sáng</option>
                       <option>Bữa trưa</option>
@@ -681,7 +723,7 @@ export default function Nutrition() {
                       placeholder="0"
                       value={manualMeal.protein}
                       onChange={(e) => setManualMeal({...manualMeal, protein: e.target.value})}
-                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -691,7 +733,7 @@ export default function Nutrition() {
                       placeholder="0"
                       value={manualMeal.carbs}
                       onChange={(e) => setManualMeal({...manualMeal, carbs: e.target.value})}
-                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -701,7 +743,7 @@ export default function Nutrition() {
                       placeholder="0"
                       value={manualMeal.fat}
                       onChange={(e) => setManualMeal({...manualMeal, fat: e.target.value})}
-                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
+                      className={cn("w-full p-3 rounded-xl border outline-none focus:ring-2 ring-black/5 transition-all", isDark ? "bg-[#141414] border-[#1F1F1F] text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900")}
                     />
                   </div>
                 </div>
@@ -732,7 +774,7 @@ export default function Nutrition() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className={cn("rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl", isDark ? "bg-[#1c1c1e]" : "bg-white")}
+            className={cn("rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl", isDark ? "bg-[#141414] border border-[#1F1F1F]" : "bg-white")}
           >
             <div className="relative h-48">
               <img src={pendingMeal.img} alt="Food" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
@@ -783,7 +825,7 @@ export default function Nutrition() {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-zinc-50 border-zinc-100")}>
                   <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Chất đạm</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
@@ -795,7 +837,7 @@ export default function Nutrition() {
                     <span className={cn("text-xs", isDark ? "text-zinc-500" : "text-zinc-500")}>g</span>
                   </div>
                 </div>
-                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-zinc-50 border-zinc-100")}>
                   <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Tinh bột</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
@@ -807,7 +849,7 @@ export default function Nutrition() {
                     <span className={cn("text-xs", isDark ? "text-zinc-500" : "text-zinc-500")}>g</span>
                   </div>
                 </div>
-                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100")}>
+                <div className={cn("p-3 rounded-2xl border text-center", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-zinc-50 border-zinc-100")}>
                   <div className={cn("text-xs font-medium mb-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Chất béo</div>
                   <div className="flex items-center justify-center gap-1">
                     <input 
