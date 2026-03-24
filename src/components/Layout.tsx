@@ -71,7 +71,7 @@ export default function Layout() {
                 cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative",
                   isActive
-                    ? isDark ? "text-blue-400 font-medium" : "text-blue-600 font-medium"
+                    ? isDark ? "text-green-400 font-medium" : "text-green-600 font-medium"
                     : isDark ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
                 )
               }
@@ -81,7 +81,7 @@ export default function Layout() {
                   {isActive && (
                     <motion.div
                       layoutId="desktop-nav-indicator"
-                      className="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl glow-primary"
+                      className="absolute inset-0 bg-green-500/10 dark:bg-green-500/20 rounded-xl glow-primary"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -199,7 +199,7 @@ export default function Layout() {
                 cn(
                   "flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all duration-200 relative",
                   isActive
-                    ? isDark ? "text-blue-400 font-medium" : "text-blue-600 font-medium"
+                    ? isDark ? "text-green-400 font-medium" : "text-green-600 font-medium"
                     : isDark ? "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"
                 )
               }
@@ -209,7 +209,7 @@ export default function Layout() {
                   {isActive && (
                     <motion.div
                       layoutId="mobile-nav-indicator"
-                      className="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl glow-primary"
+                      className="absolute inset-0 bg-green-500/10 dark:bg-green-500/20 rounded-xl glow-primary"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}

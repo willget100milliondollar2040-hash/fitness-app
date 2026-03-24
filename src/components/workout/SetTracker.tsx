@@ -58,7 +58,7 @@ export function SetTracker({
           value={set.kg}
           onChange={(e) => onUpdate(exerciseId, set.id, "kg", e.target.value)}
           className={cn(
-            "w-full text-center font-bold outline-none rounded-lg py-2 transition-colors border border-transparent focus:border-blue-500",
+            "w-full text-center font-bold outline-none rounded-lg py-2 transition-colors border border-transparent focus:border-green-500",
             set.completed ? (isDark ? "bg-transparent text-white" : "bg-transparent text-zinc-900") : (isDark ? "text-white bg-[#1F1F1F]/80 focus:bg-[#1F1F1F]" : "text-zinc-900 bg-zinc-100 focus:bg-white focus:shadow-sm")
           )}
         />
@@ -70,7 +70,7 @@ export function SetTracker({
           value={set.reps}
           onChange={(e) => onUpdate(exerciseId, set.id, "reps", e.target.value)}
           className={cn(
-            "w-full text-center font-bold outline-none rounded-lg py-2 transition-colors border border-transparent focus:border-blue-500",
+            "w-full text-center font-bold outline-none rounded-lg py-2 transition-colors border border-transparent focus:border-green-500",
             set.completed ? (isDark ? "bg-transparent text-white" : "bg-transparent text-zinc-900") : (isDark ? "text-white bg-[#1F1F1F]/80 focus:bg-[#1F1F1F]" : "text-zinc-900 bg-zinc-100 focus:bg-white focus:shadow-sm")
           )}
         />

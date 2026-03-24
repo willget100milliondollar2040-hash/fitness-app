@@ -79,7 +79,7 @@ export function WorkoutSummary({
           isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100",
         )}
       >
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-400 to-zinc-400 dark:to-zinc-600 opacity-20" />
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-green-400 to-zinc-400 dark:to-zinc-600 opacity-20" />
 
         <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg relative z-10 text-4xl">
           🎉
@@ -106,16 +106,16 @@ export function WorkoutSummary({
           <div
             className={cn(
               "rounded-2xl p-3 flex flex-col items-center justify-center",
-              isDark ? "bg-blue-500/10" : "bg-blue-50",
+              isDark ? "bg-green-500/10" : "bg-green-50",
             )}
           >
-            <div className="text-blue-500 font-bold text-lg mb-1">
+            <div className="text-green-500 font-bold text-lg mb-1">
               {formatTime(elapsedTime)}
             </div>
             <div
               className={cn(
                 "text-[10px] font-bold uppercase tracking-wider",
-                isDark ? "text-blue-400" : "text-blue-600",
+                isDark ? "text-green-400" : "text-green-600",
               )}
             >
               Thời gian
@@ -143,16 +143,16 @@ export function WorkoutSummary({
           <div
             className={cn(
               "rounded-2xl p-3 flex flex-col items-center justify-center",
-              isDark ? "bg-purple-500/10" : "bg-purple-50",
+              isDark ? "bg-emerald-500/10" : "bg-emerald-50",
             )}
           >
-            <div className="text-purple-500 font-bold text-lg mb-1">
+            <div className="text-emerald-500 font-bold text-lg mb-1">
               {totalSets}
             </div>
             <div
               className={cn(
                 "text-[10px] font-bold uppercase tracking-wider",
-                isDark ? "text-purple-400" : "text-purple-600",
+                isDark ? "text-emerald-400" : "text-emerald-600",
               )}
             >
               Hiệp
@@ -200,7 +200,7 @@ export function WorkoutSummary({
           <button
             onClick={onFinish}
             disabled={isSaving}
-            className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-50"
+            className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-green-500/25 disabled:opacity-50"
           >
             <Home className="w-5 h-5" />{" "}
             {isSaving ? "Đang lưu..." : "Về màn hình chính"}

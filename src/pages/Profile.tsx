@@ -215,7 +215,7 @@ export default function Profile() {
   if (loading) {
     return (
       <div className={cn("min-h-screen flex items-center justify-center transition-colors duration-300", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-green-500" />
       </div>
     );
   }
@@ -231,7 +231,7 @@ export default function Profile() {
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="p-2 text-blue-500 font-bold hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-full transition-colors"
+          className="p-2 text-green-500 font-bold hover:bg-green-50 dark:hover:bg-green-500/10 rounded-full transition-colors"
         >
           {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
         </button>
@@ -249,7 +249,7 @@ export default function Profile() {
                 userEmail ? userEmail[0].toUpperCase() : "U"
               )}
             </div>
-            <label className="absolute bottom-0 right-0 p-2 bg-blue-500 text-white rounded-full shadow-lg cursor-pointer hover:bg-blue-600 transition-colors">
+            <label className="absolute bottom-0 right-0 p-2 bg-green-500 text-white rounded-full shadow-lg cursor-pointer hover:bg-green-600 transition-colors">
               <Camera className="w-4 h-4" />
               <input 
                 type="file" 
@@ -271,7 +271,7 @@ export default function Profile() {
               type="text"
               value={profile.full_name}
               onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-green-500")}
               placeholder="Nhập tên của bạn"
             />
           </div>
@@ -283,7 +283,7 @@ export default function Profile() {
                 type="number"
                 value={profile.weight}
                 onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
-                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-green-500")}
                 placeholder="0.0"
               />
             </div>
@@ -293,7 +293,7 @@ export default function Profile() {
                 type="number"
                 value={profile.height}
                 onChange={(e) => setProfile({ ...profile, height: e.target.value })}
-                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+                className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-green-500")}
                 placeholder="0"
               />
             </div>
@@ -305,7 +305,7 @@ export default function Profile() {
               type="number"
               value={profile.age}
               onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-green-500")}
               placeholder="0"
             />
           </div>
@@ -319,7 +319,7 @@ export default function Profile() {
                   onClick={() => setProfile({ ...profile, level: opt })}
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold transition-all",
-                    profile.level === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                    profile.level === opt ? "bg-green-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
                   )}
                 >
                   {opt}
@@ -337,7 +337,7 @@ export default function Profile() {
                   onClick={() => setProfile({ ...profile, frequency: opt })}
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold transition-all",
-                    profile.frequency === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                    profile.frequency === opt ? "bg-green-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
                   )}
                 >
                   {opt}
@@ -355,7 +355,7 @@ export default function Profile() {
                   onClick={() => setProfile({ ...profile, diet: opt })}
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold transition-all",
-                    profile.diet === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                    profile.diet === opt ? "bg-green-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
                   )}
                 >
                   {opt}
@@ -373,7 +373,7 @@ export default function Profile() {
                   onClick={() => setProfile({ ...profile, timeframe: opt })}
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-bold transition-all",
-                    profile.timeframe === opt ? "bg-blue-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
+                    profile.timeframe === opt ? "bg-green-500 text-white" : isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-600"
                   )}
                 >
                   {opt}
@@ -388,7 +388,7 @@ export default function Profile() {
               type="text"
               value={profile.timeframe}
               onChange={(e) => setProfile({ ...profile, timeframe: e.target.value })}
-              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-blue-500")}
+              className={cn("w-full p-4 rounded-2xl outline-none transition-all", isDark ? "bg-[#141414] border border-[#1F1F1F] focus:bg-zinc-800" : "bg-white border focus:border-green-500")}
               placeholder="VD: 12 tuần"
             />
           </div>
@@ -397,7 +397,7 @@ export default function Profile() {
             <label className={cn("block text-sm font-bold mb-3 mt-6", isDark ? "text-zinc-400" : "text-zinc-600")}>Thông báo nhắc nhở</label>
             <div className={cn("p-4 rounded-2xl flex items-center justify-between border", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
               <div className="flex items-center gap-3">
-                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", remindersEnabled ? "bg-blue-100 text-blue-600" : isDark ? "bg-zinc-800 text-zinc-500" : "bg-zinc-100 text-zinc-400")}>
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", remindersEnabled ? "bg-green-100 text-green-600" : isDark ? "bg-zinc-800 text-zinc-500" : "bg-zinc-100 text-zinc-400")}>
                   <Bell className="w-5 h-5" />
                 </div>
                 <div>
@@ -424,7 +424,7 @@ export default function Profile() {
                   onClick={handleToggleReminders}
                   className={cn(
                     "w-12 h-6 rounded-full transition-colors relative",
-                    remindersEnabled ? "bg-blue-500" : isDark ? "bg-zinc-700" : "bg-zinc-300"
+                    remindersEnabled ? "bg-green-500" : isDark ? "bg-zinc-700" : "bg-zinc-300"
                   )}
                 >
                   <div className={cn(
@@ -448,7 +448,7 @@ export default function Profile() {
                     className={cn(
                       "px-4 py-3 rounded-full text-sm font-medium transition-all",
                       isSelected 
-                        ? "bg-blue-500 text-white shadow-md" 
+                        ? "bg-green-500 text-white shadow-md" 
                         : isDark 
                           ? "bg-[#141414] border border-[#1F1F1F] text-zinc-400 hover:bg-zinc-800" 
                           : "bg-white border text-zinc-600 hover:bg-zinc-50"
@@ -465,7 +465,7 @@ export default function Profile() {
             <div className="mt-8">
               <button
                 onClick={handleInstallClick}
-                className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl font-bold transition-colors"
+                className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl font-bold transition-colors"
               >
                 <Download className="w-5 h-5" />
                 Cài đặt ứng dụng (PWA)

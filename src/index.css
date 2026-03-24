@@ -40,13 +40,13 @@
     border-color: #1F1F1F;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#22c55e] to-[#10b981];
   }
   .bg-gradient-primary {
-    @apply bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6];
+    @apply bg-gradient-to-r from-[#22c55e] to-[#10b981];
   }
   .glow-primary {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
   }
   .glow-success {
     box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);

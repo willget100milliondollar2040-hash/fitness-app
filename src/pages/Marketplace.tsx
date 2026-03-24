@@ -92,8 +92,8 @@ const MOCK_TEMPLATES = [
         subtitle: "Lưng, Xô, Tay trước, Lực bám",
         duration: "60-90 phút",
         icon_name: "Activity",
-        color: "text-blue-500",
-        bg: "bg-blue-100",
+        color: "text-green-500",
+        bg: "bg-green-100",
         exercises: [
           { name: "Australian Pull-ups / Bodyweight Rows", sets: 4, reps: 12, weight: 0 },
           { name: "Negative Pull-ups (Hạ người từ từ 3-5s)", sets: 3, reps: 5, weight: 0 },
@@ -107,8 +107,8 @@ const MOCK_TEMPLATES = [
         subtitle: "Chân, Mông, Bụng",
         duration: "60-90 phút",
         icon_name: "Dumbbell",
-        color: "text-purple-500",
-        bg: "bg-purple-100",
+        color: "text-emerald-500",
+        bg: "bg-emerald-100",
         exercises: [
           { name: "Bodyweight Squats (Ngồi xổm cơ bản)", sets: 4, reps: 20, weight: 0 },
           { name: "Alternating Lunges (Chùng chân luân phiên)", sets: 3, reps: 12, weight: 0 },
@@ -152,8 +152,8 @@ const MOCK_TEMPLATES = [
         subtitle: "Lưng, Xô, Tay trước, Lực bám",
         duration: "60-90 phút",
         icon_name: "Activity",
-        color: "text-blue-500",
-        bg: "bg-blue-100",
+        color: "text-green-500",
+        bg: "bg-green-100",
         exercises: [
           { name: "Standard Pull-ups (Kéo xà đơn cơ bản)", sets: 4, reps: 10, weight: 0 },
           { name: "Chin-ups (Kéo xà đơn hẹp tay)", sets: 3, reps: 10, weight: 0 },
@@ -167,8 +167,8 @@ const MOCK_TEMPLATES = [
         subtitle: "Đùi, Mông, Bụng",
         duration: "60-90 phút",
         icon_name: "Dumbbell",
-        color: "text-purple-500",
-        bg: "bg-purple-100",
+        color: "text-emerald-500",
+        bg: "bg-emerald-100",
         exercises: [
           { name: "Bulgarian Split Squats", sets: 4, reps: 12, weight: 0 },
           { name: "Jump Squats (Squat bật nhảy)", sets: 3, reps: 15, weight: 0 },
@@ -216,8 +216,8 @@ export default function Marketplace() {
             subtitle: routine.subtitle || `bởi ${template.author}`,
             duration: routine.duration || template.duration,
             icon_name: routine.icon_name || "Dumbbell",
-            color: routine.color || "text-blue-500",
-            bg: routine.bg || "bg-blue-100",
+            color: routine.color || "text-green-500",
+            bg: routine.bg || "bg-green-100",
             exercises: routine.exercises || []
           })
         ));
@@ -228,8 +228,8 @@ export default function Marketplace() {
           subtitle: `bởi ${template.author}`,
           duration: template.duration,
           icon_name: "Dumbbell",
-          color: "text-blue-500",
-          bg: "bg-blue-100",
+          color: "text-green-500",
+          bg: "bg-green-100",
           exercises: template.exercises || []
         });
       }
@@ -247,7 +247,7 @@ export default function Marketplace() {
     <div className={cn("p-5 space-y-8 min-h-full transition-colors duration-300 pb-24", isDark ? "bg-black text-white" : "bg-white text-zinc-900")}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h2 className={cn("text-2xl font-bold tracking-tight flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-          <ShoppingBag className="w-6 h-6 text-blue-500" />
+          <ShoppingBag className="w-6 h-6 text-green-500" />
           Cửa hàng
         </h2>
         <p className={cn("mt-1", isDark ? "text-zinc-400" : "text-zinc-500")}>Khám phá và chia sẻ các bài tập.</p>
@@ -260,7 +260,7 @@ export default function Marketplace() {
           placeholder="Tìm kiếm bài tập, tác giả, thẻ..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={cn("w-full pl-12 pr-4 py-4 border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-2xl transition-all outline-none shadow-sm", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-500 focus:bg-[#1A1A1A]" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:bg-zinc-50")}
+          className={cn("w-full pl-12 pr-4 py-4 border focus:border-green-500 focus:ring-1 focus:ring-green-500 rounded-2xl transition-all outline-none shadow-sm", isDark ? "bg-[#141414] border-[#1F1F1F] text-white placeholder:text-zinc-500 focus:bg-[#1A1A1A]" : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:bg-zinc-50")}
         />
       </div>
 
@@ -322,7 +322,7 @@ export default function Marketplace() {
                   "w-full py-3.5 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 shadow-sm",
                   isDownloading === template.id 
                     ? "bg-zinc-500 cursor-not-allowed" 
-                    : "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:shadow-blue-500/25 hover:shadow-lg"
+                    : "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 hover:shadow-green-500/25 hover:shadow-lg"
                 )}
               >
                 {isDownloading === template.id ? (

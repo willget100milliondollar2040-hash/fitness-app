@@ -181,8 +181,8 @@ export default function CreateRoutine() {
         subtitle: `${exercises.length} bài tập`,
         duration: "1h 00m",
         icon_name: "Activity",
-        color: "text-blue-500",
-        bg: "bg-blue-100",
+        color: "text-green-500",
+        bg: "bg-green-100",
         exercises: exercises, // Save the template exercises
       };
 
@@ -223,7 +223,7 @@ export default function CreateRoutine() {
       >
         <button
           onClick={() => navigate(-1)}
-          className="text-blue-500 font-medium text-lg"
+          className="text-green-500 font-medium text-lg"
         >
           Hủy
         </button>
@@ -237,7 +237,7 @@ export default function CreateRoutine() {
               ? isDark
                 ? "bg-zinc-800 text-zinc-500"
                 : "bg-zinc-200 text-zinc-400"
-              : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-md shadow-blue-500/20",
+              : "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white shadow-md shadow-green-500/20",
           )}
         >
           {isSaving ? "Đang lưu..." : "Lưu"}
@@ -287,7 +287,7 @@ export default function CreateRoutine() {
             </p>
             <button
               onClick={() => setShowAddExercise(true)}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               <Plus className="w-5 h-5" /> Thêm bài tập
             </button>
@@ -320,7 +320,7 @@ export default function CreateRoutine() {
                         className="w-12 h-12 rounded-full border border-zinc-200 dark:border-zinc-700"
                       />
                     </div>
-                    <h3 className="font-bold text-blue-500 text-lg leading-tight">
+                    <h3 className="font-bold text-green-500 text-lg leading-tight">
                       {exercise.name}
                     </h3>
                   </div>
@@ -368,7 +368,7 @@ export default function CreateRoutine() {
                 {/* Rest Timer Button */}
                 <button
                   onClick={() => setActiveRestTimerExerciseId(exercise.id)}
-                  className="flex items-center gap-1 text-sm font-medium text-blue-500 mb-4"
+                  className="flex items-center gap-1 text-sm font-medium text-green-500 mb-4"
                 >
                   <Clock className="w-4 h-4" />
                   Thời gian nghỉ: {exercise.restTimer || "Tắt"}
@@ -499,8 +499,8 @@ export default function CreateRoutine() {
               className={cn(
                 "w-full py-4 rounded-3xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-colors",
                 isDark
-                  ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
-                  : "border-blue-200 text-blue-500 hover:bg-blue-50",
+                  ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                  : "border-green-200 text-green-500 hover:bg-green-50",
               )}
             >
               <Plus className="w-5 h-5" /> Thêm bài tập
@@ -562,7 +562,7 @@ export default function CreateRoutine() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  "w-full pl-10 pr-4 py-2.5 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl transition-all outline-none",
+                  "w-full pl-10 pr-4 py-2.5 border-transparent focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl transition-all outline-none",
                   isDark
                     ? "bg-zinc-800 text-white placeholder:text-zinc-500 focus:bg-zinc-900"
                     : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400 focus:bg-white",
@@ -620,8 +620,8 @@ export default function CreateRoutine() {
                           className={cn(
                             "w-full text-left p-4 rounded-2xl font-medium shadow-sm border transition-colors",
                             isDark
-                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-blue-500/50 hover:bg-blue-500/10"
-                              : "bg-white text-zinc-900 border-zinc-100 hover:border-blue-300 hover:bg-blue-50",
+                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-green-500/50 hover:bg-green-500/10"
+                              : "bg-white text-zinc-900 border-zinc-100 hover:border-green-300 hover:bg-green-50",
                           )}
                         >
                           <div className="flex items-center gap-3">
@@ -710,7 +710,7 @@ export default function CreateRoutine() {
                     className={cn(
                       "py-3 rounded-xl font-bold text-sm transition-colors",
                       isSelected
-                        ? "bg-blue-500 text-white"
+                        ? "bg-green-500 text-white"
                         : isDark
                           ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
                           : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200",

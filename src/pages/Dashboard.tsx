@@ -46,8 +46,8 @@ const defaultRoutines: Routine[] = [
     subtitle: "Lưng, Tay trước",
     duration: "1h 10m",
     iconName: "Activity",
-    color: "text-blue-500",
-    bg: "bg-blue-100",
+    color: "text-green-500",
+    bg: "bg-green-100",
   },
   {
     id: "legs",
@@ -64,8 +64,8 @@ const defaultRoutines: Routine[] = [
     subtitle: "Toàn bộ cơ thể",
     duration: "1h 30m",
     iconName: "Activity",
-    color: "text-purple-500",
-    bg: "bg-purple-100",
+    color: "text-emerald-500",
+    bg: "bg-emerald-100",
   },
 ];
 
@@ -275,8 +275,8 @@ export default function Dashboard() {
         >
           {/* Animated Gradient Mesh Background */}
           <div className="absolute inset-0 opacity-20 dark:opacity-40">
-            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-green-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
             <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-pink-500 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
           </div>
 
@@ -310,7 +310,7 @@ export default function Dashboard() {
             {/* Example Plan Cards */}
             <div className={cn("min-w-[280px] snap-center p-5 rounded-2xl border flex flex-col gap-3", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md">Sắp tới</span>
+                <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded-md">Sắp tới</span>
                 <span className={cn("text-xs font-medium", isDark ? "text-zinc-500" : "text-zinc-400")}>17:00</span>
               </div>
               <div>
@@ -350,7 +350,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-                <Activity className="w-5 h-5 text-blue-500" />
+                <Activity className="w-5 h-5 text-green-500" />
                 Tóm tắt tuần này
               </h3>
               <span className={cn("text-xs font-medium px-2 py-1 rounded-full", isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-500")}>
@@ -373,7 +373,7 @@ export default function Dashboard() {
               </div>
             </div>
             {/* Subtle glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-500/5 rounded-full blur-3xl pointer-events-none"></div>
           </motion.div>
 
           {/* Gamification Stats */}
@@ -420,12 +420,12 @@ export default function Dashboard() {
                 : "bg-white border-zinc-100",
             )}
           >
-            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-3 relative z-10">
-              <Trophy className="w-6 h-6 text-blue-500" />
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center mb-3 relative z-10">
+              <Trophy className="w-6 h-6 text-green-500" />
             </div>
             <h3
               className={cn(
-                "text-4xl font-bold text-blue-500 relative z-10",
+                "text-4xl font-bold text-green-500 relative z-10",
               )}
             >
               {totalWorkouts}
@@ -438,7 +438,7 @@ export default function Dashboard() {
             >
               Buổi tập
             </p>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-green-500/10 rounded-full blur-2xl pointer-events-none"></div>
           </div>
         </motion.div>
         </div>
@@ -453,7 +453,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold">Lịch tập của bạn</h2>
             <button 
               onClick={() => navigate("/routine/new")}
-              className="text-sm font-bold text-blue-500 hover:text-blue-600 flex items-center gap-1"
+              className="text-sm font-bold text-green-500 hover:text-green-600 flex items-center gap-1"
             >
               <Plus className="w-4 h-4" /> Tạo mới
             </button>
@@ -598,7 +598,7 @@ export default function Dashboard() {
             )}
           >
             <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-1", isDark ? "bg-zinc-800" : "bg-zinc-100")}>
-              <ClipboardList className="w-6 h-6 text-blue-500" />
+              <ClipboardList className="w-6 h-6 text-green-500" />
             </div>
             <span className="font-bold">Tạo lịch tập</span>
           </button>
@@ -612,7 +612,7 @@ export default function Dashboard() {
             )}
           >
             <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-1", isDark ? "bg-[#1F1F1F]" : "bg-zinc-100")}>
-              <Search className="w-6 h-6 text-purple-500" />
+              <Search className="w-6 h-6 text-emerald-500" />
             </div>
             <span className="font-bold">Khám phá</span>
           </button>

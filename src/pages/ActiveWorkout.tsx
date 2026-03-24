@@ -75,8 +75,8 @@ export const getExerciseImage = (name: string) => {
 };
 
 const AVATAR_COLORS = [
-  "bg-blue-500",
-  "bg-purple-500",
+  "bg-green-500",
+  "bg-emerald-500",
   "bg-emerald-500",
   "bg-orange-500",
   "bg-rose-500",
@@ -2429,7 +2429,7 @@ export default function ActiveWorkout() {
             </div>
             <button
               onClick={() => setShowSummary(true)}
-              className="lg:hidden bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-4 py-1.5 rounded-lg font-bold transition-all active:scale-95 shadow-md shadow-blue-500/20"
+              className="lg:hidden bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white px-4 py-1.5 rounded-lg font-bold transition-all active:scale-95 shadow-md shadow-green-500/20"
             >
               Hoàn thành
             </button>
@@ -2444,12 +2444,12 @@ export default function ActiveWorkout() {
               <div
                 className={cn(
                   "text-[10px] font-bold uppercase tracking-wider mb-0.5",
-                  isDark ? "text-blue-400" : "text-blue-600",
+                  isDark ? "text-green-400" : "text-green-600",
                 )}
               >
                 Thời gian
               </div>
-              <div className="text-blue-500 font-bold font-mono text-sm leading-none">
+              <div className="text-green-500 font-bold font-mono text-sm leading-none">
                 <SimpleTimer startTime={workoutStartTime} />
               </div>
             </div>
@@ -2488,7 +2488,7 @@ export default function ActiveWorkout() {
               <div
                 className={cn(
                   "text-[10px] font-bold uppercase tracking-wider mb-0.5",
-                  isDark ? "text-purple-400" : "text-purple-600",
+                  isDark ? "text-emerald-400" : "text-emerald-600",
                 )}
               >
                 Hiệp
@@ -2496,7 +2496,7 @@ export default function ActiveWorkout() {
               <div
                 className={cn(
                   "font-bold text-sm leading-none",
-                  isDark ? "text-purple-500" : "text-purple-600",
+                  isDark ? "text-emerald-500" : "text-emerald-600",
                 )}
               >
                 {stats.setsCount}
@@ -2534,8 +2534,8 @@ export default function ActiveWorkout() {
                 className={cn(
                   "w-full py-4 rounded-2xl border-2 border-dashed font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
                   isDark
-                    ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
-                    : "border-blue-200 text-blue-500 hover:bg-blue-50",
+                    ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                    : "border-green-200 text-green-500 hover:bg-green-50",
                 )}
               >
                 <Plus className="w-5 h-5" /> Thêm bài tập
@@ -2543,7 +2543,7 @@ export default function ActiveWorkout() {
 
               <button
                 onClick={() => setShowSummary(true)}
-                className="lg:hidden w-full py-4 mt-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+                className="lg:hidden w-full py-4 mt-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-green-500/25"
               >
                 <Check className="w-6 h-6" /> Hoàn thành bài tập
               </button>
@@ -2562,14 +2562,14 @@ export default function ActiveWorkout() {
                   
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-2xl">
+                      <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-2xl">
                         ⏱️
                       </div>
                       <div>
-                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-blue-400" : "text-blue-600")}>
+                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-green-400" : "text-green-600")}>
                           Thời gian
                         </div>
-                        <div className="text-blue-500 font-bold font-mono text-xl leading-none">
+                        <div className="text-green-500 font-bold font-mono text-xl leading-none">
                           <SimpleTimer startTime={workoutStartTime} />
                         </div>
                       </div>
@@ -2590,14 +2590,14 @@ export default function ActiveWorkout() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-2xl">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-2xl">
                         🔢
                       </div>
                       <div>
-                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-purple-400" : "text-purple-600")}>
+                        <div className={cn("text-xs font-bold uppercase tracking-wider mb-1", isDark ? "text-emerald-400" : "text-emerald-600")}>
                           Số hiệp
                         </div>
-                        <div className={cn("font-bold text-xl leading-none", isDark ? "text-purple-500" : "text-purple-600")}>
+                        <div className={cn("font-bold text-xl leading-none", isDark ? "text-emerald-500" : "text-emerald-600")}>
                           {stats.setsCount}
                         </div>
                       </div>
@@ -2607,7 +2607,7 @@ export default function ActiveWorkout() {
 
                 <button
                   onClick={() => setShowSummary(true)}
-                  className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+                  className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-green-500/25"
                 >
                   <Check className="w-6 h-6" /> Hoàn thành bài tập
                 </button>
@@ -2672,7 +2672,7 @@ export default function ActiveWorkout() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  "w-full pl-10 pr-4 py-2.5 border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl transition-all outline-none",
+                  "w-full pl-10 pr-4 py-2.5 border-transparent focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl transition-all outline-none",
                   isDark
                     ? "bg-zinc-800 text-white placeholder:text-zinc-500 focus:bg-zinc-900"
                     : "bg-zinc-100 text-zinc-900 placeholder:text-zinc-400 focus:bg-white",
@@ -2734,8 +2734,8 @@ export default function ActiveWorkout() {
                           className={cn(
                             "w-full text-left p-4 rounded-2xl font-medium shadow-sm border transition-colors",
                             isDark
-                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-blue-500/50 hover:bg-blue-500/10"
-                              : "bg-white text-zinc-900 border-zinc-100 hover:border-blue-300 hover:bg-blue-50",
+                              ? "bg-[#141414] text-zinc-200 border-[#1F1F1F] hover:border-green-500/50 hover:bg-green-500/10"
+                              : "bg-white text-zinc-900 border-zinc-100 hover:border-green-300 hover:bg-green-50",
                           )}
                         >
                           <div className="flex items-center gap-3">
@@ -2878,11 +2878,11 @@ export default function ActiveWorkout() {
 
       {/* Rest Timer Floating Bar */}
       {isResting && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between z-40 animate-in slide-in-from-bottom-10 duration-300">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-gradient-to-r from-green-600 to-green-500 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between z-40 animate-in slide-in-from-bottom-10 duration-300">
           <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 animate-pulse" />
             <div>
-              <div className="text-xs text-blue-200 font-medium uppercase tracking-wider">
+              <div className="text-xs text-green-200 font-medium uppercase tracking-wider">
                 Thời gian nghỉ
               </div>
               <div className="text-2xl font-bold font-mono leading-none">
@@ -2980,7 +2980,7 @@ export default function ActiveWorkout() {
                     className={cn(
                       "py-3 rounded-xl font-bold text-sm transition-colors",
                       isSelected
-                        ? "bg-blue-500 text-white"
+                        ? "bg-green-500 text-white"
                         : isDark
                           ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
                           : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200",

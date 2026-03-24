@@ -163,7 +163,7 @@ export function ExerciseList({
             {/* Rest Timer Button */}
             <button
               onClick={() => onSetActiveRestTimer(exercise.id)}
-              className="flex items-center gap-1 text-sm font-medium text-blue-500 mb-4"
+              className="flex items-center gap-1 text-sm font-medium text-green-500 mb-4"
             >
               <Clock className="w-4 h-4" />
               Thời gian nghỉ: {exercise.restTimer || "Tắt"}

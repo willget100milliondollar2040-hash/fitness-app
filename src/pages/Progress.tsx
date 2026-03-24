@@ -71,7 +71,7 @@ const PhotoComparison = ({ before, after, beforeDate, afterDate }: { before: str
       </div>
       
       <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10 z-10 pointer-events-none text-right">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400">Sau</div>
+        <div className="text-[10px] font-bold uppercase tracking-wider text-green-400">Sau</div>
         <div className="text-xs font-medium">{afterDate}</div>
       </div>
     </div>
@@ -317,13 +317,13 @@ export default function Progress() {
           >
         <div className="flex justify-between items-center mb-6">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-            <Camera className="w-5 h-5 text-blue-500" />
+            <Camera className="w-5 h-5 text-green-500" />
             Ảnh cơ thể hàng tuần
           </h3>
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="text-sm text-blue-500 font-bold hover:underline flex items-center gap-1 disabled:opacity-50"
+            className="text-sm text-green-500 font-bold hover:underline flex items-center gap-1 disabled:opacity-50"
           >
             {isUploading ? "Đang tải..." : <><Plus className="w-4 h-4" /> Thêm ảnh</>}
           </button>
@@ -378,7 +378,7 @@ export default function Progress() {
             <button
               onClick={analyzeProgress}
               disabled={isAnalyzing}
-              className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50"
+              className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 disabled:opacity-50"
             >
               <Sparkles className={cn("w-5 h-5", isAnalyzing && "animate-spin")} />
               {isAnalyzing ? "Đang phân tích..." : "AI Phân tích tiến độ"}
@@ -388,7 +388,7 @@ export default function Progress() {
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={cn("mt-4 p-4 rounded-2xl border text-sm leading-relaxed", isDark ? "bg-blue-500/10 border-blue-500/20 text-blue-100" : "bg-blue-50 border-blue-100 text-blue-900")}
+                className={cn("mt-4 p-4 rounded-2xl border text-sm leading-relaxed", isDark ? "bg-green-500/10 border-green-500/20 text-green-100" : "bg-green-50 border-green-100 text-green-900")}
               >
                 {analysisResult}
               </motion.div>
@@ -441,8 +441,8 @@ export default function Progress() {
 
             <div className="grid grid-rows-2 gap-4 col-span-2 sm:col-span-1">
               <div className={cn("p-4 rounded-2xl border shadow-sm flex items-center gap-4 transition-colors", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}>
-                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
-                  <Activity className={cn("w-5 h-5", isDark ? "text-blue-400" : "text-blue-500")} />
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", isDark ? "bg-green-500/20" : "bg-green-100")}>
+                  <Activity className={cn("w-5 h-5", isDark ? "text-green-400" : "text-green-500")} />
                 </div>
                 <div>
                   <div className={cn("text-xl font-bold", isDark ? "text-white" : "text-zinc-900")}>{workouts.length}</div>
@@ -505,7 +505,7 @@ export default function Progress() {
         >
           <div className="flex items-center justify-between mb-6">
             <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-              <BarChart2 className="w-5 h-5 text-blue-500" />
+              <BarChart2 className="w-5 h-5 text-green-500" />
               Biểu đồ tăng trưởng (Volume)
             </h3>
           </div>
@@ -553,7 +553,7 @@ export default function Progress() {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className={cn("font-bold flex items-center gap-2", isDark ? "text-white" : "text-zinc-900")}>
-            <History className="w-5 h-5 text-blue-500" />
+            <History className="w-5 h-5 text-green-500" />
             Lịch sử tập luyện
           </h3>
           <div className="flex gap-2">
@@ -594,7 +594,7 @@ export default function Progress() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-blue-500 font-bold">{formatTime(workout.duration)}</div>
+                    <div className="text-green-500 font-bold">{formatTime(workout.duration)}</div>
                     <div className={cn("text-[10px] font-bold uppercase tracking-wider", isDark ? "text-zinc-500" : "text-zinc-400")}>{workout.sets_count} hiệp</div>
                   </div>
                 </div>

@@ -378,7 +378,7 @@ export default function Nutrition() {
           className={cn("rounded-2xl p-6 shadow-sm border flex flex-col items-center transition-colors h-full relative overflow-hidden", isDark ? "bg-[#141414] border-[#1F1F1F]" : "bg-white border-zinc-100")}
         >
           {/* Subtle glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row items-center justify-between w-full mb-6 flex-1 gap-6">
             <div className="relative w-32 h-32 shrink-0">
@@ -459,20 +459,20 @@ export default function Nutrition() {
           >
             {/* Water Fill Background */}
             <div 
-              className="absolute bottom-0 left-0 right-0 bg-blue-500/10 dark:bg-blue-500/20 transition-all duration-1000 ease-out z-0"
+              className="absolute bottom-0 left-0 right-0 bg-green-500/10 dark:bg-green-500/20 transition-all duration-1000 ease-out z-0"
               style={{ height: `${Math.min(100, (waterIntake / targetWater) * 100)}%` }}
             >
               {/* Wave effect */}
-              <div className="absolute top-0 left-0 right-0 h-2 bg-blue-500/30 dark:bg-blue-500/40 animate-pulse"></div>
+              <div className="absolute top-0 left-0 right-0 h-2 bg-green-500/30 dark:bg-green-500/40 animate-pulse"></div>
             </div>
 
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Droplets className="w-5 h-5 text-blue-500" />
+                  <Droplets className="w-5 h-5 text-green-500" />
                   <h3 className={cn("font-bold", isDark ? "text-white" : "text-zinc-900")}>Lượng nước uống</h3>
                 </div>
-                <span className={cn("text-sm font-bold", isDark ? "text-blue-400" : "text-blue-600")}>{waterIntake} / {targetWater} ml</span>
+                <span className={cn("text-sm font-bold", isDark ? "text-green-400" : "text-green-600")}>{waterIntake} / {targetWater} ml</span>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
@@ -606,7 +606,7 @@ export default function Nutrition() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">{meal.time}</span>
+                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-wider">{meal.time}</span>
                   <h4 className={cn("font-bold text-base leading-tight truncate", isDark ? "text-white" : "text-zinc-900")}>{meal.name}</h4>
                   {meal.portion && (
                     <p className={cn("text-xs mt-0.5 truncate", isDark ? "text-zinc-500" : "text-zinc-500")}>Khẩu phần: {meal.portion}</p>
@@ -629,7 +629,7 @@ export default function Nutrition() {
                       setManualMeal({ ...meal, name: meal.name + " (Copy)" });
                       setIsManualModalOpen(true);
                     }}
-                    className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md hover:bg-blue-600 transition-colors"
+                    className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md hover:bg-green-600 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
